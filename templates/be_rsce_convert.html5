@@ -1,0 +1,36 @@
+<div id="tl_maintenance_rsce_convert" class="maintenance_<?php echo $this->isActive ? 'active' : 'inactive' ?>">
+
+	<h2 class="sub_headline"><?php echo $GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_headline'] ?></h2>
+
+	<?php if ($this->isActive): ?>
+
+		<?php if ($this->failedElements): ?>
+			<div class="tl_message">
+				<?php foreach ($this->failedElements as $element): ?>
+					<p class="tl_error"><b>FAILED:</b> <?php echo $element[0] ?>-element, ID: <?php echo $element[1] ?>, Template: <?php echo $element[2] ?></p>
+				<?php endforeach ?>
+			</div>
+		<?php endif ?>
+		<div class="tl_message">
+			<p><?php echo sprintf($GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_success'], $this->elementsCount) ?>
+		</div>
+
+	<?php else: ?>
+
+		<form action="<?php echo $this->action ?>" class="tl_form" method="get">
+			<div class="tl_formbody_edit">
+				<input type="hidden" name="act" value="rsce_convert">
+				<input type="hidden" name="do" value="maintenance">
+				<input type="hidden" name="rt" value="<?php echo REQUEST_TOKEN ?>">
+			</div>
+			<div class="tl_message" style="padding-bottom: 24px">
+				<p><?php echo $GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_description'] ?></p>
+			</div>
+			<div class="tl_submit_container">
+				<input type="submit" id="rsce_convert" class="tl_submit" value="<?php echo $GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_submit'] ?>">
+			</div>
+		</form>
+
+	<?php endif ?>
+
+</div>

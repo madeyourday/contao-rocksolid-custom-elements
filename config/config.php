@@ -1,0 +1,24 @@
+<?php
+/*
+ * Copyright MADE/YOUR/DAY OG <mail@madeyourday.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+/**
+ * RockSolid Custom Elements configuration
+ *
+ * @author Martin Auswöger <martin@madeyourday.net>
+ */
+
+$GLOBALS['BE_FFL']['rsce_list_start'] = 'MadeYourDay\\Contao\\Widget\\ListStart';
+$GLOBALS['BE_FFL']['rsce_list_stop'] = 'MadeYourDay\\Contao\\Widget\\ListStop';
+$GLOBALS['BE_FFL']['rsce_list_item_start'] = 'MadeYourDay\\Contao\\Widget\\ListItemStart';
+$GLOBALS['BE_FFL']['rsce_list_item_stop'] = 'MadeYourDay\\Contao\\Widget\\ListItemStop';
+$GLOBALS['BE_FFL']['rsce_list_hidden'] = 'MadeYourDay\\Contao\\Widget\\Hidden';
+
+$GLOBALS['TL_MAINTENANCE'][] = 'MadeYourDay\\Contao\\CustomElementsConvert';
+
+// load FE_MOD and TL_CTE config from cache if possible
+MadeYourDay\Contao\CustomElements::loadConfig();
