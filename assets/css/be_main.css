@@ -59,3 +59,6 @@ p.rsce_list_description {
 .rsce_list_item .tl_modulewizard .tl_select {
 	width: 380px;
 }
+.rsce_list_item .tl_textarea {
+	width: 97%;
+}
