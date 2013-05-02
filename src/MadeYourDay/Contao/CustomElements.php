@@ -404,11 +404,20 @@ class CustomElements extends \Backend
 					continue;
 				}
 
-				$templatePaths = CustomTemplate::getTemplates($template);
-				$configPath = substr($templatePaths[0], 0, -6) . '_config.php';
-				if (!file_exists($configPath)) {
+				try {
+					$templatePaths = CustomTemplate::getTemplates($template);
+					if (empty($templatePaths[0])) {
+						continue;
+					}
+					$configPath = substr($templatePaths[0], 0, -6) . '_config.php';
+					if (!file_exists($configPath)) {
+						continue;
+					}
+				}
+				catch (\Exception $e) {
 					continue;
 				}
+
 				$config = include $configPath;
 
 				$label = isset($config['label']) ? $config['label'] : array(implode(' ', array_map('ucfirst', explode('_', substr($template, 5)))), '');
