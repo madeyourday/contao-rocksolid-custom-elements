@@ -229,9 +229,17 @@ class CustomElements extends \Backend
 	 */
 	protected function createDca($dc, $type)
 	{
-		$templatePaths = CustomTemplate::getTemplates($type);
-		$configPath = substr($templatePaths[0], 0, -6) . '_config.php';
-		if (!file_exists($configPath)) {
+		try {
+			$templatePaths = CustomTemplate::getTemplates($type);
+			if (empty($templatePaths[0])) {
+				return;
+			}
+			$configPath = substr($templatePaths[0], 0, -6) . '_config.php';
+			if (!file_exists($configPath)) {
+				return;
+			}
+		}
+		catch (\Exception $e) {
 			return;
 		}
 
