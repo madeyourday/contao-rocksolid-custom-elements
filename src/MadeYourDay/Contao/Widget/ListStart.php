@@ -32,7 +32,6 @@ class ListStart extends \Widget
 	 */
 	public function generate()
 	{
-		$GLOBALS['TL_CSS'][] = 'system/modules/rocksolid-custom-elements/assets/css/be_main.css';
 		$this->loadLanguageFile('rocksolid_custom_elements');
 
 		$toolbar = '<div class="rsce_list_toolbar">';

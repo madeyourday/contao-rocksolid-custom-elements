@@ -243,6 +243,10 @@ class CustomElements extends \Backend
 			return;
 		}
 
+		if (TL_MODE === 'BE') {
+			$GLOBALS['TL_CSS'][] = 'system/modules/rocksolid-custom-elements/assets/css/be_main.css';
+		}
+
 		$paletteFields = array();
 
 		if (count($templatePaths) > 1) {

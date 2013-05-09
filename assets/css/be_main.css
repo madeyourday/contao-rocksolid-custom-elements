@@ -62,3 +62,6 @@ p.rsce_list_description {
 .rsce_list_item .tl_textarea {
 	width: 97%;
 }
+.rsce_small_textarea .tl_textarea {
+	height: 50px;
+}
