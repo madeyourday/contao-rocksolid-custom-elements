@@ -20,5 +20,9 @@ $GLOBALS['BE_FFL']['rsce_list_hidden'] = 'MadeYourDay\\Contao\\Widget\\Hidden';
 
 $GLOBALS['TL_MAINTENANCE'][] = 'MadeYourDay\\Contao\\CustomElementsConvert';
 
+$GLOBALS['TL_PURGE']['custom']['rocksolid_custom_elements'] = array(
+	'callback' => array('MadeYourDay\\Contao\\CustomElements', 'purgeCache'),
+);
+
 // load FE_MOD and TL_CTE config from cache if possible
 MadeYourDay\Contao\CustomElements::loadConfig();

@@ -387,6 +387,19 @@ class CustomElements extends \Backend
 	}
 
 	/**
+	 * Purge cache file system/cache/rocksolid_custom_elements_config.php
+	 *
+	 * @return void
+	 */
+	public static function purgeCache()
+	{
+		$filePath = TL_ROOT . '/system/cache/rocksolid_custom_elements_config.php';
+		if (file_exists($filePath)) {
+			unlink($filePath);
+		}
+	}
+
+	/**
 	 * Load the TL_CTE and FE_MOD configuration and use caching if possible
 	 *
 	 * @return void
