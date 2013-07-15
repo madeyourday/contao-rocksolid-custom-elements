@@ -412,7 +412,7 @@ class CustomElements extends \Backend
 		if (! file_exists($fileFullPath)) {
 
 			$contents = array();
-			$contents[] = '<?php';
+			$contents[] = '<?php' . "\n";
 
 			$templates = \Controller::getTemplateGroup('rsce_');
 			foreach ($templates as $template => $label) {
