@@ -65,3 +65,7 @@ p.rsce_list_description {
 .rsce_small_textarea .tl_textarea {
 	height: 50px;
 }
+h2.sub_headline_rsce_convert {
+	color: #414652;
+	background-image: url("../img/logo.png");
+}
