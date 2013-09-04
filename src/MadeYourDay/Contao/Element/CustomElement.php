@@ -65,8 +65,40 @@ class CustomElement extends \ContentElement
 			$data = json_decode($this->rsce_data);
 		}
 
+		$data = $this->deserializeDataRecursive($data);
+
 		foreach ($data as $key => $value) {
 			$this->Template->$key = $value;
 		}
+	}
+
+	/**
+	 * Deserialize all data recursively
+	 *
+	 * @param  array|object $data data array or object
+	 * @return array|object       data passed in with deserialized values
+	 */
+	protected function deserializeDataRecursive($data)
+	{
+		foreach ($data as $key => $value) {
+			if (is_string($value) && trim($value)) {
+				if (is_object($data)) {
+					$data->$key = deserialize($value);
+				}
+				else {
+					$data[$key] = deserialize($value);
+				}
+			}
+			else if (is_array($value) || is_object($value)) {
+				if (is_object($data)) {
+					$data->$key = $this->deserializeDataRecursive($value);
+				}
+				else {
+					$data[$key] = $this->deserializeDataRecursive($value);
+				}
+			}
+		}
+
+		return $data;
 	}
 }
