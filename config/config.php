@@ -17,8 +17,12 @@ $GLOBALS['BE_FFL']['rsce_list_stop'] = 'MadeYourDay\\Contao\\Widget\\ListStop';
 $GLOBALS['BE_FFL']['rsce_list_item_start'] = 'MadeYourDay\\Contao\\Widget\\ListItemStart';
 $GLOBALS['BE_FFL']['rsce_list_item_stop'] = 'MadeYourDay\\Contao\\Widget\\ListItemStop';
 $GLOBALS['BE_FFL']['rsce_list_hidden'] = 'MadeYourDay\\Contao\\Widget\\Hidden';
+$GLOBALS['BE_FFL']['rsce_file_tree'] = 'MadeYourDay\\Contao\\Widget\\FileTree';
+$GLOBALS['BE_FFL']['rsce_page_tree'] = 'MadeYourDay\\Contao\\Widget\\PageTree';
 
 $GLOBALS['TL_MAINTENANCE'][] = 'MadeYourDay\\Contao\\CustomElementsConvert';
+
+$GLOBALS['TL_HOOKS']['executePostActions'][] = array('MadeYourDay\\Contao\\CustomElementsAjax', 'executePostActionsHook');
 
 $GLOBALS['TL_PURGE']['custom']['rocksolid_custom_elements'] = array(
 	'callback' => array('MadeYourDay\\Contao\\CustomElements', 'purgeCache'),

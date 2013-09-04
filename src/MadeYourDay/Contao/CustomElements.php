@@ -244,6 +244,7 @@ class CustomElements extends \Backend
 		}
 
 		if (TL_MODE === 'BE') {
+			$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/rocksolid-custom-elements/assets/js/be_main.js';
 			$GLOBALS['TL_CSS'][] = 'system/modules/rocksolid-custom-elements/assets/css/be_main.css';
 		}
 
@@ -329,6 +330,14 @@ class CustomElements extends \Backend
 
 		}
 		else {
+
+			// remap page and file picker to get them work without a database field
+			if ($fieldConfig['inputType'] === 'fileTree') {
+				$fieldConfig['inputType'] = 'rsce_file_tree';
+			}
+			if ($fieldConfig['inputType'] === 'pageTree') {
+				$fieldConfig['inputType'] = 'rsce_page_tree';
+			}
 
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName] = $fieldConfig;
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['eval']['alwaysSave'] = true;
