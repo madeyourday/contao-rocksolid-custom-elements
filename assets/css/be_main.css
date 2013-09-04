@@ -24,6 +24,12 @@ p.rsce_list_description {
 	background-color: #fafafa;
 	background-color: rgba(0, 0, 0, 0.02);
 }
+.rsce_list_item .tl_text_trbl {
+	background-color: #fff;
+}
+.rsce_list_item_dummy {
+	display: none;
+}
 .rsce_list_item .rsce_list_item {
 	border-color: #e9e9e9;
 	margin-bottom: 5px;

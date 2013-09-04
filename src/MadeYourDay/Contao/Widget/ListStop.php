@@ -32,6 +32,9 @@ class ListStop extends \Widget
 	 */
 	public function generate()
 	{
-		return '</fieldset>';
+		return '</fieldset>'
+			. '<script>'
+			. 'rsceInitList(\'pal_' . substr($this->strId, 0, -5) . '_start\');'
+			. '</script>';
 	}
 }

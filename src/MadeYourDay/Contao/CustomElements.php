@@ -30,6 +30,11 @@ class CustomElements extends \Backend
 	protected $saveData = array();
 
 	/**
+	 * @var array Fields configuration
+	 */
+	protected $fieldsConfig = array();
+
+	/**
 	 * tl_content DCA onload callback
 	 *
 	 * Reloads config and creates the DCA fields
@@ -54,7 +59,18 @@ class CustomElements extends \Backend
 		if ($data && substr($data, 0, 1) === '{') {
 			$this->data = json_decode($data, true);
 		}
-		$this->createDca($dc, $type);
+
+		$createFromPost = \Input::getInstance()->post('FORM_SUBMIT') === $dc->table;
+
+		if ((
+			\Environment::get('script') === 'contao/file.php' ||
+			\Environment::get('script') === 'contao/page.php'
+		) && \Input::get('field')) {
+			$this->createDca($dc, $type, $createFromPost, \Input::get('field'));
+		}
+		else {
+			$this->createDca($dc, $type, $createFromPost);
+		}
 	}
 
 	/**
@@ -72,7 +88,7 @@ class CustomElements extends \Backend
 	}
 
 	/**
-	 * Get the value of the nested data array from field name
+	 * Get the value of the nested data array $this->data from field name
 	 *
 	 * @param  string $field Field name
 	 * @return mixed         Value from $this->data
@@ -106,10 +122,10 @@ class CustomElements extends \Backend
 	}
 
 	/**
-	 * Get the reference to a value of the nested data array from field name
+	 * Get the reference to a value of the nested data array $this->saveData from field name
 	 *
 	 * @param  string $field Field name
-	 * @return mixed         Value from $this->data as reference
+	 * @return mixed         Value from $this->saveData as reference
 	 */
 	protected function &getNestedValueReference($field)
 	{
@@ -140,6 +156,40 @@ class CustomElements extends \Backend
 	}
 
 	/**
+	 * Get the config from field name
+	 *
+	 * @param  string $field Field name
+	 * @return mixed         Configuration of the field
+	 */
+	protected function getNestedConfig($field, $config)
+	{
+		$field = preg_split('(__([0-9]+)__)', substr($field, 11), -1, PREG_SPLIT_DELIM_CAPTURE);
+
+		if (!isset($config[$field[0]])) {
+			return null;
+		}
+
+		$fieldConfig =& $config[$field[0]];
+
+		for ($i = 0; isset($field[$i]); $i += 2) {
+
+			if (isset($field[$i + 1])) {
+				if (!isset($fieldConfig['fields'])) {
+					return null;
+				}
+				if (!isset($fieldConfig['fields'][$field[$i + 2]])) {
+					return null;
+				}
+				$fieldConfig =& $fieldConfig['fields'][$field[$i + 2]];
+			}
+			else {
+				return $fieldConfig;
+			}
+
+		}
+	}
+
+	/**
 	 * Field save callback
 	 *
 	 * Saves the field data to $this->saveData
@@ -150,6 +200,10 @@ class CustomElements extends \Backend
 	 */
 	public function saveCallback($value, $dc)
 	{
+		if (strpos($dc->field, '__rsce_dummy__') !== false) {
+			return;
+		}
+
 		$field = preg_split('(__([0-9]+)__)', substr($dc->field, 11), -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		$data =& $this->saveData[$field[0]];
@@ -161,6 +215,10 @@ class CustomElements extends \Backend
 					$data[$field[$i + 1]] = array();
 				}
 				if (!isset($data[$field[$i + 1]][$field[$i + 2]])) {
+					if ($field[$i + 2] === 'rsce_empty' && !isset($field[$i + 3]) && !$value) {
+						// do not save the empty field
+						break;
+					}
 					$data[$field[$i + 1]][$field[$i + 2]] = array();
 				}
 				$data =& $data[$field[$i + 1]][$field[$i + 2]];
@@ -182,52 +240,46 @@ class CustomElements extends \Backend
 	 */
 	public function saveDataCallback($value, $dc)
 	{
-		if ($key = \Input::post('rsce_new_list_item')) {
-			$data = &$this->getNestedValueReference($key);
-			array_unshift($data, array());
-		}
-
-		if ($key = \Input::post('rsce_insert_list_item')) {
-			$key = explode('__', $key);
-			$index = array_pop($key) * 1;
-			$key = implode('__', $key);
-			$data = &$this->getNestedValueReference($key);
-			array_splice($data, $index + 1, 0, array(array()));
-		}
-
-		if ($key = \Input::post('rsce_delete_list_item')) {
-			$key = explode('__', $key);
-			$index = array_pop($key) * 1;
-			$key = implode('__', $key);
-			$data = &$this->getNestedValueReference($key);
-			array_splice($data, $index, 1);
-		}
-
-		if ($key = \Input::post('rsce_move_list_item')) {
-			$key = explode(',', $key);
-			$newIndex = (int) $key[1];
-			$key = explode('__', $key[0]);
-			$index = array_pop($key) * 1;
-			$key = implode('__', $key);
-			$data = &$this->getNestedValueReference($key);
-			$item = $data[$index];
-			// remove the item
-			array_splice($data, $index, 1);
-			// inject the item to the new position
-			array_splice($data, $newIndex < 0 ? 0 : $newIndex, 0, array($item));
-		}
+		$this->prepareSaveData('rsce_field_', $this->fieldsConfig);
 
 		return json_encode($this->saveData);
 	}
 
 	/**
-	 * Create all DCA fields for the specified type
+	 * prepare the data to save and create empty arrays for empty lists
 	 *
-	 * @param  \DataContainer $dc   Data container
-	 * @param  string         $type The template name
+	 * @param  string $fieldPrefix  field prefix
+	 * @param  array  $fieldsConfig fields configuration
 	 * @return void
 	 */
-	protected function createDca($dc, $type)
+	protected function prepareSaveData($fieldPrefix, $fieldsConfig)
+	{
+		foreach ($fieldsConfig as $fieldName => $fieldConfig) {
+
+			if ($fieldConfig['inputType'] === 'list') {
+
+				// creates an empty array for a empty lists
+				$fieldData = $this->getNestedValueReference($fieldPrefix . $fieldName);
+
+				for ($dataKey = 0; isset($fieldData[$dataKey]); $dataKey++) {
+					$this->prepareSaveData($fieldPrefix . $fieldName . '__' . $dataKey . '__', $fieldConfig['fields']);
+				}
+
+			}
+
+		}
+	}
+
+	/**
+	 * Create all DCA fields for the specified type
+	 *
+	 * @param  \DataContainer $dc             Data container
+	 * @param  string         $type           The template name
+	 * @param  boolean        $createFromPost Whether to create the field structure from post data or not
+	 * @param  string         $tmpField       Field name to create temporarily for page or file tree widget ajax calls
+	 * @return void
+	 */
+	protected function createDca($dc, $type, $createFromPost = false, $tmpField = null)
 	{
 		try {
 			$templatePaths = CustomTemplate::getTemplates($type);
@@ -259,9 +311,16 @@ class CustomElements extends \Backend
 		}
 
 		$config = include $configPath;
+		$this->fieldsConfig = $config['fields'];
 
-		foreach ($config['fields'] as $fieldName => $fieldConfig) {
-			$this->createDcaItem('rsce_field_', $fieldName, $fieldConfig, $paletteFields, $dc);
+		foreach ($this->fieldsConfig as $fieldName => $fieldConfig) {
+			$this->createDcaItem('rsce_field_', $fieldName, $fieldConfig, $paletteFields, $dc, $createFromPost);
+		}
+		if ($tmpField && !in_array($tmpField, $paletteFields)) {
+			$fieldConfig = $this->getNestedConfig($tmpField, $this->fieldsConfig);
+			if ($fieldConfig) {
+				$this->createDcaItem($tmpField, '', $fieldConfig, $paletteFields, $dc, false);
+			}
 		}
 
 		$paletteFields[] = 'rsce_data';
@@ -281,15 +340,26 @@ class CustomElements extends \Backend
 	 *
 	 * This function calls itself recursively for nested data structures
 	 *
-	 * @param  string         $fieldPrefix   Field prefix, e.g. "rsce_field_"
-	 * @param  string         $fieldName     Field name
-	 * @param  array          $fieldConfig   Field configuration array
-	 * @param  array          $paletteFields Reference to the list of all fields
-	 * @param  \DataContainer $dc            Data container
+	 * @param  string         $fieldPrefix    Field prefix, e.g. "rsce_field_"
+	 * @param  string         $fieldName      Field name
+	 * @param  array          $fieldConfig    Field configuration array
+	 * @param  array          $paletteFields  Reference to the list of all fields
+	 * @param  \DataContainer $dc             Data container
+	 * @param  boolean        $createFromPost Whether to create the field structure from post data or not
 	 * @return void
 	 */
-	protected function createDcaItem($fieldPrefix, $fieldName, $fieldConfig, &$paletteFields, $dc)
+	protected function createDcaItem($fieldPrefix, $fieldName, $fieldConfig, &$paletteFields, $dc, $createFromPost)
 	{
+		if (strpos($fieldName, '__') !== false) {
+			throw new \Exception('Field name must not include "__" (' . $this->getDcaFieldValue($dc, 'type') . ': ' . $fieldName . ').');
+		}
+		if (strpos($fieldName, 'rsce_field_') !== false) {
+			throw new \Exception('Field name must not include "rsce_field_" (' . $this->getDcaFieldValue($dc, 'type') . ': ' . $fieldName . ').');
+		}
+		if (substr($fieldName, 0, 1) === '_' || substr($fieldName, -1) === '_') {
+			throw new \Exception('Field name must not start or end with "_" (' . $this->getDcaFieldValue($dc, 'type') . ': ' . $fieldName . ').');
+		}
+
 		if ($fieldConfig['inputType'] === 'list') {
 
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '_rsce_list_start'] = array(
@@ -298,28 +368,47 @@ class CustomElements extends \Backend
 			);
 			$paletteFields[] = $fieldPrefix . $fieldName . '_rsce_list_start';
 
+			$hasFields = false;
+			foreach ($fieldConfig['fields'] as $fieldConfig2) {
+				if ($fieldConfig2['inputType'] !== 'list') {
+					$hasFields = true;
+				}
+			}
+			if (!$hasFields) {
+				// add an empty field
+				$fieldConfig['fields']['rsce_empty'] = array(
+					'inputType' => 'text',
+					'eval' => array('tl_class' => 'hidden'),
+				);
+			}
+
+			$this->createDcaItemListDummy($fieldPrefix, $fieldName, $fieldConfig, &$paletteFields, $dc, $createFromPost);
+
 			$fieldData = $this->getNestedValue($fieldPrefix . $fieldName);
 
-			if (is_array($fieldData)) {
+			for (
+				$dataKey = 0;
+				$createFromPost ? $this->wasListFieldSubmitted($fieldPrefix . $fieldName, $dataKey) : isset($fieldData[$dataKey]);
+				$dataKey++
+			) {
 
-				foreach ($fieldData as $dataKey => $dataValue) {
+				$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_start'] = array(
+					'inputType' => 'rsce_list_item_start',
+					'label' => array(sprintf($fieldConfig['elementLabel'], $dataKey + 1)),
+					'eval' => array(
+						'label_template' => $fieldConfig['elementLabel'],
+					),
+				);
+				$paletteFields[] = $fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_start';
 
-					$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_start'] = array(
-						'inputType' => 'rsce_list_item_start',
-						'label' => array(sprintf($fieldConfig['elementLabel'], $dataKey + 1)),
-					);
-					$paletteFields[] = $fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_start';
-
-					foreach ($fieldConfig['fields'] as $fieldName2 => $fieldConfig2) {
-						$this->createDcaItem($fieldPrefix . $fieldName . '__' . $dataKey . '__', $fieldName2, $fieldConfig2, $paletteFields, $dc);
-					}
-
-					$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . $dataKey . '_rsce_list_item_stop'] = array(
-						'inputType' => 'rsce_list_item_stop',
-					);
-					$paletteFields[] = $fieldPrefix . $fieldName . $dataKey . '_rsce_list_item_stop';
-
+				foreach ($fieldConfig['fields'] as $fieldName2 => $fieldConfig2) {
+					$this->createDcaItem($fieldPrefix . $fieldName . '__' . $dataKey . '__', $fieldName2, $fieldConfig2, $paletteFields, $dc, $createFromPost);
 				}
+
+				$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_stop'] = array(
+					'inputType' => 'rsce_list_item_stop',
+				);
+				$paletteFields[] = $fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_stop';
 
 			}
 
@@ -349,6 +438,74 @@ class CustomElements extends \Backend
 			$paletteFields[] = $fieldPrefix . $fieldName;
 
 		}
+	}
+
+	/**
+	 * Check if a field was sumitted via POST
+	 *
+	 * @param  string $fieldName field name to check
+	 * @param  int    $dataKey   data index
+	 * @return boolean           true if the field was sumitted via POST
+	 */
+	protected function wasListFieldSubmitted($fieldName, $dataKey)
+	{
+		if (!is_array(\Input::post('FORM_FIELDS'))) {
+			return false;
+		}
+
+		if (strpos($fieldName, '__rsce_dummy__') !== false) {
+			return false;
+		}
+
+		$formFields = array_unique(trimsplit(
+			'[,;]',
+			implode(',', \Input::post('FORM_FIELDS'))
+		));
+
+		$fieldPrefix = $fieldName . '__' . $dataKey . '__';
+
+		foreach ($formFields as $field) {
+			if (substr($field, 0, strlen($fieldPrefix)) === $fieldPrefix) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Create one list item dummy with the specified parameters
+	 *
+	 * @param  string         $fieldPrefix    Field prefix, e.g. "rsce_field_"
+	 * @param  string         $fieldName      Field name
+	 * @param  array          $fieldConfig    Field configuration array
+	 * @param  array          $paletteFields  Reference to the list of all fields
+	 * @param  \DataContainer $dc             Data container
+	 * @param  boolean        $createFromPost Whether to create the field structure from post data or not
+	 * @return void
+	 */
+	protected function createDcaItemListDummy($fieldPrefix, $fieldName, $fieldConfig, &$paletteFields, $dc, $createFromPost)
+	{
+		$dataKey = 'rsce_dummy';
+
+		$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_start'] = array(
+			'inputType' => 'rsce_list_item_start',
+			'label' => array($fieldConfig['elementLabel']),
+			'eval' => array(
+				'tl_class' => 'rsce_list_item_dummy',
+				'label_template' => $fieldConfig['elementLabel'],
+			),
+		);
+		$paletteFields[] = $fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_start';
+
+		foreach ($fieldConfig['fields'] as $fieldName2 => $fieldConfig2) {
+			$this->createDcaItem($fieldPrefix . $fieldName . '__' . $dataKey . '__', $fieldName2, $fieldConfig2, $paletteFields, $dc, $createFromPost);
+		}
+
+		$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_stop'] = array(
+			'inputType' => 'rsce_list_item_stop',
+		);
+		$paletteFields[] = $fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_stop';
 	}
 
 	/**
