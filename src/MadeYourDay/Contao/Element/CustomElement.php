@@ -60,6 +60,15 @@ class CustomElement extends \ContentElement
 	 */
 	public function compile()
 	{
+		// Add an image
+		if ($this->addImage && $this->singleSRC) {
+			$fileModel = \FilesModel::findByPk($this->singleSRC);
+			if ($fileModel !== null && is_file(TL_ROOT . '/' . $fileModel->path)) {
+				$this->singleSRC = $fileModel->path;
+				$this->addImageToTemplate($this->Template, $this->arrData);
+			}
+		}
+
 		$data = array();
 		if ($this->rsce_data && substr($this->rsce_data, 0, 1) === '{') {
 			$data = json_decode($this->rsce_data);

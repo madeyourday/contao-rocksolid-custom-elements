@@ -311,6 +311,7 @@ class CustomElements extends \Backend
 		}
 
 		$config = include $configPath;
+		$standardFields = is_array($config['standardFields']) ? $config['standardFields'] : array();
 		$this->fieldsConfig = $config['fields'];
 
 		foreach ($this->fieldsConfig as $fieldName => $fieldConfig) {
@@ -326,12 +327,37 @@ class CustomElements extends \Backend
 		$paletteFields[] = 'rsce_data';
 
 		if ($dc->table === 'tl_module') {
-			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] = '{title_legend},name,type;{rsce_legend},';
+			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] = '{title_legend},name';
+			if (in_array('headline', $standardFields)) {
+				$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ',headline';
+			}
+			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ',type';
 		}
 		else {
-			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] = '{type_legend},type;{rsce_legend},';
+			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] = '{type_legend},type';
+			if (in_array('headline', $standardFields)) {
+				$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ',headline';
+			}
+			if (in_array('text', $standardFields)) {
+				$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ';{text_legend},text';
+			}
 		}
+		$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ';{rsce_legend},';
 		$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= implode(',', $paletteFields);
+		if ($dc->table === 'tl_content' && in_array('image', $standardFields)) {
+			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ';{image_legend},addImage';
+		}
+		$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ';{protected_legend:hide},protected;{expert_legend:hide},guests';
+		if (in_array('cssID', $standardFields)) {
+			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ',cssID';
+		}
+		if (in_array('space', $standardFields)) {
+			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ',space';
+		}
+		if ($dc->table === 'tl_content') {
+			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ';{invisible_legend:hide},invisible,start,stop';
+		}
+
 		$GLOBALS['TL_LANG'][$dc->table]['rsce_legend'] = $GLOBALS['TL_LANG'][$dc->table === 'tl_content' ? 'CTE' : 'FMD'][$type][0];
 	}
 
