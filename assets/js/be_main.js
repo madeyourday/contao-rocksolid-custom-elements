@@ -94,7 +94,7 @@ var renameElement = function(element) {
 	];
 
 	element.set('data-rsce-name', newName);
-	element.getElements('[data-rsce-label]').each(function(el) {
+	element.getChildren('[data-rsce-label]').each(function(el) {
 		el.set(
 			'text',
 			el.get('data-rsce-label').split('%s').join(index + 1)
@@ -164,7 +164,7 @@ var newElementAtPosition = function(listElement, position) {
 		.split(key + '__rsce_dummy')
 		.join(newKey));
 
-	newItem.getElements('[data-rsce-label]').each(function(el) {
+	newItem.getChildren('[data-rsce-label]').each(function(el) {
 		el.set(
 			'text',
 			el.get('data-rsce-label').split('%s').join(position + 1)
