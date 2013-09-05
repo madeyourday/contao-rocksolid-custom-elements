@@ -56,6 +56,9 @@ p.rsce_list_description {
 .rsce_list_item .w50 .tl_text {
 	width: 94%;
 }
+.rsce_list_item .rsce_list_item .w50 .tl_select {
+	width: 310px;
+}
 .rsce_list_item .tl_text_unit {
 	width: 74%;
 }

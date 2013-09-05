@@ -41,7 +41,8 @@ class ListStart extends \Widget
 
 		$fs = $this->Session->get('fieldset_states');
 
-		return '<fieldset'
+		return '<div class="clear"></div>'
+			. '<fieldset'
 			. ' id="pal_' . $this->strId . '"'
 			. ' class="tl_box rsce_list' . ((!isset($fs[$this->strTable][$this->strId]) || $fs[$this->strTable][$this->strId]) ? '' : ' collapsed') . '"'
 			. '>'
