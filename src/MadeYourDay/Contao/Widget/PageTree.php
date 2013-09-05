@@ -13,7 +13,7 @@ namespace MadeYourDay\Contao\Widget;
  *
  * @author Martin Auswöger <martin@madeyourday.net>
  */
-class PageTree extends \Contao\PageTree
+class PageTree extends \PageTree
 {
 	/**
 	 * construtor

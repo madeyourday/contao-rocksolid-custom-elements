@@ -13,7 +13,7 @@ namespace MadeYourDay\Contao\Widget;
  *
  * @author Martin Auswöger <martin@madeyourday.net>
  */
-class FileTree extends \Contao\FileTree
+class FileTree extends \FileTree
 {
 	/**
 	 * construtor
