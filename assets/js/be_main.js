@@ -115,13 +115,17 @@ var renameElement = function(element) {
 
 var initListSort = function(listInner) {
 
+	if (!listInner.getElements('.drag-handle').length) {
+		return;
+	}
+
 	var ds = new Scroller(document.body, {
 		onChange: function(x, y) {
 			this.element.scrollTo(this.element.getScroll().x, y);
 		}
 	});
 
-	var sort = listInner.retrieve('listSort', new Sortables(listInner, {
+	listInner.retrieve('listSort', new Sortables(listInner, {
 		contstrain: true,
 		opacity: 0.6,
 		handle: '.drag-handle',
@@ -198,7 +202,9 @@ var newElementAtPosition = function(listElement, position) {
 		renameElement(el);
 	});
 
-	listInner.retrieve('listSort').addItems(newItem);
+	if (listInner.retrieve('listSort')) {
+		listInner.retrieve('listSort').addItems(newItem);
+	}
 
 	try {
 		window.fireEvent('ajax_change');
@@ -230,7 +236,9 @@ var deleteElement = function(linkElement) {
 	var element = $(linkElement).getParent('.rsce_list_item');
 	var listInner = element.getParent('.rsce_list_inner');
 	var nextElements = element.getAllNext('.rsce_list_item');
-	listInner.retrieve('listSort').removeItems(element);
+	if (listInner.retrieve('listSort')) {
+		listInner.retrieve('listSort').removeItems(element);
+	}
 	element.destroy();
 	nextElements.each(function(nextElement) {
 		renameElement(nextElement);
