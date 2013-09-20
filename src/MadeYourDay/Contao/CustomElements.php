@@ -408,7 +408,7 @@ class CustomElements extends \Backend
 				);
 			}
 
-			$this->createDcaItemListDummy($fieldPrefix, $fieldName, $fieldConfig, &$paletteFields, $dc, $createFromPost);
+			$this->createDcaItemListDummy($fieldPrefix, $fieldName, $fieldConfig, $paletteFields, $dc, $createFromPost);
 
 			$fieldData = $this->getNestedValue($fieldPrefix . $fieldName);
 
