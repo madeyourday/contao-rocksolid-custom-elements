@@ -35,7 +35,7 @@ class CustomElements extends \Backend
 	protected $fieldsConfig = array();
 
 	/**
-	 * tl_content DCA onload callback
+	 * tl_content and tl_module DCA onload callback
 	 *
 	 * Reloads config and creates the DCA fields
 	 *
@@ -603,10 +603,29 @@ class CustomElements extends \Backend
 		$filePath = 'system/cache/rocksolid_custom_elements_config.php';
 		$fileFullPath = TL_ROOT . '/' . $filePath;
 
+		$cacheHash = md5(implode(',', array_merge(
+			glob(TL_ROOT . '/templates/rsce_*'),
+			glob(TL_ROOT . '/templates/*/rsce_*')
+		)));
+
+		if (file_exists($fileFullPath)) {
+			$fileCacheHash = null;
+			include $fileFullPath;
+			if ($fileCacheHash !== $cacheHash) {
+				// the cache file is outdated
+				unlink($fileFullPath);
+			}
+			else {
+				// the cache file is valid and loaded
+				return;
+			}
+		}
+
 		if (! file_exists($fileFullPath)) {
 
 			$contents = array();
 			$contents[] = '<?php' . "\n";
+			$contents[] = '$fileCacheHash = ' . var_export($cacheHash, true) . ';' . "\n";
 
 			$templates = \Controller::getTemplateGroup('rsce_');
 			foreach ($templates as $template => $label) {
