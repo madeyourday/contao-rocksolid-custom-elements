@@ -604,8 +604,8 @@ class CustomElements extends \Backend
 		$fileFullPath = TL_ROOT . '/' . $filePath;
 
 		$cacheHash = md5(implode(',', array_merge(
-			glob(TL_ROOT . '/templates/rsce_*'),
-			glob(TL_ROOT . '/templates/*/rsce_*')
+			glob(TL_ROOT . '/templates/rsce_*') ?: array(),
+			glob(TL_ROOT . '/templates/*/rsce_*') ?: array()
 		)));
 
 		if (file_exists($fileFullPath)) {
