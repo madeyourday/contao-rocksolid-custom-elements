@@ -587,9 +587,13 @@ class CustomElements extends \Backend
 	 */
 	public static function purgeCache()
 	{
-		$filePath = TL_ROOT . '/system/cache/rocksolid_custom_elements_config.php';
-		if (file_exists($filePath)) {
-			unlink($filePath);
+		$filePath = 'system/cache/rocksolid_custom_elements_config.php';
+		$fileFullPath = TL_ROOT . '/' . $filePath;
+
+		if (file_exists($fileFullPath)) {
+			$file = new \File($filePath, true);
+			$file->write('');
+			$file->close();
 		}
 	}
 
@@ -611,66 +615,58 @@ class CustomElements extends \Backend
 		if (file_exists($fileFullPath)) {
 			$fileCacheHash = null;
 			include $fileFullPath;
-			if ($fileCacheHash !== $cacheHash) {
-				// the cache file is outdated
-				unlink($fileFullPath);
-			}
-			else {
+			if ($fileCacheHash === $cacheHash) {
 				// the cache file is valid and loaded
 				return;
 			}
 		}
 
-		if (! file_exists($fileFullPath)) {
+		$contents = array();
+		$contents[] = '<?php' . "\n";
+		$contents[] = '$fileCacheHash = ' . var_export($cacheHash, true) . ';' . "\n";
 
-			$contents = array();
-			$contents[] = '<?php' . "\n";
-			$contents[] = '$fileCacheHash = ' . var_export($cacheHash, true) . ';' . "\n";
+		$templates = \Controller::getTemplateGroup('rsce_');
+		foreach ($templates as $template => $label) {
 
-			$templates = \Controller::getTemplateGroup('rsce_');
-			foreach ($templates as $template => $label) {
-
-				if (substr($template, -7) === '_config') {
-					continue;
-				}
-
-				try {
-					$templatePaths = CustomTemplate::getTemplates($template);
-					if (empty($templatePaths[0])) {
-						continue;
-					}
-					$configPath = substr($templatePaths[0], 0, -6) . '_config.php';
-					if (!file_exists($configPath)) {
-						continue;
-					}
-				}
-				catch (\Exception $e) {
-					continue;
-				}
-
-				$config = include $configPath;
-
-				$label = isset($config['label']) ? $config['label'] : array(implode(' ', array_map('ucfirst', explode('_', substr($template, 5)))), '');
-				$types = isset($config['types']) ? $config['types'] : array('content', 'module');
-				$contentCategory = isset($config['contentCategory']) ? $config['contentCategory'] : 'texts';
-				$moduleCategory = isset($config['moduleCategory']) ? $config['moduleCategory'] : 'miscellaneous';
-
-				if (in_array('content', $types)) {
-					$contents[] = '$GLOBALS[\'TL_CTE\'][\'' . $contentCategory . '\'][\'' . $template . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
-					$contents[] = '$GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $template . '\'] = ' . var_export($label, true) . ';';
-				}
-				if (in_array('module', $types)) {
-					$contents[] = '$GLOBALS[\'FE_MOD\'][\'' . $moduleCategory . '\'][\'' . $template . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
-					$contents[] = '$GLOBALS[\'TL_LANG\'][\'FMD\'][\'' . $template . '\'] = ' . var_export($label, true) . ';';
-				}
-
+			if (substr($template, -7) === '_config') {
+				continue;
 			}
 
-			$file = new \File($filePath, true);
-			$file->write(implode("\n", $contents));
-			$file->close();
+			try {
+				$templatePaths = CustomTemplate::getTemplates($template);
+				if (empty($templatePaths[0])) {
+					continue;
+				}
+				$configPath = substr($templatePaths[0], 0, -6) . '_config.php';
+				if (!file_exists($configPath)) {
+					continue;
+				}
+			}
+			catch (\Exception $e) {
+				continue;
+			}
+
+			$config = include $configPath;
+
+			$label = isset($config['label']) ? $config['label'] : array(implode(' ', array_map('ucfirst', explode('_', substr($template, 5)))), '');
+			$types = isset($config['types']) ? $config['types'] : array('content', 'module');
+			$contentCategory = isset($config['contentCategory']) ? $config['contentCategory'] : 'texts';
+			$moduleCategory = isset($config['moduleCategory']) ? $config['moduleCategory'] : 'miscellaneous';
+
+			if (in_array('content', $types)) {
+				$contents[] = '$GLOBALS[\'TL_CTE\'][\'' . $contentCategory . '\'][\'' . $template . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
+				$contents[] = '$GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $template . '\'] = ' . var_export($label, true) . ';';
+			}
+			if (in_array('module', $types)) {
+				$contents[] = '$GLOBALS[\'FE_MOD\'][\'' . $moduleCategory . '\'][\'' . $template . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
+				$contents[] = '$GLOBALS[\'TL_LANG\'][\'FMD\'][\'' . $template . '\'] = ' . var_export($label, true) . ';';
+			}
 
 		}
+
+		$file = new \File($filePath, true);
+		$file->write(implode("\n", $contents));
+		$file->close();
 
 		if (file_exists($fileFullPath)) {
 			include $fileFullPath;
@@ -689,11 +685,7 @@ class CustomElements extends \Backend
 	 */
 	public static function reloadConfig()
 	{
-		$filePath = TL_ROOT . '/system/cache/rocksolid_custom_elements_config.php';
-
-		if (file_exists($filePath)) {
-			unlink($filePath);
-		}
+		static::purgeCache();
 
 		return static::loadConfig();
 	}
