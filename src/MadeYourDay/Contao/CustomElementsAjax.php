@@ -44,7 +44,12 @@ class CustomElementsAjax extends \Backend
 			// Automatically add resources to the DBAFS
 			if ($widgetKey == 'rsce_file_tree') {
 				foreach ($value as $k => $v) {
-					$value[$k] = \Dbafs::addResource($v)->id;
+					if (version_compare(VERSION, '3.2', '<')) {
+						$value[$k] = \Dbafs::addResource($v)->id;
+					}
+					else {
+						$value[$k] = \Dbafs::addResource($v)->uuid;
+					}
 				}
 			}
 			$value = serialize($value);

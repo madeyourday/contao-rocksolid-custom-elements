@@ -79,6 +79,12 @@ class CustomElement extends \ContentElement
 		foreach ($data as $key => $value) {
 			$this->Template->$key = $value;
 		}
+
+		$self = $this;
+
+		$this->Template->getImageObject = function() use($self) {
+			return call_user_func_array(array($self, 'getImageObject'), func_get_args());
+		};
 	}
 
 	/**
@@ -109,5 +115,66 @@ class CustomElement extends \ContentElement
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Get an image object from id/uuid and an optional size configuration
+	 *
+	 * @param  int|string   $id   ID, UUID string or binary
+	 * @param  string|array $size [width, height, mode] optionally serialized
+	 * @return object             Image object (similar as addImageToTemplate)
+	 */
+	public function getImageObject($id, $size = null)
+	{
+		global $objPage;
+
+		if (!$id) {
+			return null;
+		}
+
+		if (version_compare(VERSION, '3.2', '<')) {
+			$image = \FilesModel::findByPk($id);
+		}
+		else {
+			if (strlen($id) === 36) {
+				$id = \String::uuidToBin($id);
+			}
+			$image = \FilesModel::findByUuid($id);
+		}
+		if (!$image) {
+			return null;
+		}
+
+		$file = new \File($image->path, true);
+		if (!$file->isGdImage) {
+			return null;
+		}
+
+		$imageMeta = $this->getMetaData($image->meta, $objPage->language);
+
+		if (is_string($size) && trim($size)) {
+			$size = deserialize($size);
+		}
+		if (!is_array($size)) {
+			$size = array(0, 0, 'center_center');
+		}
+		$size[0] = isset($size[0]) ? $size[0] : 0;
+		$size[1] = isset($size[1]) ? $size[1] : 0;
+		$size[2] = isset($size[2]) ? $size[2] : 'center_center';
+
+		$image = array(
+			'id' => $image->id,
+			'uuid' => isset($image->uuid) ? $image->uuid : null,
+			'name' => $file->basename,
+			'singleSRC' => $image->path,
+			'size' => serialize($size),
+			'alt' => $imageMeta['title'],
+			'imageUrl' => $imageMeta['link'],
+			'caption' => $imageMeta['caption'],
+		);
+
+		$imageObject = new \stdClass();
+		$this->addImageToTemplate($imageObject, $image);
+		return $imageObject;
 	}
 }

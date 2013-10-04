@@ -84,7 +84,22 @@ class CustomElements extends \Backend
 	 */
 	public function loadCallback($value, $dc)
 	{
-		return $this->getNestedValue($dc->field);
+		$value = $this->getNestedValue($dc->field);
+
+		if (
+			version_compare(VERSION, '3.2', '>=') &&
+			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'rsce_file_tree' &&
+			$value
+		) {
+			if (strlen($value) === 36) {
+				$value = \String::uuidToBin($value);
+			}
+			else {
+				$value = serialize(array_map('String::uuidToBin', deserialize($value)));
+			}
+		}
+
+		return $value;
 	}
 
 	/**
@@ -202,6 +217,23 @@ class CustomElements extends \Backend
 	{
 		if (strpos($dc->field, '__rsce_dummy__') !== false) {
 			return;
+		}
+
+		if (
+			version_compare(VERSION, '3.2', '>=') &&
+			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'rsce_file_tree'
+		) {
+			if (trim($value)) {
+				if (strlen($value) === 16) {
+					$value = \String::binToUuid($value);
+				}
+				else {
+					$value = serialize(array_map('String::binToUuid', deserialize($value)));
+				}
+			}
+			else {
+				$value = '';
+			}
 		}
 
 		$field = preg_split('(__([0-9]+)__)', substr($dc->field, 11), -1, PREG_SPLIT_DELIM_CAPTURE);
