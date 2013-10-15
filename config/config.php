@@ -28,5 +28,9 @@ $GLOBALS['TL_PURGE']['custom']['rocksolid_custom_elements'] = array(
 	'callback' => array('MadeYourDay\\Contao\\CustomElements', 'purgeCache'),
 );
 
+// Insert the custom_elements category
+array_insert($GLOBALS['TL_CTE'], 1, array('custom_elements' => array()));
+array_insert($GLOBALS['FE_MOD'], 0, array('custom_elements' => array()));
+
 // load FE_MOD and TL_CTE config from cache if possible
 MadeYourDay\Contao\CustomElements::loadConfig();

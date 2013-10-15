@@ -682,8 +682,8 @@ class CustomElements extends \Backend
 
 			$label = isset($config['label']) ? $config['label'] : array(implode(' ', array_map('ucfirst', explode('_', substr($template, 5)))), '');
 			$types = isset($config['types']) ? $config['types'] : array('content', 'module');
-			$contentCategory = isset($config['contentCategory']) ? $config['contentCategory'] : 'texts';
-			$moduleCategory = isset($config['moduleCategory']) ? $config['moduleCategory'] : 'miscellaneous';
+			$contentCategory = isset($config['contentCategory']) ? $config['contentCategory'] : 'custom_elements';
+			$moduleCategory = isset($config['moduleCategory']) ? $config['moduleCategory'] : 'custom_elements';
 
 			if (in_array('content', $types)) {
 				$contents[] = '$GLOBALS[\'TL_CTE\'][\'' . $contentCategory . '\'][\'' . $template . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
