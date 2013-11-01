@@ -61,8 +61,13 @@ class CustomElement extends \ContentElement
 	public function compile()
 	{
 		// Add an image
-		if ($this->addImage && $this->singleSRC) {
-			$fileModel = \FilesModel::findByPk($this->singleSRC);
+		if ($this->addImage && trim($this->singleSRC)) {
+			if (version_compare(VERSION, '3.2', '<')) {
+				$fileModel = \FilesModel::findByPk($this->singleSRC);
+			}
+			else {
+				$fileModel = \FilesModel::findByUuid($this->singleSRC);
+			}
 			if ($fileModel !== null && is_file(TL_ROOT . '/' . $fileModel->path)) {
 				$this->singleSRC = $fileModel->path;
 				$this->addImageToTemplate($this->Template, $this->arrData);
