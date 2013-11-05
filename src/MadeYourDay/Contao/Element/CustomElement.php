@@ -137,14 +137,14 @@ class CustomElement extends \ContentElement
 			return null;
 		}
 
-		if (version_compare(VERSION, '3.2', '<')) {
-			$image = \FilesModel::findByPk($id);
+		if (strlen($id) === 36) {
+			$id = \String::uuidToBin($id);
+		}
+		if (strlen($id) === 16) {
+			$image = \FilesModel::findByUuid($id);
 		}
 		else {
-			if (strlen($id) === 36) {
-				$id = \String::uuidToBin($id);
-			}
-			$image = \FilesModel::findByUuid($id);
+			$image = \FilesModel::findByPk($id);
 		}
 		if (!$image) {
 			return null;
