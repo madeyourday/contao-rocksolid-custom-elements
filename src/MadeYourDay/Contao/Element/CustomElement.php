@@ -201,8 +201,11 @@ class CustomElement extends \ContentElement
 		$config = ColumnsStart::getColumnsConfiguration($this->arrData);
 
 		$classes = array('rs-column');
-		foreach ($config as $media) {
+		foreach ($config as $name => $media) {
 			$classes = array_merge($classes, $media[$index % count($media)]);
+			if ($index < count($media)) {
+				$classes[] = '-' . $name . '-first-row';
+			}
 		}
 
 		return implode(' ', $classes);
