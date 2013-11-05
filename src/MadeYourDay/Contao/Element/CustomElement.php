@@ -90,6 +90,9 @@ class CustomElement extends \ContentElement
 		$this->Template->getImageObject = function() use($self) {
 			return call_user_func_array(array($self, 'getImageObject'), func_get_args());
 		};
+		$this->Template->getColumnClassName = function() use($self) {
+			return call_user_func_array(array($self, 'getColumnClassName'), func_get_args());
+		};
 	}
 
 	/**
@@ -181,5 +184,27 @@ class CustomElement extends \ContentElement
 		$imageObject = new \stdClass();
 		$this->addImageToTemplate($imageObject, $image);
 		return $imageObject;
+	}
+
+	/**
+	 * Get the column class name for the specified index
+	 *
+	 * @param  int    $index Index of the column
+	 * @return string        Class name(s)
+	 */
+	public function getColumnClassName($index)
+	{
+		if (!class_exists('MadeYourDay\\Contao\\Element\\ColumnsStart')) {
+			return '';
+		}
+
+		$config = ColumnsStart::getColumnsConfiguration($this->arrData);
+
+		$classes = array('rs-column');
+		foreach ($config as $media) {
+			$classes = array_merge($classes, $media[$index % count($media)]);
+		}
+
+		return implode(' ', $classes);
 	}
 }

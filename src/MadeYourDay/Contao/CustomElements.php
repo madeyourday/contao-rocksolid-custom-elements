@@ -370,6 +370,9 @@ class CustomElements extends \Backend
 			if (in_array('headline', $standardFields)) {
 				$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ',headline';
 			}
+			if (in_array('columns', $standardFields)) {
+				$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ';{rs_columns_legend},rs_columns_large,rs_columns_medium,rs_columns_small';
+			}
 			if (in_array('text', $standardFields)) {
 				$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ';{text_legend},text';
 			}
