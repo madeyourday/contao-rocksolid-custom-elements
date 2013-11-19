@@ -91,11 +91,28 @@ class CustomElements extends \Backend
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'rsce_file_tree' &&
 			$value
 		) {
-			if (strlen($value) === 36) {
-				$value = \String::uuidToBin($value);
+			// Multiple files
+			if (substr($value, 0, 2) === 'a:') {
+				$value = serialize(array_map(function($value) {
+					if (strlen($value) === 36) {
+						$value = \String::uuidToBin($value);
+					}
+					else if (is_numeric($value) && $file = \FilesModel::findByPk($value)) {
+						// Convert 3.1 format into 3.2 format
+						$value = $file->uuid;
+					}
+					return $value;
+				}, deserialize($value)));
 			}
+			// Single file
 			else {
-				$value = serialize(array_map('String::uuidToBin', deserialize($value)));
+				if (strlen($value) === 36) {
+					$value = \String::uuidToBin($value);
+				}
+				else if (is_numeric($value) && $file = \FilesModel::findByPk($value)) {
+					// Convert 3.1 format into 3.2 format
+					$value = $file->uuid;
+				}
 			}
 		}
 
