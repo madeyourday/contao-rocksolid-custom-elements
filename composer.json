@@ -21,6 +21,7 @@
 		"php":">=5.3",
 		"contao/core":">=3,<4",
 		"contao-community-alliance/composer-installer":"*",
+		"madeyourday/contao-rocksolid-columns":"~1.0",
 		"madeyourday/contao-rocksolid-icon-picker":"~1.0"
 	},
 	"autoload":{
