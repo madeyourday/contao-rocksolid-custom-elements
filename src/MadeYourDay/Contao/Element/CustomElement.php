@@ -31,6 +31,14 @@ class CustomElement extends \ContentElement
 	{
 		$this->strTemplate = $this->type;
 
+		if (TL_MODE === 'BE' && (
+			in_array($this->type, $GLOBALS['TL_WRAPPERS']['start'])
+			|| in_array($this->type, $GLOBALS['TL_WRAPPERS']['stop'])
+			|| in_array($this->type, $GLOBALS['TL_WRAPPERS']['separator'])
+		)) {
+			return '';
+		}
+
 		try {
 			return parent::generate();
 		}

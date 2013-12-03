@@ -745,6 +745,9 @@ class CustomElements extends \Backend
 			if (in_array('content', $types)) {
 				$contents[] = '$GLOBALS[\'TL_CTE\'][\'' . $contentCategory . '\'][\'' . $template . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
 				$contents[] = '$GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $template . '\'] = ' . var_export($label, true) . ';';
+				if (!empty($config['wrapper']['type'])) {
+					$contents[] = '$GLOBALS[\'TL_WRAPPERS\'][' . var_export($config['wrapper']['type'], true) . '][] = ' . var_export($template, true) . ';';
+				}
 			}
 			if (in_array('module', $types)) {
 				$contents[] = '$GLOBALS[\'FE_MOD\'][\'' . $moduleCategory . '\'][\'' . $template . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
