@@ -330,18 +330,29 @@ class CustomElements extends \Backend
 	 */
 	protected function createDca($dc, $type, $createFromPost = false, $tmpField = null)
 	{
+		$configPath = null;
+
 		try {
 			$templatePaths = CustomTemplate::getTemplates($type);
-			if (empty($templatePaths[0])) {
-				return;
-			}
-			$configPath = substr($templatePaths[0], 0, -6) . '_config.php';
-			if (!file_exists($configPath)) {
-				return;
+			if (!empty($templatePaths[0])) {
+				$configPath = substr($templatePaths[0], 0, -6) . '_config.php';
 			}
 		}
 		catch (\Exception $e) {
-			return;
+			$configPath = null;
+		}
+
+		if ($configPath === null || !file_exists($configPath)) {
+			$allConfigs = array_merge(
+				glob(TL_ROOT . '/templates/' . $type . '_config.php') ?: array(),
+				glob(TL_ROOT . '/templates/*/' . $type . '_config.php') ?: array()
+			);
+			if (count($allConfigs)) {
+				$configPath = $allConfigs[0];
+			}
+			else {
+				return;
+			}
 		}
 
 		if (TL_MODE === 'BE') {
@@ -678,24 +689,50 @@ class CustomElements extends \Backend
 		$contents[] = '$fileCacheHash = ' . var_export($cacheHash, true) . ';' . "\n";
 
 		$templates = \Controller::getTemplateGroup('rsce_');
+
+		$allConfigs = array_merge(
+			glob(TL_ROOT . '/templates/rsce_*_config.php') ?: array(),
+			glob(TL_ROOT . '/templates/*/rsce_*_config.php') ?: array()
+		);
+		$fallbackConfigPaths = array();
+
+		foreach ($allConfigs as $configPath) {
+			$templateName = basename($configPath, '_config.php');
+			if (file_exists(substr($configPath, 0, -11) . '.html5')) {
+				if (!isset($templates[$templateName])) {
+					$templates[$templateName] = $templateName;
+				}
+				if (!isset($fallbackConfigPaths[$templateName])) {
+					$fallbackConfigPaths[$templateName] = $configPath;
+				}
+			}
+		}
+
 		foreach ($templates as $template => $label) {
 
 			if (substr($template, -7) === '_config') {
 				continue;
 			}
 
+			$configPath = null;
+
 			try {
 				$templatePaths = CustomTemplate::getTemplates($template);
-				if (empty($templatePaths[0])) {
-					continue;
-				}
-				$configPath = substr($templatePaths[0], 0, -6) . '_config.php';
-				if (!file_exists($configPath)) {
-					continue;
+				if (!empty($templatePaths[0])) {
+					$configPath = substr($templatePaths[0], 0, -6) . '_config.php';
 				}
 			}
 			catch (\Exception $e) {
-				continue;
+				$configPath = null;
+			}
+
+			if ($configPath === null || !file_exists($configPath)) {
+				if (isset($fallbackConfigPaths[$template])) {
+					$configPath = $fallbackConfigPaths[$template];
+				}
+				else {
+					continue;
+				}
 			}
 
 			$config = include $configPath;

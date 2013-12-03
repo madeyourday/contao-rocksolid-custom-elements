@@ -59,6 +59,14 @@ class CustomTemplate extends \FrontendTemplate
 			$templates[] = TL_ROOT . '/templates/' . $template . '.' . $format;
 		}
 
+		// Add templates of inactive themes to the bottom of the templates array
+		$allFiles = glob(TL_ROOT . '/templates/*/' . $template . '.' . $format) ?: array();
+		foreach ($allFiles as $file) {
+			if (!in_array($file, $templates)) {
+				$templates[] = $file;
+			}
+		}
+
 		if (count($templates)) {
 			return $templates;
 		}
