@@ -94,8 +94,8 @@ class CustomElements extends \Backend
 			$value
 		) {
 			// Multiple files
-			if (substr($value, 0, 2) === 'a:') {
-				$value = serialize(array_map(function($value) {
+			if (is_array($value)) {
+				$value = array_map(function($value) {
 					if (strlen($value) === 36) {
 						$value = \String::uuidToBin($value);
 					}
@@ -104,11 +104,11 @@ class CustomElements extends \Backend
 						$value = $file->uuid;
 					}
 					return $value;
-				}, deserialize($value)));
+				}, $value);
 			}
 			// Single file
 			else {
-				if (strlen($value) === 36) {
+				if (is_string($value) && strlen($value) === 36) {
 					$value = \String::uuidToBin($value);
 				}
 				else if (is_numeric($value) && $file = \FilesModel::findByPk($value)) {
@@ -238,17 +238,33 @@ class CustomElements extends \Backend
 			return;
 		}
 
+		$serializedTypes = array(
+			'inputUnit',
+			'trbl',
+			'chmod',
+			'tableWizard',
+			'listWizard',
+			'optionWizard',
+			'moduleWizard',
+			'checkboxWizard',
+		);
+
+		if (
+			in_array($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'], $serializedTypes)
+			|| !empty($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['multiple'])
+		) {
+			$value = trim($value) ? deserialize($value) : $value;
+		}
+
 		if (
 			version_compare(VERSION, '3.2', '>=') &&
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'rsce_file_tree'
 		) {
-			if (trim($value)) {
-				if (strlen($value) === 16) {
-					$value = \String::binToUuid($value);
-				}
-				else {
-					$value = serialize(array_map('String::binToUuid', deserialize($value)));
-				}
+			if (is_string($value) && strlen($value) === 16) {
+				$value = \String::binToUuid($value);
+			}
+			else if(is_array($value)) {
+				$value = array_map('String::binToUuid', $value);
 			}
 			else {
 				$value = '';
