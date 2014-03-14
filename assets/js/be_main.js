@@ -113,6 +113,40 @@ var renameElement = function(element) {
 
 };
 
+var removeTinyMCEs = function(element) {
+
+	element = $(element);
+
+	var editors = window.tinymce ? window.tinymce.editors || [] : [];
+	var textarea, textareas;
+	for (var i = editors.length - 1; i >= 0; i--) {
+		textarea = editors[i].getElement();
+		if (element.contains(textarea)) {
+			textareas = element.retrieve('rsce_tinyMCE_textareas', []);
+			textareas.push({
+				textarea: textarea,
+				settings: Object.append({}, editors[i].settings)
+			});
+			element.store('rsce_tinyMCE_textareas', textareas);
+			editors[i].remove();
+		}
+	}
+
+};
+
+var restoreTinyMCEs = function(element) {
+
+	element = $(element);
+
+	if (window.tinymce && window.tinymce.Editor) {
+		element.retrieve('rsce_tinyMCE_textareas', []).each(function(data) {
+			new window.tinymce.Editor(data.textarea.get('id'), data.settings).render();
+		});
+		element.store('rsce_tinyMCE_textareas', []);
+	}
+
+};
+
 var initListSort = function(listInner) {
 
 	if (!listInner.getElements('.drag-handle').length) {
@@ -129,13 +163,20 @@ var initListSort = function(listInner) {
 		contstrain: true,
 		opacity: 0.6,
 		handle: '.drag-handle',
-		onStart: function() {
+		onStart: function(element) {
+			removeTinyMCEs(element);
 			ds.start();
 		},
 		onComplete: function() {
 			ds.stop();
 			listInner.getChildren('.rsce_list_item').each(function(el) {
+				removeTinyMCEs(el);
+			});
+			listInner.getChildren('.rsce_list_item').each(function(el) {
 				renameElement(el);
+			});
+			listInner.getChildren('.rsce_list_item').each(function(el) {
+				restoreTinyMCEs(el);
 			});
 		}
 	}));
@@ -158,6 +199,11 @@ var newElementAtPosition = function(listElement, position) {
 	var allItems = listInner.getChildren('.rsce_list_item');
 	var newItem = new Element('div', {'class': 'rsce_list_item'});
 
+	allItems.each(function(el) {
+		removeTinyMCEs(el);
+	});
+	removeTinyMCEs(dummyItem);
+
 	var key = dummyItem.get('data-rsce-name')
 		.substr(0, dummyItem.get('data-rsce-name').length - 12);
 	var newKey = key + '__' + position;
@@ -167,6 +213,23 @@ var newElementAtPosition = function(listElement, position) {
 	newItem.set('html', dummyItem.get('html')
 		.split(key + '__rsce_dummy')
 		.join(newKey));
+
+	var newItemTextareas = [];
+	dummyItem.retrieve('rsce_tinyMCE_textareas', []).each(function(data) {
+		var newData = {
+			settings: Object.append({}, data.settings)
+		};
+		// Get textarea by id does not work here
+		newItem.getElements('textarea').each(function(el) {
+			if (el.get('id') === data.textarea.get('id').split(key + '__rsce_dummy').join(newKey)) {
+				newData.textarea = el;
+			}
+		});
+		if (newData.textarea) {
+			newItemTextareas.push(newData);
+		}
+	});
+	newItem.store('rsce_tinyMCE_textareas', newItemTextareas);
 
 	newItem.getChildren('[data-rsce-label]').each(function(el) {
 		el.set(
@@ -202,6 +265,11 @@ var newElementAtPosition = function(listElement, position) {
 		renameElement(el);
 	});
 
+	allItems.each(function(el) {
+		restoreTinyMCEs(el);
+	});
+	restoreTinyMCEs(newItem);
+
 	if (listInner.retrieve('listSort')) {
 		listInner.retrieve('listSort').addItems(newItem);
 	}
@@ -236,12 +304,19 @@ var deleteElement = function(linkElement) {
 	var element = $(linkElement).getParent('.rsce_list_item');
 	var listInner = element.getParent('.rsce_list_inner');
 	var nextElements = element.getAllNext('.rsce_list_item');
+	removeTinyMCEs(element);
 	if (listInner.retrieve('listSort')) {
 		listInner.retrieve('listSort').removeItems(element);
 	}
 	element.destroy();
 	nextElements.each(function(nextElement) {
+		removeTinyMCEs(nextElement);
+	});
+	nextElements.each(function(nextElement) {
 		renameElement(nextElement);
+	});
+	nextElements.each(function(nextElement) {
+		restoreTinyMCEs(nextElement);
 	});
 
 	$(document.body).getChildren('.tip-wrap').each(function(el) {
@@ -269,9 +344,19 @@ var moveElement = function(linkElement, offset) {
 		return;
 	}
 
+	// The order is important to prevent id conflicts:
+	// remove tinyMCEs => move the element => rename => restoring tinyMCEs
+
+	removeTinyMCEs(swapElement);
+	removeTinyMCEs(element);
+
 	element.inject(swapElement, offset > 0 ? 'after' : 'before');
+
 	renameElement(swapElement);
 	renameElement(element);
+
+	restoreTinyMCEs(swapElement);
+	restoreTinyMCEs(element);
 
 };
 
