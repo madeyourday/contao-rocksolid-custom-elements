@@ -136,11 +136,12 @@ class CustomElement extends \ContentElement
 	/**
 	 * Get an image object from id/uuid and an optional size configuration
 	 *
-	 * @param  int|string   $id   ID, UUID string or binary
-	 * @param  string|array $size [width, height, mode] optionally serialized
-	 * @return object             Image object (similar as addImageToTemplate)
+	 * @param  int|string   $id      ID, UUID string or binary
+	 * @param  string|array $size    [width, height, mode] optionally serialized
+	 * @param  int          $maxSize Gets passed to addImageToTemplate
+	 * @return object                Image object (similar as addImageToTemplate)
 	 */
-	public function getImageObject($id, $size = null)
+	public function getImageObject($id, $size = null, $maxSize = null)
 	{
 		global $objPage;
 
@@ -190,7 +191,7 @@ class CustomElement extends \ContentElement
 		);
 
 		$imageObject = new \stdClass();
-		$this->addImageToTemplate($imageObject, $image);
+		$this->addImageToTemplate($imageObject, $image, $maxSize);
 		return $imageObject;
 	}
 
