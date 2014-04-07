@@ -578,7 +578,6 @@ class CustomElements extends \Backend
 			. '</a>';
 	}
 
-
 	/**
 	 * Check if a field was sumitted via POST
 	 *
@@ -757,6 +756,19 @@ class CustomElements extends \Backend
 			}
 		}
 
+		$themes = \Database::getInstance()
+			->prepare('SELECT name, templates FROM tl_theme')
+			->execute()
+			->fetchAllAssoc();
+		$themeNamesByTemplateDir = array();
+		foreach ($themes as $theme) {
+			if ($theme['templates']) {
+				$themeNamesByTemplateDir[$theme['templates']] = $theme['name'];
+			}
+		}
+
+		$elements = array();
+
 		foreach ($templates as $template => $label) {
 
 			if (substr($template, -7) === '_config') {
@@ -786,23 +798,61 @@ class CustomElements extends \Backend
 
 			$config = include $configPath;
 
-			$label = isset($config['label']) ? $config['label'] : array(implode(' ', array_map('ucfirst', explode('_', substr($template, 5)))), '');
-			$types = isset($config['types']) ? $config['types'] : array('content', 'module');
-			$contentCategory = isset($config['contentCategory']) ? $config['contentCategory'] : 'custom_elements';
-			$moduleCategory = isset($config['moduleCategory']) ? $config['moduleCategory'] : 'custom_elements';
+			$element = array(
+				'config' => $config,
+				'label' => isset($config['label']) ? $config['label'] : array(implode(' ', array_map('ucfirst', explode('_', substr($template, 5)))), ''),
+				'types' => isset($config['types']) ? $config['types'] : array('content', 'module'),
+				'contentCategory' => isset($config['contentCategory']) ? $config['contentCategory'] : 'custom_elements',
+				'moduleCategory' => isset($config['moduleCategory']) ? $config['moduleCategory'] : 'custom_elements',
+				'template' => $template,
+				'path' => substr(dirname($configPath), strlen(TL_ROOT . '/')),
+			);
+			$element['plainLabel'] = $element['label'][0];
 
-			if (in_array('content', $types)) {
-				$contents[] = '$GLOBALS[\'TL_CTE\'][\'' . $contentCategory . '\'][\'' . $template . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
-				$contents[] = '$GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $template . '\'] = ' . var_export($label, true) . ';';
-				if (!empty($config['wrapper']['type'])) {
-					$contents[] = '$GLOBALS[\'TL_WRAPPERS\'][' . var_export($config['wrapper']['type'], true) . '][] = ' . var_export($template, true) . ';';
+			if ($element['path'] && substr($element['path'], 10)) {
+				if (isset($themeNamesByTemplateDir[$element['path']])) {
+					$element['label'][0] = $themeNamesByTemplateDir[$element['path']] . ': ' . $element['label'][0];
+				}
+				else {
+					$element['label'][0] = implode(' ', array_map('ucfirst', preg_split('(\\W)', substr($element['path'], 10)))) . ': ' . $element['label'][0];
 				}
 			}
-			if (in_array('module', $types)) {
-				$contents[] = '$GLOBALS[\'FE_MOD\'][\'' . $moduleCategory . '\'][\'' . $template . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
-				$contents[] = '$GLOBALS[\'TL_LANG\'][\'FMD\'][\'' . $template . '\'] = ' . var_export($label, true) . ';';
-			}
 
+			$elements[] = $element;
+
+		}
+
+		usort($elements, function($a, $b) {
+			if ($a['path'] !== $b['path']) {
+				if ($a['path'] === 'templates') {
+					return -1;
+				}
+				if ($b['path'] === 'templates') {
+					return 1;
+				}
+			}
+			return strcmp($a['label'][0], $b['label'][0]);
+		});
+
+		$usePlainLabels = count(array_unique(array_map(function($element) {
+			return $element['path'];
+		}, $elements))) < 2;
+
+		foreach ($elements as $element) {
+			if ($usePlainLabels) {
+				$element['label'][0] = $element['plainLabel'];
+			}
+			if (in_array('content', $element['types'])) {
+				$contents[] = '$GLOBALS[\'TL_CTE\'][\'' . $element['contentCategory'] . '\'][\'' . $element['template'] . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
+				$contents[] = '$GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $element['template'] . '\'] = ' . var_export($element['label'], true) . ';';
+				if (!empty($element['config']['wrapper']['type'])) {
+					$contents[] = '$GLOBALS[\'TL_WRAPPERS\'][' . var_export($element['config']['wrapper']['type'], true) . '][] = ' . var_export($element['template'], true) . ';';
+				}
+			}
+			if (in_array('module', $element['types'])) {
+				$contents[] = '$GLOBALS[\'FE_MOD\'][\'' . $element['moduleCategory'] . '\'][\'' . $element['template'] . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
+				$contents[] = '$GLOBALS[\'TL_LANG\'][\'FMD\'][\'' . $element['template'] . '\'] = ' . var_export($element['label'], true) . ';';
+			}
 		}
 
 		$file = new \File($filePath, true);
