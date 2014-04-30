@@ -14,7 +14,6 @@
 
 ClassLoader::addClasses(array(
 	'MadeYourDay\\Contao\\CustomElements' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/CustomElements.php',
-	'MadeYourDay\\Contao\\CustomElementsAjax' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/CustomElementsAjax.php',
 	'MadeYourDay\\Contao\\CustomElementsConvert' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/CustomElementsConvert.php',
 	'MadeYourDay\\Contao\\Module\\CustomModule' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/Module/CustomModule.php',
 	'MadeYourDay\\Contao\\Element\\CustomElement' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/Element/CustomElement.php',
@@ -24,8 +23,6 @@ ClassLoader::addClasses(array(
 	'MadeYourDay\\Contao\\Widget\\ListItemStart' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/Widget/ListItemStart.php',
 	'MadeYourDay\\Contao\\Widget\\ListItemStop' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/Widget/ListItemStop.php',
 	'MadeYourDay\\Contao\\Widget\\Hidden' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/Widget/Hidden.php',
-	'MadeYourDay\\Contao\\Widget\\FileTree' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/Widget/FileTree.php',
-	'MadeYourDay\\Contao\\Widget\\PageTree' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/Widget/PageTree.php',
 ));
 
 TemplateLoader::addFiles(array(

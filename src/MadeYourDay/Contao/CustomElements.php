@@ -68,7 +68,19 @@ class CustomElements extends \Backend
 			\Environment::get('script') === 'contao/file.php' ||
 			\Environment::get('script') === 'contao/page.php'
 		) && \Input::get('field')) {
+			// Ensures that the fileTree oder pageTree field exists
 			$this->createDca($dc, $type, $createFromPost, \Input::get('field'));
+		}
+		else if (
+			\Environment::get('script') === 'contao/main.php'
+			&& (
+				\Input::post('action') === 'reloadFiletree'
+				|| \Input::post('action') === 'reloadPagetree'
+			)
+			&& \Input::post('name')
+		) {
+			// Ensures that the fileTree oder pageTree field exists
+			$this->createDca($dc, $type, $createFromPost, \Input::post('name'));
 		}
 		else {
 			$this->createDca($dc, $type, $createFromPost);
@@ -90,7 +102,7 @@ class CustomElements extends \Backend
 
 		if (
 			version_compare(VERSION, '3.2', '>=') &&
-			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'rsce_file_tree' &&
+			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fileTree' &&
 			$value
 		) {
 			// Multiple files
@@ -240,7 +252,7 @@ class CustomElements extends \Backend
 
 		if (
 			version_compare(VERSION, '3.2', '>=') &&
-			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'rsce_file_tree'
+			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fileTree'
 		) {
 			if (trim($value)) {
 				if (strlen($value) === 16) {
@@ -510,16 +522,6 @@ class CustomElements extends \Backend
 
 		}
 		else {
-
-			// remap page and file picker to get them work without a database field
-			if (version_compare(VERSION, '3.1', '>=')) {
-				if ($fieldConfig['inputType'] === 'fileTree') {
-					$fieldConfig['inputType'] = 'rsce_file_tree';
-				}
-				if ($fieldConfig['inputType'] === 'pageTree') {
-					$fieldConfig['inputType'] = 'rsce_page_tree';
-				}
-			}
 
 			if ($fieldConfig['inputType'] === 'url') {
 				$fieldConfig['inputType'] = 'text';
