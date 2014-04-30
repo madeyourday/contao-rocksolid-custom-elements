@@ -140,7 +140,11 @@ var restoreTinyMCEs = function(element) {
 
 	if (window.tinymce && window.tinymce.Editor) {
 		element.retrieve('rsce_tinyMCE_textareas', []).each(function(data) {
-			new window.tinymce.Editor(data.textarea.get('id'), data.settings).render();
+			new window.tinymce.Editor(
+				data.textarea.get('id'),
+				data.settings,
+				window.tinymce.EditorManager
+			).render();
 		});
 		element.store('rsce_tinyMCE_textareas', []);
 	}
