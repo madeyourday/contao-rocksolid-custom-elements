@@ -123,7 +123,6 @@ var newElementAtPosition = function(listElement, position) {
 	if (!listInner.length) {
 		listInner = new Element('div', {'class': 'rsce_list_inner'})
 			.inject(listElement);
-		initListSort(listInner);
 	}
 	else {
 		listInner = listInner[0];
@@ -204,6 +203,9 @@ var newElementAtPosition = function(listElement, position) {
 
 	if (listInner.retrieve('listSort')) {
 		listInner.retrieve('listSort').addItems(newItem);
+	}
+	else {
+		initListSort(listInner);
 	}
 
 	try {
