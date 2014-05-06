@@ -13,6 +13,7 @@
  */
 
 $GLOBALS['TL_DCA']['tl_module']['config']['onload_callback'][] = array('MadeYourDay\Contao\CustomElements', 'onloadCallback');
+$GLOBALS['TL_DCA']['tl_module']['config']['onsubmit_callback'][] = array('MadeYourDay\Contao\CustomElements', 'onsubmitCallback');
 $GLOBALS['TL_DCA']['tl_module']['fields']['rsce_data'] = array(
 	'inputType' => 'rsce_list_hidden',
 	'sql' => "mediumblob NULL",

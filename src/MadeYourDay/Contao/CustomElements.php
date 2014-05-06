@@ -88,6 +88,39 @@ class CustomElements extends \Backend
 	}
 
 	/**
+	 * tl_content and tl_module DCA onsubmit callback
+	 *
+	 * Creates empty arrays for empty lists if no data is available
+	 * (e.g. for new elements)
+	 *
+	 * @param  \DataContainer $dc Data container
+	 * @return void
+	 */
+	public function onsubmitCallback($dc)
+	{
+		$type = $this->getDcaFieldValue($dc, 'type');
+		if (!$type || substr($type, 0, 5) !== 'rsce_') {
+			return;
+		}
+
+		$data = $this->getDcaFieldValue($dc, 'rsce_data', true);
+
+		// Check if it is a new element with no data
+		if ($data === null && !count($this->saveData)) {
+
+			// Creates empty arrays for empty lists, see #4
+			$data = $this->saveDataCallback(null, $dc);
+
+			if ($data && substr($data, 0, 1) === '{') {
+				\Database::getInstance()
+					->prepare("UPDATE {$dc->table} SET rsce_data = ? WHERE id = ?")
+					->execute($data, $dc->id);
+			}
+
+		}
+	}
+
+	/**
 	 * Field load callback
 	 *
 	 * Finds the current value for the field
