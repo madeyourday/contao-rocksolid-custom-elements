@@ -163,7 +163,7 @@ class CustomElement extends \ContentElement
 		}
 
 		$file = new \File($image->path, true);
-		if (!$file->isGdImage) {
+		if (!$file->exists()) {
 			return null;
 		}
 
@@ -192,6 +192,11 @@ class CustomElement extends \ContentElement
 
 		$imageObject = new \stdClass();
 		$this->addImageToTemplate($imageObject, $image, $maxSize);
+
+		if (empty($imageObject->src)) {
+			$imageObject->src = $imageObject->singleSRC;
+		}
+
 		return $imageObject;
 	}
 
