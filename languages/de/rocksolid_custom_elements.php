@@ -23,4 +23,5 @@ $GLOBALS['TL_LANG']['rocksolid_custom_elements']['multiple_templates_warning'][1
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_headline'] = 'RockSolid Custom Elements';
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_description'] = 'Hier können Sie alle RockSolid Custom Elements in Standard-HTML-Module umwandeln.';
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_submit'] = 'Elemente in HTML konvertieren';
+$GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_confirm'] = 'Wollen Sie wirklich alle Custom Elements umwandeln?' . " \n" . 'Dieser Schritt kann nicht rückgängig gemach werden!';
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_success'] = '%s Elemente wurden erfolgreich umgewandelt.';

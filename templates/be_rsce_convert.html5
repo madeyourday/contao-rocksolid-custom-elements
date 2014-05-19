@@ -20,7 +20,7 @@
 
 	<?php else: ?>
 
-		<form action="<?php echo $this->action ?>" class="tl_form" method="get">
+		<form action="<?php echo $this->action ?>" class="tl_form" method="get" onsubmit="return window.confirm(<?php echo htmlspecialchars(json_encode($GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_confirm'])) ?>)">
 			<div class="tl_formbody_edit">
 				<input type="hidden" name="act" value="rsce_convert">
 				<input type="hidden" name="do" value="maintenance">

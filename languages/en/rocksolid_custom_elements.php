@@ -23,4 +23,5 @@ $GLOBALS['TL_LANG']['rocksolid_custom_elements']['multiple_templates_warning'][1
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_headline'] = 'RockSolid Custom Elements';
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_description'] = 'Convert all RockSolid Custom Elements back into standard HTML.';
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_submit'] = 'Convert elements to HTML';
+$GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_confirm'] = 'Do you really want to convert all Custom Elements?' . " \n" . 'This step cannot be reverted!';
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_success'] = '%s elements successfully converted.';
