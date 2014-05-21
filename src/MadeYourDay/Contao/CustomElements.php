@@ -554,6 +554,38 @@ class CustomElements extends \Backend
 			$paletteFields[] = $fieldPrefix . $fieldName . '_rsce_list_stop';
 
 		}
+		else if ($fieldConfig['inputType'] === 'standardField') {
+
+			if ($fieldPrefix !== 'rsce_field_') {
+				throw new \Exception('Input type "standardField" is not allowed inside lists.');
+			}
+
+			if (isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName])) {
+
+				if (
+					isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName]['eval'])
+					&& is_array($GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName]['eval'])
+					&& isset($fieldConfig['eval'])
+					&& is_array($fieldConfig['eval'])
+				) {
+					$fieldConfig['eval'] = array_merge(
+						$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName]['eval'],
+						$fieldConfig['eval']
+					);
+				}
+
+				unset($fieldConfig['inputType']);
+
+				$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName] = array_merge(
+					$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName],
+					$fieldConfig
+				);
+
+				$paletteFields[] = $fieldName;
+
+			}
+
+		}
 		else {
 
 			if ($fieldConfig['inputType'] === 'url') {
