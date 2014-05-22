@@ -46,11 +46,15 @@ class CustomElements extends \Backend
 	 */
 	public function onloadCallback($dc)
 	{
-		if (\Input::get('act') !== 'edit' && \Input::get('act') !== 'show') {
+		if (\Input::get('act') !== 'edit' && \Input::get('act') !== 'editAll' && \Input::get('act') !== 'show') {
 			return;
 		}
 
 		$this->reloadConfig();
+
+		if (\Input::get('act') === 'editAll') {
+			return $this->createDcaMultiEdit($dc);
+		}
 
 		$type = $this->getDcaFieldValue($dc, 'type');
 		if (!$type || substr($type, 0, 5) !== 'rsce_') {
@@ -377,31 +381,6 @@ class CustomElements extends \Backend
 	 */
 	protected function createDca($dc, $type, $createFromPost = false, $tmpField = null)
 	{
-		$configPath = null;
-
-		try {
-			$templatePaths = CustomTemplate::getTemplates($type);
-			if (!empty($templatePaths[0])) {
-				$configPath = substr($templatePaths[0], 0, -6) . '_config.php';
-			}
-		}
-		catch (\Exception $e) {
-			$configPath = null;
-		}
-
-		if ($configPath === null || !file_exists($configPath)) {
-			$allConfigs = array_merge(
-				glob(TL_ROOT . '/templates/' . $type . '_config.php') ?: array(),
-				glob(TL_ROOT . '/templates/*/' . $type . '_config.php') ?: array()
-			);
-			if (count($allConfigs)) {
-				$configPath = $allConfigs[0];
-			}
-			else {
-				return;
-			}
-		}
-
 		if (TL_MODE === 'BE') {
 			$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/rocksolid-custom-elements/assets/js/be_main.js';
 			$GLOBALS['TL_CSS'][] = 'system/modules/rocksolid-custom-elements/assets/css/be_main.css';
@@ -417,7 +396,7 @@ class CustomElements extends \Backend
 			$paletteFields[] = 'rsce_multiple_templates_warning';
 		}
 
-		$config = include $configPath;
+		$config = static::getConfigByType($type);
 		$standardFields = is_array($config['standardFields']) ? $config['standardFields'] : array();
 		$this->fieldsConfig = $config['fields'];
 
@@ -433,40 +412,11 @@ class CustomElements extends \Backend
 
 		$paletteFields[] = 'rsce_data';
 
-		if ($dc->table === 'tl_module') {
-			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] = '{title_legend},name';
-			if (in_array('headline', $standardFields)) {
-				$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ',headline';
-			}
-			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ',type';
-		}
-		else {
-			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] = '{type_legend},type';
-			if (in_array('headline', $standardFields)) {
-				$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ',headline';
-			}
-			if (in_array('columns', $standardFields)) {
-				$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ';{rs_columns_legend},rs_columns_large,rs_columns_medium,rs_columns_small';
-			}
-			if (in_array('text', $standardFields)) {
-				$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ';{text_legend},text';
-			}
-		}
-		$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ';{rsce_legend},';
-		$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= implode(',', $paletteFields);
-		if ($dc->table === 'tl_content' && in_array('image', $standardFields)) {
-			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ';{image_legend},addImage';
-		}
-		$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ';{protected_legend:hide},protected;{expert_legend:hide},guests';
-		if (in_array('cssID', $standardFields)) {
-			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ',cssID';
-		}
-		if (in_array('space', $standardFields)) {
-			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ',space';
-		}
-		if ($dc->table === 'tl_content') {
-			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] .= ';{invisible_legend:hide},invisible,start,stop';
-		}
+		$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] = static::generatePalette(
+			$dc->table,
+			$paletteFields,
+			$standardFields
+		);
 
 		$GLOBALS['TL_LANG'][$dc->table]['rsce_legend'] = $GLOBALS['TL_LANG'][$dc->table === 'tl_content' ? 'CTE' : 'FMD'][$type][0];
 	}
@@ -711,6 +661,148 @@ class CustomElements extends \Backend
 			'inputType' => 'rsce_list_item_stop',
 		);
 		$paletteFields[] = $fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_stop';
+	}
+
+	/**
+	 * Create all DCA standard fields for multi edit mode
+	 *
+	 * @param  \DataContainer $dc Data container
+	 * @return void
+	 */
+	protected function createDcaMultiEdit($dc)
+	{
+		$session = $this->Session->getData();
+		if (empty($session['CURRENT']['IDS']) || !is_array($session['CURRENT']['IDS'])) {
+			return;
+		}
+		$ids = $session['CURRENT']['IDS'];
+
+		$types = $this->Database
+			->prepare('
+				SELECT type
+				FROM ' . $dc->table . '
+				WHERE id IN (' . implode(',', $ids) . ')
+					AND type LIKE \'rsce_%\'
+				GROUP BY type
+			')
+			->execute()
+			->fetchEach('type');
+
+		if (!$types) {
+			return;
+		}
+
+		foreach ($types as $type) {
+
+			$paletteFields = array();
+
+			$config = static::getConfigByType($type);
+			$standardFields = is_array($config['standardFields']) ? $config['standardFields'] : array();
+
+			foreach ($config['fields'] as $fieldName => $fieldConfig) {
+				if ($fieldConfig['inputType'] === 'standardField') {
+					$paletteFields[] = $fieldName;
+				}
+			}
+
+			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] = static::generatePalette(
+				$dc->table,
+				$paletteFields,
+				$standardFields
+			);
+
+		}
+	}
+
+	/**
+	 * Get configuration array for the specified type
+	 *
+	 * @param  string     $type Element type beginning with "rsce_"
+	 * @return array|null       Configuration array
+	 */
+	protected static function getConfigByType($type)
+	{
+		$configPath = null;
+
+		try {
+			$templatePaths = CustomTemplate::getTemplates($type);
+			if (!empty($templatePaths[0])) {
+				$configPath = substr($templatePaths[0], 0, -6) . '_config.php';
+			}
+		}
+		catch (\Exception $e) {
+			$configPath = null;
+		}
+
+		if ($configPath === null || !file_exists($configPath)) {
+			$allConfigs = array_merge(
+				glob(TL_ROOT . '/templates/' . $type . '_config.php') ?: array(),
+				glob(TL_ROOT . '/templates/*/' . $type . '_config.php') ?: array()
+			);
+			if (count($allConfigs)) {
+				$configPath = $allConfigs[0];
+			}
+			else {
+				return;
+			}
+		}
+
+		return include $configPath;
+	}
+
+	/**
+	 * Generates the palette definition
+	 *
+	 * @param  string $table          "tl_content" or "tl_module"
+	 * @param  array  $paletteFields  Palette fields
+	 * @param  array  $standardFields Standard fields
+	 * @return string                 Palette definition
+	 */
+	protected static function generatePalette($table, array $paletteFields = array(), array $standardFields = array())
+	{
+		$palette = '';
+
+		if ($table === 'tl_module') {
+			$palette .= '{title_legend},name';
+			if (in_array('headline', $standardFields)) {
+				$palette .= ',headline';
+			}
+			$palette .= ',type';
+		}
+		else {
+			$palette .= '{type_legend},type';
+			if (in_array('headline', $standardFields)) {
+				$palette .= ',headline';
+			}
+			if (in_array('columns', $standardFields)) {
+				$palette .= ';{rs_columns_legend},rs_columns_large,rs_columns_medium,rs_columns_small';
+			}
+			if (in_array('text', $standardFields)) {
+				$palette .= ';{text_legend},text';
+			}
+		}
+
+		$palette .= ';{rsce_legend},';
+		$palette .= implode(',', $paletteFields);
+
+		if ($table === 'tl_content' && in_array('image', $standardFields)) {
+			$palette .= ';{image_legend},addImage';
+		}
+
+		$palette .= ';{protected_legend:hide},protected;{expert_legend:hide},guests';
+
+		if (in_array('cssID', $standardFields)) {
+			$palette .= ',cssID';
+		}
+		if (in_array('space', $standardFields)) {
+			$palette .= ',space';
+		}
+
+		if ($table === 'tl_content') {
+			$palette .= ';{invisible_legend:hide},invisible,start,stop';
+		}
+
+		return $palette;
 	}
 
 	/**
