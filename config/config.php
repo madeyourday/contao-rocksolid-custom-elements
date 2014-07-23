@@ -12,6 +12,8 @@
  * @author Martin Auswöger <martin@madeyourday.net>
  */
 
+$GLOBALS['TL_HOOKS']['loadLanguageFile'][] = array('MadeYourDay\\Contao\\CustomElements', 'loadLanguageFileHook');
+
 $GLOBALS['BE_FFL']['rsce_list_start'] = 'MadeYourDay\\Contao\\Widget\\ListStart';
 $GLOBALS['BE_FFL']['rsce_list_stop'] = 'MadeYourDay\\Contao\\Widget\\ListStop';
 $GLOBALS['BE_FFL']['rsce_list_item_start'] = 'MadeYourDay\\Contao\\Widget\\ListItemStart';

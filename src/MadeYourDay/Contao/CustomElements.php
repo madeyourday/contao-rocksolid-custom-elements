@@ -446,7 +446,15 @@ class CustomElements extends \Backend
 			throw new \Exception('Field name must not start or end with "_" (' . $this->getDcaFieldValue($dc, 'type') . ': ' . $fieldName . ').');
 		}
 
+		if (isset($fieldConfig['label'])) {
+			$fieldConfig['label'] = static::getLabelTranslated($fieldConfig['label']);
+		}
+
 		if ($fieldConfig['inputType'] === 'list') {
+
+			if (isset($fieldConfig['elementLabel'])) {
+				$fieldConfig['elementLabel'] = static::getLabelTranslated($fieldConfig['elementLabel']);
+			}
 
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '_rsce_list_start'] = array(
 				'label' => $fieldConfig['label'],
@@ -1003,14 +1011,14 @@ class CustomElements extends \Backend
 			}
 			if (in_array('content', $element['types'])) {
 				$contents[] = '$GLOBALS[\'TL_CTE\'][\'' . $element['contentCategory'] . '\'][\'' . $element['template'] . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
-				$contents[] = '$GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $element['template'] . '\'] = ' . var_export($element['label'], true) . ';';
+				$contents[] = '$GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $element['template'] . '\'] = \\MadeYourDay\\Contao\\CustomElements::getLabelTranslated(' . var_export($element['label'], true) . ');';
 				if (!empty($element['config']['wrapper']['type'])) {
 					$contents[] = '$GLOBALS[\'TL_WRAPPERS\'][' . var_export($element['config']['wrapper']['type'], true) . '][] = ' . var_export($element['template'], true) . ';';
 				}
 			}
 			if (in_array('module', $element['types'])) {
 				$contents[] = '$GLOBALS[\'FE_MOD\'][\'' . $element['moduleCategory'] . '\'][\'' . $element['template'] . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
-				$contents[] = '$GLOBALS[\'TL_LANG\'][\'FMD\'][\'' . $element['template'] . '\'] = ' . var_export($element['label'], true) . ';';
+				$contents[] = '$GLOBALS[\'TL_LANG\'][\'FMD\'][\'' . $element['template'] . '\'] = \\MadeYourDay\\Contao\\CustomElements::getLabelTranslated(' . var_export($element['label'], true) . ');';
 			}
 		}
 
@@ -1091,5 +1099,61 @@ class CustomElements extends \Backend
 		}
 
 		return true;
+	}
+
+	/**
+	 * Reload translated labels if default language file gets loaded
+	 *
+	 * @param  string $name
+	 * @param  string $language
+	 * @return void
+	 */
+	public function loadLanguageFileHook($name, $language)
+	{
+		if ($name === 'default') {
+			static::loadConfig();
+		}
+	}
+
+	/**
+	 * Return translated label if label configuration contains language keys
+	 *
+	 * @param  array $labelConfig
+	 * @return mixed              Translated label if exists, otherwise $labelConfig
+	 */
+	public static function getLabelTranslated($labelConfig)
+	{
+		if (!is_array($labelConfig)) {
+			return $labelConfig;
+		}
+
+		// Return if it isn't an associative array
+		if (!count(array_filter(array_keys($labelConfig), 'is_string'))) {
+			return $labelConfig;
+		}
+
+		$language = str_replace('-', '_', $GLOBALS['TL_LANGUAGE']);
+		if (isset($labelConfig[$language])) {
+			return $labelConfig[$language];
+		}
+
+		// Try the short language code
+		$language = substr($language, 0, 2);
+		if (isset($labelConfig[$language])) {
+			return $labelConfig[$language];
+		}
+
+		// Fall back to english
+		$language = 'en';
+		if (isset($labelConfig[$language])) {
+			return $labelConfig[$language];
+		}
+
+		// Return the first item that seems to be a language key
+		foreach ($labelConfig as $key => $label) {
+			if (strlen($key) === 2 || substr($key, 2, 1) === '_') {
+				return $label;
+			}
+		}
 	}
 }
