@@ -1,0 +1,5 @@
+<?php /* closing the parent div element to make nested elements possible */ ?>
+</div>
+<?php echo $this->generate() ?>
+<?php /* starting a div element to keep the correct element structure */ ?>
+<div style="display: none">

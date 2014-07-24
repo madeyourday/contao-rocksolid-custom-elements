@@ -436,6 +436,9 @@ class CustomElements extends \Backend
 	 */
 	protected function createDcaItem($fieldPrefix, $fieldName, $fieldConfig, &$paletteFields, $dc, $createFromPost)
 	{
+		if (!is_string($fieldConfig) && !is_array($fieldConfig)) {
+			throw new \Exception('Field config must be of type array or string.');
+		}
 		if (strpos($fieldName, '__') !== false) {
 			throw new \Exception('Field name must not include "__" (' . $this->getDcaFieldValue($dc, 'type') . ': ' . $fieldName . ').');
 		}
@@ -444,6 +447,17 @@ class CustomElements extends \Backend
 		}
 		if (substr($fieldName, 0, 1) === '_' || substr($fieldName, -1) === '_') {
 			throw new \Exception('Field name must not start or end with "_" (' . $this->getDcaFieldValue($dc, 'type') . ': ' . $fieldName . ').');
+		}
+
+		if (!is_string($fieldName)) {
+			$fieldName = 'unnamed_' . $fieldName;
+		}
+
+		if (is_string($fieldConfig)) {
+			$fieldConfig = array(
+				'inputType' => 'group',
+				'label' => array($fieldConfig, ''),
+			);
 		}
 
 		if (isset($fieldConfig['label'])) {
@@ -464,7 +478,7 @@ class CustomElements extends \Backend
 
 			$hasFields = false;
 			foreach ($fieldConfig['fields'] as $fieldConfig2) {
-				if ($fieldConfig2['inputType'] !== 'list') {
+				if (isset($fieldConfig2['inputType']) && $fieldConfig2['inputType'] !== 'list') {
 					$hasFields = true;
 				}
 			}
@@ -542,6 +556,14 @@ class CustomElements extends \Backend
 				$paletteFields[] = $fieldName;
 
 			}
+
+		}
+		else if ($fieldConfig['inputType'] === 'group') {
+
+			$fieldConfig['inputType'] = 'rsce_group_start';
+
+			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName] = $fieldConfig;
+			$paletteFields[] = $fieldPrefix . $fieldName;
 
 		}
 		else {
@@ -790,8 +812,17 @@ class CustomElements extends \Backend
 			}
 		}
 
-		$palette .= ';{rsce_legend},';
-		$palette .= implode(',', $paletteFields);
+		if (
+			isset($paletteFields[0])
+			&& $paletteFields[0] !== 'rsce_data'
+			&& isset($GLOBALS['TL_DCA'][$table]['fields'][$paletteFields[0]]['inputType'])
+			&& $GLOBALS['TL_DCA'][$table]['fields'][$paletteFields[0]]['inputType'] !== 'rsce_group_start'
+			&& $GLOBALS['TL_DCA'][$table]['fields'][$paletteFields[0]]['inputType'] !== 'rsce_list_start'
+		) {
+			$palette .= ';{rsce_legend}';
+		}
+
+		$palette .= ',' . implode(',', $paletteFields);
 
 		if ($table === 'tl_content' && in_array('image', $standardFields)) {
 			$palette .= ';{image_legend},addImage';

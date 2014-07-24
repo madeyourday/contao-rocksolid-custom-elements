@@ -48,6 +48,7 @@ class ListItemStart extends \Widget
 			. (empty($this->arrConfiguration['tl_class']) ? '' : ' ' . $this->arrConfiguration['tl_class'])
 			. '" data-rsce-name="' . $fieldName . '">'
 			. ($this->strLabel ? '<div class="rsce_list_item_title" data-rsce-label="' . $this->arrConfiguration['label_template'] . '">' . $this->strLabel . '</div>' : '')
-			. $toolbar;
+			. $toolbar
+			. '<fieldset class="tl_box rsce_group rsce_group_no_legend">';
 	}
 }

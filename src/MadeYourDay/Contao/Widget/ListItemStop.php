@@ -32,6 +32,6 @@ class ListItemStop extends \Widget
 	 */
 	public function generate()
 	{
-		return '</div>';
+		return '</fieldset></div>';
 	}
 }

@@ -18,6 +18,7 @@ $GLOBALS['BE_FFL']['rsce_list_start'] = 'MadeYourDay\\Contao\\Widget\\ListStart'
 $GLOBALS['BE_FFL']['rsce_list_stop'] = 'MadeYourDay\\Contao\\Widget\\ListStop';
 $GLOBALS['BE_FFL']['rsce_list_item_start'] = 'MadeYourDay\\Contao\\Widget\\ListItemStart';
 $GLOBALS['BE_FFL']['rsce_list_item_stop'] = 'MadeYourDay\\Contao\\Widget\\ListItemStop';
+$GLOBALS['BE_FFL']['rsce_group_start'] = 'MadeYourDay\\Contao\\Widget\\GroupStart';
 $GLOBALS['BE_FFL']['rsce_list_hidden'] = 'MadeYourDay\\Contao\\Widget\\Hidden';
 
 $GLOBALS['TL_MAINTENANCE'][] = 'MadeYourDay\\Contao\\CustomElementsConvert';

@@ -9,11 +9,11 @@
 namespace MadeYourDay\Contao\Widget;
 
 /**
- * List start widget
+ * Group start widget
  *
  * @author Martin Auswöger <martin@madeyourday.net>
  */
-class ListStart extends \Widget
+class GroupStart extends \Widget
 {
 	/**
 	 * @var boolean Submit user input
@@ -23,7 +23,7 @@ class ListStart extends \Widget
 	/**
 	 * @var string Template
 	 */
-	protected $strTemplate = 'be_rsce_list';
+	protected $strTemplate = 'be_rsce_group';
 
 	/**
 	 * Generate the widget and return it as string
@@ -34,24 +34,18 @@ class ListStart extends \Widget
 	{
 		$this->loadLanguageFile('rocksolid_custom_elements');
 
-		$toolbar = '<div class="rsce_list_toolbar">';
-		$toolbar .= '<a class="header_new" href="" onclick="rsceNewElement(this);return false;">' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['new_list_item'] . '</a> ';
-		$toolbar .= '</div>';
-
-
 		$fs = $this->Session->get('fieldset_states');
 
 		return '</fieldset>'
 			. '<div class="clear"></div>'
 			. '<fieldset'
 			. ' id="pal_' . $this->strId . '"'
-			. ' class="tl_box rsce_list' . ((!isset($fs[$this->strTable][$this->strId]) || $fs[$this->strTable][$this->strId]) ? '' : ' collapsed') . '"'
+			. ' class="tl_box rsce_group' . ((!isset($fs[$this->strTable][$this->strId]) || $fs[$this->strTable][$this->strId]) ? '' : ' collapsed') . '"'
 			. '>'
 			. '<legend'
 			. ' onclick="AjaxRequest.toggleFieldset(this, &quot;' . $this->strId . '&quot;, &quot;' . $this->strTable . '&quot;)"'
 			. '>' . $this->strLabel
 			. '</legend>'
-			. $toolbar
-			. ($this->description ? '<p class="rsce_list_description">' . $this->description . '</p>' : '');
+			. ($this->description ? '<p class="rsce_group_description">' . $this->description . '</p>' : '');
 	}
 }

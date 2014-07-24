@@ -1,15 +1,34 @@
 fieldset.collapsed fieldset,
-fieldset.collapsed p.rsce_list_description {
+fieldset.collapsed p.rsce_list_description,
+fieldset.collapsed p.rsce_group_description {
 	display: none !important;
+}
+fieldset.rsce_group_no_legend {
+	padding-top: 0;
+	border-top: 0;
+}
+fieldset.rsce_group_no_legend:last-of-type {
+	padding-bottom: 0
+}
+.rsce_list_item fieldset.rsce_list,
+.rsce_list_item fieldset.rsce_group {
+	margin: 0;
+}
+.rsce_list_item fieldset.rsce_group:last-of-type:not(.collapsed) {
+	padding-bottom: 0;
 }
 fieldset.rsce_list {
 	position: relative;
-	margin-top: 26px;
 	padding-right: 10px;
-	padding-bottom: 0;
+}
+.rsce_list_inner {
+	margin-bottom: -12px;
 }
 p.rsce_list_description {
 	margin: 5px 10px 10px;
+}
+p.rsce_group_description {
+	margin: 5px 0;
 }
 .rsce_list_item {
 	position: relative;

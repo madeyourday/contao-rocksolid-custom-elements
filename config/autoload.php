@@ -22,11 +22,13 @@ ClassLoader::addClasses(array(
 	'MadeYourDay\\Contao\\Widget\\ListStop' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/Widget/ListStop.php',
 	'MadeYourDay\\Contao\\Widget\\ListItemStart' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/Widget/ListItemStart.php',
 	'MadeYourDay\\Contao\\Widget\\ListItemStop' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/Widget/ListItemStop.php',
+	'MadeYourDay\\Contao\\Widget\\GroupStart' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/Widget/GroupStart.php',
 	'MadeYourDay\\Contao\\Widget\\Hidden' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/Widget/Hidden.php',
 ));
 
 TemplateLoader::addFiles(array(
 	'be_rsce_list' => 'system/modules/rocksolid-custom-elements/templates',
+	'be_rsce_group' => 'system/modules/rocksolid-custom-elements/templates',
 	'be_rsce_hidden' => 'system/modules/rocksolid-custom-elements/templates',
 	'be_rsce_convert' => 'system/modules/rocksolid-custom-elements/templates',
 ));
