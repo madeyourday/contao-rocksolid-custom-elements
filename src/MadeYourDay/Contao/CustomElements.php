@@ -356,7 +356,7 @@ class CustomElements extends \Backend
 	{
 		foreach ($fieldsConfig as $fieldName => $fieldConfig) {
 
-			if ($fieldConfig['inputType'] === 'list') {
+			if (isset($fieldConfig['inputType']) && $fieldConfig['inputType'] === 'list') {
 
 				// creates an empty array for a empty lists
 				$fieldData = $this->getNestedValueReference($fieldPrefix . $fieldName);
@@ -730,7 +730,7 @@ class CustomElements extends \Backend
 			$standardFields = is_array($config['standardFields']) ? $config['standardFields'] : array();
 
 			foreach ($config['fields'] as $fieldName => $fieldConfig) {
-				if ($fieldConfig['inputType'] === 'standardField') {
+				if (isset($fieldConfig['inputType']) && $fieldConfig['inputType'] === 'standardField') {
 					$paletteFields[] = $fieldName;
 				}
 			}
