@@ -162,8 +162,13 @@ class CustomElement extends \ContentElement
 			return null;
 		}
 
-		$file = new \File($image->path, true);
-		if (!$file->exists()) {
+		try {
+			$file = new \File($image->path, true);
+			if (!$file->exists()) {
+				return null;
+			}
+		}
+		catch (\Exception $e) {
 			return null;
 		}
 
