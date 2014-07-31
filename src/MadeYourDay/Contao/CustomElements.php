@@ -66,7 +66,7 @@ class CustomElements extends \Backend
 			$this->data = json_decode($data, true);
 		}
 
-		$createFromPost = \Input::getInstance()->post('FORM_SUBMIT') === $dc->table;
+		$createFromPost = \Input::post('FORM_SUBMIT') === $dc->table;
 
 		if ((
 			\Environment::get('script') === 'contao/file.php' ||
@@ -848,8 +848,8 @@ class CustomElements extends \Backend
 	{
 		$value = null;
 
-		if (\Input::getInstance()->post('FORM_SUBMIT') === $dc->table && !$fromDb) {
-			$value = \Input::getInstance()->post($fieldName);
+		if (\Input::post('FORM_SUBMIT') === $dc->table && !$fromDb) {
+			$value = \Input::post($fieldName);
 		}
 		elseif ($dc->activeRecord) {
 			$value = $dc->activeRecord->$fieldName;
