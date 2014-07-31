@@ -17,8 +17,6 @@ $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_up'] = 'Move one pos
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_down'] = 'Move one position down';
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_delete'] = 'Delete element';
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_new'] = 'Create new element';
-$GLOBALS['TL_LANG']['rocksolid_custom_elements']['multiple_templates_warning'][0] = 'Warning';
-$GLOBALS['TL_LANG']['rocksolid_custom_elements']['multiple_templates_warning'][1] = 'The template <i>%s</i> exists more than once in the template directory. This could cause problems.';
 
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_headline'] = 'RockSolid Custom Elements';
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_description'] = 'Convert all RockSolid Custom Elements back into standard HTML.';

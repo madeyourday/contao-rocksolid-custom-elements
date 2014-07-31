@@ -388,14 +388,6 @@ class CustomElements extends \Backend
 
 		$paletteFields = array();
 
-		if (count($templatePaths) > 1) {
-			$GLOBALS['TL_DCA'][$dc->table]['fields']['rsce_multiple_templates_warning'] = array(
-				'label' => array('', ''),
-				'input_field_callback' => array('MadeYourDay\\Contao\\CustomElements', 'fieldMultipleTemplatesWarning'),
-			);
-			$paletteFields[] = 'rsce_multiple_templates_warning';
-		}
-
 		$config = static::getConfigByType($type);
 		$standardFields = is_array($config['standardFields']) ? $config['standardFields'] : array();
 		$this->fieldsConfig = $config['fields'];
@@ -875,20 +867,6 @@ class CustomElements extends \Backend
 	}
 
 	/**
-	 * Callback for displaying the multiple templates warning
-	 *
-	 * @param  \DataContainer $dc Data container
-	 * @return string             Warning HTML code
-	 */
-	public function fieldMultipleTemplatesWarning($dc)
-	{
-		$this->loadLanguageFile('rocksolid_custom_elements');
-		return '<p class="tl_gerror"><strong>'
-			. $GLOBALS['TL_LANG']['rocksolid_custom_elements']['multiple_templates_warning'][0] . ':</strong> '
-			. sprintf($GLOBALS['TL_LANG']['rocksolid_custom_elements']['multiple_templates_warning'][1], $this->getDcaFieldValue($dc, 'type')) . '</p>';
-	}
-
-	/**
 	 * Purge cache file system/cache/rocksolid_custom_elements_config.php
 	 *
 	 * @return void
@@ -941,6 +919,21 @@ class CustomElements extends \Backend
 			glob(TL_ROOT . '/templates/*/rsce_*_config.php') ?: array()
 		);
 		$fallbackConfigPaths = array();
+
+		$duplicateConfigs = array_filter(
+			array_count_values(array_map(
+				function($configPath) {
+					return basename($configPath, '_config.php');
+				},
+				$allConfigs
+			)),
+			function ($count) {
+				return $count > 1;
+			}
+		);
+		if (count($duplicateConfigs)) {
+			\System::log('Duplicate Custom Elements found: ' . implode(', ', array_keys($duplicateConfigs)), __METHOD__, TL_ERROR);
+		}
 
 		foreach ($allConfigs as $configPath) {
 			$templateName = basename($configPath, '_config.php');

@@ -17,8 +17,6 @@ $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_up'] = 'Eine Positio
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_down'] = 'Eine Position nach unten verschieben';
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_delete'] = 'Element löschen';
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_new'] = 'Neues Element erstellen';
-$GLOBALS['TL_LANG']['rocksolid_custom_elements']['multiple_templates_warning'][0] = 'Vorsicht';
-$GLOBALS['TL_LANG']['rocksolid_custom_elements']['multiple_templates_warning'][1] = 'Das Template <i>%s</i> existiert mehrmals im Templates-Ordner, das kann zu Problemen führen.';
 
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_headline'] = 'RockSolid Custom Elements';
 $GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_description'] = 'Hier können Sie alle RockSolid Custom Elements in Standard-HTML-Module umwandeln.';
