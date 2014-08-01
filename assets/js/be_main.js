@@ -308,14 +308,16 @@ var removeFormFields = function(fields, input) {
 
 var initList = function(listElement) {
 
-	if ($(listElement).get('id').indexOf('__rsce_dummy__') !== -1) {
+	listElement = $(listElement);
+
+	if (listElement.get('id').indexOf('__rsce_dummy__') !== -1) {
 		return;
 	}
 
 	var listInner = new Element('div', {'class': 'rsce_list_inner'})
 		.inject(listElement);
 
-	$(listElement).getChildren('.rsce_list_item').each(function(element) {
+	listElement.getChildren('.rsce_list_item').each(function(element) {
 
 		if (element.hasClass('rsce_list_item_dummy')) {
 			return;
@@ -348,6 +350,16 @@ var initList = function(listElement) {
 		element.inject(listInner);
 
 	});
+
+	var dummyFields = [];
+	listElement.getElements('[name*="__rsce_dummy__"]').each(function(input) {
+		dummyFields.push(input.get('name').split('[')[0]);
+	});
+	removeFormFields(
+		dummyFields,
+		listElement.getParent('form')
+			.getElements('input[name="FORM_FIELDS[]"]')[0]
+	);
 
 	initListSort(listInner);
 
