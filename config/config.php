@@ -12,6 +12,7 @@
  * @author Martin Auswöger <martin@madeyourday.net>
  */
 
+$GLOBALS['TL_HOOKS']['initializeSystem'][] = array('MadeYourDay\\Contao\\CustomElements', 'loadConfig');
 $GLOBALS['TL_HOOKS']['loadLanguageFile'][] = array('MadeYourDay\\Contao\\CustomElements', 'loadLanguageFileHook');
 
 $GLOBALS['BE_FFL']['rsce_list_start'] = 'MadeYourDay\\Contao\\Widget\\ListStart';
@@ -30,6 +31,3 @@ $GLOBALS['TL_PURGE']['custom']['rocksolid_custom_elements'] = array(
 // Insert the custom_elements category
 array_insert($GLOBALS['TL_CTE'], 1, array('custom_elements' => array()));
 array_insert($GLOBALS['FE_MOD'], 0, array('custom_elements' => array()));
-
-// load FE_MOD and TL_CTE config from cache if possible
-MadeYourDay\Contao\CustomElements::loadConfig();

@@ -19,7 +19,7 @@ use MadeYourDay\Contao\Template\CustomTemplate;
  * @todo   Create cache files with different names to be able to drop the
  *         refreshOpcodeCache method
  */
-class CustomElements extends \Backend
+class CustomElements
 {
 	/**
 	 * @var array Currently loaded data
@@ -693,13 +693,13 @@ class CustomElements extends \Backend
 	 */
 	protected function createDcaMultiEdit($dc)
 	{
-		$session = $this->Session->getData();
+		$session = \Session::getInstance()->getData();
 		if (empty($session['CURRENT']['IDS']) || !is_array($session['CURRENT']['IDS'])) {
 			return;
 		}
 		$ids = $session['CURRENT']['IDS'];
 
-		$types = $this->Database
+		$types = \Database::getInstance()
 			->prepare('
 				SELECT type
 				FROM ' . $dc->table . '
