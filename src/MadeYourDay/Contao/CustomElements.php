@@ -137,6 +137,10 @@ class CustomElements
 	{
 		$value = $this->getNestedValue($dc->field);
 
+		if ($value === null && isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['default'])) {
+			$value = $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['default'];
+		}
+
 		if (
 			version_compare(VERSION, '3.2', '>=') &&
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fileTree' &&
