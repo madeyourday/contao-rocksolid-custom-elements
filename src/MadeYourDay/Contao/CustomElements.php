@@ -854,8 +854,12 @@ class CustomElements
 
 		if (\Input::post('FORM_SUBMIT') === $dc->table && !$fromDb) {
 			$value = \Input::post($fieldName);
+			if ($value !== null) {
+				return $value;
+			}
 		}
-		elseif ($dc->activeRecord) {
+
+		if ($dc->activeRecord) {
 			$value = $dc->activeRecord->$fieldName;
 		}
 		else {
