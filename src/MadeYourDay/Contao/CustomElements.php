@@ -456,6 +456,13 @@ class CustomElements
 			);
 		}
 
+		if (
+			!\BackendUser::getInstance()->hasAccess($dc->table . '::rsce_data', 'alexf')
+			&& $fieldConfig['inputType'] !== 'standardField'
+		) {
+			return;
+		}
+
 		if (isset($fieldConfig['label'])) {
 			$fieldConfig['label'] = static::getLabelTranslated($fieldConfig['label']);
 		}

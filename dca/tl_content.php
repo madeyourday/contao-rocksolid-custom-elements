@@ -16,6 +16,7 @@ $GLOBALS['TL_DCA']['tl_content']['config']['onload_callback'][] = array('MadeYou
 $GLOBALS['TL_DCA']['tl_content']['config']['onsubmit_callback'][] = array('MadeYourDay\Contao\CustomElements', 'onsubmitCallback');
 $GLOBALS['TL_DCA']['tl_content']['fields']['rsce_data'] = array(
 	'label' => &$GLOBALS['TL_LANG']['tl_content']['rsce_data'],
+	'exclude' => true,
 	'inputType' => 'rsce_list_hidden',
 	'sql' => "mediumblob NULL",
 	'save_callback' => array(
