@@ -52,6 +52,11 @@ class CustomElements
 
 		$this->reloadConfig();
 
+		if ($dc->table === 'tl_content' && class_exists('CeAccess')) {
+			$ceAccess = new \CeAccess;
+			$ceAccess->filterContentElements($dc);
+		}
+
 		if (\Input::get('act') === 'editAll') {
 			return $this->createDcaMultiEdit($dc);
 		}
