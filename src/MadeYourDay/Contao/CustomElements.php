@@ -929,6 +929,16 @@ class CustomElements
 			}
 		}
 
+		// The getInstance calls are neccessary to keep the contao instance
+		// stack intact and prevent an "Invalid connection resource" exception
+		if (TL_MODE === 'BE') {
+			\BackendUser::getInstance();
+		}
+		else if(TL_MODE === 'FE') {
+			\FrontendUser::getInstance();
+		}
+		\Database::getInstance();
+
 		$contents = array();
 		$contents[] = '<?php' . "\n";
 		$contents[] = '$fileCacheHash = ' . var_export($cacheHash, true) . ';' . "\n";
