@@ -1051,35 +1051,42 @@ class CustomElements
 		}, $elements))) < 2;
 
 		foreach ($elements as $element) {
+
 			if ($usePlainLabels) {
 				$element['label'][0] = $element['plainLabel'];
 			}
+
 			if (in_array('content', $element['types'])) {
+
+				$GLOBALS['TL_CTE'][$element['contentCategory']][$element['template']] = 'MadeYourDay\\Contao\\Element\\CustomElement';
 				$contents[] = '$GLOBALS[\'TL_CTE\'][\'' . $element['contentCategory'] . '\'][\'' . $element['template'] . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
+
+				$GLOBALS['TL_LANG']['CTE'][$element['template']] = static::getLabelTranslated($element['label']);
 				$contents[] = '$GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $element['template'] . '\'] = \\MadeYourDay\\Contao\\CustomElements::getLabelTranslated(' . var_export($element['label'], true) . ');';
+
 				if (!empty($element['config']['wrapper']['type'])) {
+					$GLOBALS['TL_WRAPPERS'][$element['config']['wrapper']['type']][] = $element['template'];
 					$contents[] = '$GLOBALS[\'TL_WRAPPERS\'][' . var_export($element['config']['wrapper']['type'], true) . '][] = ' . var_export($element['template'], true) . ';';
 				}
+
 			}
+
 			if (in_array('module', $element['types'])) {
+
+				$GLOBALS['FE_MOD'][$element['moduleCategory']][$element['template']] = 'MadeYourDay\\Contao\\Element\\CustomElement';
 				$contents[] = '$GLOBALS[\'FE_MOD\'][\'' . $element['moduleCategory'] . '\'][\'' . $element['template'] . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
+
+				$GLOBALS['TL_LANG']['FMD'][$element['template']] = static::getLabelTranslated($element['label']);
 				$contents[] = '$GLOBALS[\'TL_LANG\'][\'FMD\'][\'' . $element['template'] . '\'] = \\MadeYourDay\\Contao\\CustomElements::getLabelTranslated(' . var_export($element['label'], true) . ');';
+
 			}
+
 		}
 
 		$file = new \File($filePath, true);
 		$file->write(implode("\n", $contents));
 		$file->close();
 		static::refreshOpcodeCache($fileFullPath);
-
-		if (file_exists($fileFullPath)) {
-			include $fileFullPath;
-		}
-		else {
-			// was not able to create the cache file
-			eval('?>' . implode("\n", $contents));
-		}
-
 	}
 
 	/**
