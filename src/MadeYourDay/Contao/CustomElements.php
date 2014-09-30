@@ -1215,5 +1215,7 @@ class CustomElements
 				return $label;
 			}
 		}
+
+		return $labelConfig;
 	}
 }
