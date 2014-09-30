@@ -907,9 +907,10 @@ class CustomElements
 	/**
 	 * Load the TL_CTE and FE_MOD configuration and use caching if possible
 	 *
+	 * @param  bool $bypassCache
 	 * @return void
 	 */
-	public static function loadConfig()
+	public static function loadConfig($bypassCache = false)
 	{
 		$filePath = 'system/cache/rocksolid_custom_elements_config.php';
 		$fileFullPath = TL_ROOT . '/' . $filePath;
@@ -919,7 +920,7 @@ class CustomElements
 			glob(TL_ROOT . '/templates/*/rsce_*') ?: array()
 		)));
 
-		if (file_exists($fileFullPath)) {
+		if (!$bypassCache && file_exists($fileFullPath)) {
 			$fileCacheHash = null;
 			include $fileFullPath;
 			if ($fileCacheHash === $cacheHash) {
@@ -1082,15 +1083,13 @@ class CustomElements
 	}
 
 	/**
-	 * Delete the config cache and call loadConfig
+	 * Call loadConfig and bypass the cache
 	 *
 	 * @return void
 	 */
 	public static function reloadConfig()
 	{
-		static::purgeCache();
-
-		return static::loadConfig();
+		return static::loadConfig(true);
 	}
 
 	/**
