@@ -1225,4 +1225,233 @@ class CustomElements
 
 		return $labelConfig;
 	}
+
+	/**
+	 * Convert IDs for theme export
+	 *
+	 * @param  \DOMDocument $xml        theme.xml
+	 * @param  \ZipWriter   $zipArchive CTO file
+	 * @param  int          $themeId
+	 * @return void
+	 */
+	public function exportThemeHook($xml, $zipArchive, $themeId)
+	{
+		$xpath = new \DOMXPath($xml);
+		$tlModule = $xpath->query('/tables/table[@name = \'tl_module\']')->item(0);
+
+		if (!$tlModule) {
+			return;
+		}
+
+		static::reloadConfig();
+
+		foreach ($tlModule->childNodes as $row) {
+
+			if (strtolower($row->nodeName) !== 'row') {
+				continue;
+			}
+
+			$type = $xpath->query('field[@name = \'type\']', $row)->item(0);
+			if (!$type || substr($type->nodeValue, 0, 5) !== 'rsce_') {
+				continue;
+			}
+
+			$rsceData = $xpath->query('field[@name = \'rsce_data\']', $row)->item(0);
+			if (!$rsceData) {
+				continue;
+			}
+
+			$rsceDataConverted = $this->convertDataForImportExport(
+				false,
+				$type->nodeValue,
+				$rsceData->nodeValue
+			);
+
+			if (
+				!$rsceDataConverted
+				|| strtolower($rsceDataConverted) === 'null'
+				|| $rsceDataConverted === '{}'
+				|| $rsceDataConverted === '[]'
+				|| $rsceDataConverted === $rsceData->nodeValue
+			) {
+				continue;
+			}
+
+			$rsceData->nodeValue = $rsceDataConverted;
+
+		}
+	}
+
+	/**
+	 * Convert IDs for theme import
+	 *
+	 * @param  \DOMDocument $xml           theme.xml
+	 * @param  \ZipWriter   $zipArchive    CTO file
+	 * @param  int          $themeId
+	 * @param  array        $idMappingData ID mapping for imported database rows
+	 * @return void
+	 */
+	public function extractThemeFilesHook($xml, $zipArchive, $themeId, $idMappingData)
+	{
+		$modules = \ModuleModel::findBy(
+			array('tl_module.pid = ? AND tl_module.type LIKE \'rsce_%\''),
+			$themeId
+		);
+
+		if (!$modules || !count($modules)) {
+			return;
+		}
+
+		foreach ($modules as $module) {
+
+			if (substr($module->type, 0, 5) !== 'rsce_') {
+				continue;
+			}
+
+			$rsceDataConverted = $this->convertDataForImportExport(
+				true,
+				$module->type,
+				$module->rsce_data,
+				$idMappingData
+			);
+
+			if (
+				!$rsceDataConverted
+				|| strtolower($rsceDataConverted) === 'null'
+				|| $rsceDataConverted === '{}'
+				|| $rsceDataConverted === '[]'
+				|| $rsceDataConverted === $module->rsce_data
+			) {
+				continue;
+			}
+
+			$module->rsce_data = $rsceDataConverted;
+
+			$module->save();
+
+		}
+	}
+
+	/**
+	 * @param  bool   $import        True for import, false for export
+	 * @param  string $type          Element type
+	 * @param  string $jsonData      JSON-encoded data
+	 * @param  array  $idMappingData ID mapping for imported database rows
+	 * @return string                Converted $jsonData
+	 */
+	protected function convertDataForImportExport($import, $type, $jsonData, $idMappingData = array())
+	{
+		$data = json_decode($jsonData, true);
+		$config = static::getConfigByType($type);
+
+		if (!$config || !$data) {
+			return $jsonData;
+		}
+
+		$data = $this->convertDataForImportExportParseFields(
+			$import,
+			$data,
+			$config['fields'],
+			$idMappingData
+		);
+
+		return json_encode($data);
+	}
+
+	/**
+	 * @param  bool   $import        True for import, false for export
+	 * @param  array  $data          Data of element or parent list item
+	 * @param  array  $config        Fields configuration
+	 * @param  array  $idMappingData ID mapping for imported database rows
+	 * @param  string $fieldPrefix
+	 * @return array                 Converted $data
+	 */
+	protected function convertDataForImportExportParseFields($import, $data, $config, $idMappingData, $fieldPrefix = 'rsce_field_')
+	{
+		foreach ($data as $fieldName => $value) {
+
+			$fieldConfig = $this->getNestedConfig($fieldPrefix . $fieldName, $config);
+
+			if (empty($fieldConfig['inputType'])) {
+				continue;
+			}
+
+			if ($fieldConfig['inputType'] === 'list') {
+
+				for ($dataKey = 0; isset($value[$dataKey]); $dataKey++) {
+					$data[$fieldName][$dataKey] = $this->convertDataForImportExportParseFields(
+						$import,
+						$value[$dataKey],
+						$config,
+						$idMappingData,
+						$fieldPrefix . $fieldName . '__' . $dataKey . '__'
+					);
+				}
+
+			}
+
+			// UUIDs to paths and vice versa
+			else if ($fieldConfig['inputType'] === 'fileTree' && $value) {
+
+				if (empty($fieldConfig['eval']['multiple'])) {
+
+					if ($import) {
+						$file = \FilesModel::findByPath(\Config::get('uploadPath') . '/' . preg_replace('(^files/)', '', $value));
+						if ($file) {
+							$data[$fieldName] = \String::binToUuid($file->uuid);
+						}
+					}
+					else {
+						$file = \FilesModel::findById($value);
+						if ($file) {
+							$data[$fieldName] = 'files/' . preg_replace('(^' . preg_quote(\Config::get('uploadPath')) . '/)', '', $file->path);
+						}
+					}
+
+				}
+				else {
+
+					$data[$fieldName] = serialize(array_map(
+						function($value) use($import) {
+							if ($import) {
+								$file = \FilesModel::findByPath(\Config::get('uploadPath') . '/' . preg_replace('(^files/)', '', $value));
+								if ($file) {
+									return \String::binToUuid($file->uuid);
+								}
+							}
+							else {
+								$file = \FilesModel::findById($value);
+								if ($file) {
+									return 'files/' . preg_replace('(^' . preg_quote(\Config::get('uploadPath')) . '/)', '', $file->path);
+								}
+							}
+							return $value;
+						},
+						deserialize($value, true)
+					));
+
+				}
+
+			}
+
+			// tl_image_size IDs
+			else if ($fieldConfig['inputType'] === 'imageSize' && $value && $import) {
+
+				$value = deserialize($value, true);
+
+				if (
+					!empty($value[2])
+					&& is_numeric($value[2])
+					&& !empty($idMappingData['tl_image_size'][$value[2]])
+				) {
+					$value[2] = $idMappingData['tl_image_size'][$value[2]];
+					$data[$fieldName] = serialize($value);
+				}
+
+			}
+
+		}
+
+		return $data;
+	}
 }

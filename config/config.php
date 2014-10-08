@@ -14,6 +14,8 @@
 
 $GLOBALS['TL_HOOKS']['initializeSystem'][] = array('MadeYourDay\\Contao\\CustomElements', 'loadConfig');
 $GLOBALS['TL_HOOKS']['loadLanguageFile'][] = array('MadeYourDay\\Contao\\CustomElements', 'loadLanguageFileHook');
+$GLOBALS['TL_HOOKS']['exportTheme'][] = array('MadeYourDay\\Contao\\CustomElements', 'exportThemeHook');
+$GLOBALS['TL_HOOKS']['extractThemeFiles'][] = array('MadeYourDay\\Contao\\CustomElements', 'extractThemeFilesHook');
 
 $GLOBALS['BE_FFL']['rsce_list_start'] = 'MadeYourDay\\Contao\\Widget\\ListStart';
 $GLOBALS['BE_FFL']['rsce_list_stop'] = 'MadeYourDay\\Contao\\Widget\\ListStop';
