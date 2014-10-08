@@ -140,6 +140,13 @@ class CustomElements
 	 */
 	public function loadCallback($value, $dc)
 	{
+		if (\Input::get('field') === $dc->field && (
+			\Environment::get('script') === 'contao/file.php'
+			|| \Environment::get('script') === 'contao/page.php'
+		)) {
+			return $value;
+		}
+
 		$value = $this->getNestedValue($dc->field);
 
 		if ($value === null && isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['default'])) {
