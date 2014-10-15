@@ -479,6 +479,16 @@ class CustomElements
 			$fieldConfig['label'] = static::getLabelTranslated($fieldConfig['label']);
 		}
 
+		if (
+			isset($fieldConfig['reference'])
+			&& is_array($fieldConfig['reference'])
+			&& count(array_filter($fieldConfig['reference'], 'is_array'))
+		) {
+			$fieldConfig['reference'] = array_map(function($label) {
+				return static::getLabelTranslated($label);
+			}, $fieldConfig['reference']);
+		}
+
 		if ($fieldConfig['inputType'] === 'list') {
 
 			if (isset($fieldConfig['elementLabel'])) {
