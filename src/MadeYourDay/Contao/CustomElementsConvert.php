@@ -64,10 +64,17 @@ class CustomElementsConvert extends \Backend implements \executable
 					$failedElements[] = array('content', $contentElements->id, $contentElements->type);
 				}
 				else {
+
+					$this->createInitialVersion(\ContentModel::getTable(), $contentElements->id);
+
 					$this->Database
-						->prepare('UPDATE ' . \ContentModel::getTable() . ' SET type = \'html\', html = ? WHERE id = ?')
-						->executeUncached($html, $contentElements->id);
+						->prepare('UPDATE ' . \ContentModel::getTable() . ' SET tstamp = ?, type = \'html\', html = ? WHERE id = ?')
+						->executeUncached(time(), $html, $contentElements->id);
 					$elementsCount++;
+
+					$this->createNewVersion(\ContentModel::getTable(), $contentElements->id);
+					$this->log('A new version of record "' . \ContentModel::getTable() . '.id=' . $contentElements->id . '" has been created', __METHOD__, TL_GENERAL);
+
 				}
 
 			}
@@ -82,10 +89,17 @@ class CustomElementsConvert extends \Backend implements \executable
 					$failedElements[] = array('module', $moduleElements->id, $moduleElements->type);
 				}
 				else {
+
+					$this->createInitialVersion(\ModuleModel::getTable(), $moduleElements->id);
+
 					$this->Database
-						->prepare('UPDATE ' . \ModuleModel::getTable() . ' SET type = \'html\', html = ? WHERE id = ?')
-						->executeUncached($html, $moduleElements->id);
+						->prepare('UPDATE ' . \ModuleModel::getTable() . ' SET tstamp = ?, type = \'html\', html = ? WHERE id = ?')
+						->executeUncached(time(), $html, $moduleElements->id);
 					$elementsCount++;
+
+					$this->createNewVersion(\ModuleModel::getTable(), $moduleElements->id);
+					$this->log('A new version of record "' . \ModuleModel::getTable() . '.id=' . $moduleElements->id . '" has been created', __METHOD__, TL_GENERAL);
+
 				}
 
 			}
