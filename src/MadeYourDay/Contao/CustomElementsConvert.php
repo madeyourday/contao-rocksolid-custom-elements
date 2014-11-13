@@ -104,6 +104,12 @@ class CustomElementsConvert extends \Backend implements \executable
 
 			}
 
+			foreach ($failedElements as $element) {
+				$this->log('Failed to convert ' . $element[0] . ' element ID ' . $element[1] . ' (' . $element[2] . ') to a standard HTML element', __METHOD__, TL_ERROR);
+			}
+
+			$this->log('Converted ' . $elementsCount . ' RockSolid Custom Elements to standard HTML elements', __METHOD__, TL_GENERAL);
+
 			$objTemplate->elementsCount = $elementsCount;
 			$objTemplate->failedElements = $failedElements;
 
