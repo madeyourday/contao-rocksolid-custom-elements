@@ -178,11 +178,11 @@ class CustomElement extends \ContentElement
 			$size = deserialize($size);
 		}
 		if (!is_array($size)) {
-			$size = array(0, 0, 'center_center');
+			$size = array();
 		}
 		$size[0] = isset($size[0]) ? $size[0] : 0;
 		$size[1] = isset($size[1]) ? $size[1] : 0;
-		$size[2] = isset($size[2]) ? $size[2] : 'center_center';
+		$size[2] = isset($size[2]) ? $size[2] : 'crop';
 
 		$image = array(
 			'id' => $image->id,
