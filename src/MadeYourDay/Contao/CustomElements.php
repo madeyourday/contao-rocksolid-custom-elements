@@ -485,7 +485,7 @@ class CustomElements
 			&& count(array_filter($fieldConfig['reference'], 'is_array'))
 		) {
 			$fieldConfig['reference'] = array_map(function($label) {
-				return static::getLabelTranslated($label);
+				return \MadeYourDay\Contao\CustomElements::getLabelTranslated($label);
 			}, $fieldConfig['reference']);
 		}
 
