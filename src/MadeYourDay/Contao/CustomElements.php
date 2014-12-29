@@ -358,7 +358,13 @@ class CustomElements
 	{
 		$this->prepareSaveData('rsce_field_', $this->fieldsConfig);
 
-		return json_encode($this->saveData);
+		$data = json_encode($this->saveData);
+
+		if ($data === '[]') {
+			$data = '{}';
+		}
+
+		return $data;
 	}
 
 	/**
@@ -817,7 +823,13 @@ class CustomElements
 			}
 		}
 
-		return include $configPath;
+		$config = include $configPath;
+
+		if ($config) {
+			$config['fields'] = is_array($config['fields']) ? $config['fields'] : array();
+		}
+
+		return $config;
 	}
 
 	/**
