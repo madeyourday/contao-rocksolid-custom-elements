@@ -495,9 +495,20 @@ class CustomElements
 				$fieldConfig['elementLabel'] = static::getLabelTranslated($fieldConfig['elementLabel']);
 			}
 
+			$fieldConfig['minItems'] = isset($fieldConfig['minItems']) ? (int)$fieldConfig['minItems'] : 0;
+			$fieldConfig['maxItems'] = isset($fieldConfig['maxItems']) ? (int)$fieldConfig['maxItems'] : null;
+
+			if ($fieldConfig['maxItems'] && $fieldConfig['maxItems'] < $fieldConfig['minItems']) {
+				throw new \Exception('maxItems must not be higher than minItems (' . $this->getDcaFieldValue($dc, 'type') . ': ' . $fieldName . ').');
+			}
+
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '_rsce_list_start'] = array(
 				'label' => $fieldConfig['label'],
 				'inputType' => 'rsce_list_start',
+				'eval' => array(
+					'minItems' => $fieldConfig['minItems'],
+					'maxItems' => $fieldConfig['maxItems'],
+				),
 			);
 			$paletteFields[] = $fieldPrefix . $fieldName . '_rsce_list_start';
 
@@ -521,9 +532,13 @@ class CustomElements
 
 			for (
 				$dataKey = 0;
-				$createFromPost ? $this->wasListFieldSubmitted($fieldPrefix . $fieldName, $dataKey) : isset($fieldData[$dataKey]);
+				$dataKey < $fieldConfig['minItems'] || ($createFromPost ? $this->wasListFieldSubmitted($fieldPrefix . $fieldName, $dataKey) : isset($fieldData[$dataKey]));
 				$dataKey++
 			) {
+
+				if (is_int($fieldConfig['maxItems']) && $dataKey > $fieldConfig['maxItems'] - 1) {
+					break;
+				}
 
 				$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_start'] = array(
 					'inputType' => 'rsce_list_item_start',

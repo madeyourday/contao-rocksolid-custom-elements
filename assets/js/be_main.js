@@ -79,6 +79,50 @@ var restoreTinyMCEs = function(element) {
 
 };
 
+var updateListButtons = function(listElement) {
+
+	listElement = $(listElement);
+
+	var allItems = listElement.getChildren('.rsce_list_inner')[0].getChildren('.rsce_list_item');
+	var count = allItems.length;
+	var config = listElement.retrieve('rsce_config', {});
+	var minReached = !!(config.minItems && count <= config.minItems);
+	var maxReached = !!(
+		typeof config.maxItems === 'number'
+		&& count >= config.maxItems
+	);
+
+	listElement.getChildren('.rsce_list_toolbar')[0].getFirst('.header_new').setStyle(
+		'display',
+		maxReached ? 'none' : ''
+	);
+
+	allItems.each(function(el, index) {
+		var toolbar = el.getChildren('.rsce_list_toolbar')[0];
+		toolbar.getFirst('.rsce_list_toolbar_up').setStyle(
+			'display',
+			!index ? 'none' : ''
+		);
+		toolbar.getFirst('.rsce_list_toolbar_down').setStyle(
+			'display',
+			index === count - 1 ? 'none' : ''
+		);
+		toolbar.getFirst('.rsce_list_toolbar_drag').setStyle(
+			'display',
+			count < 2 ? 'none' : ''
+		);
+		toolbar.getFirst('.rsce_list_toolbar_delete').setStyle(
+			'display',
+			minReached ? 'none' : ''
+		);
+		toolbar.getFirst('.rsce_list_toolbar_new').setStyle(
+			'display',
+			maxReached ? 'none' : ''
+		);
+	});
+
+};
+
 var initListSort = function(listInner) {
 
 	if (!listInner.getElements('.drag-handle').length) {
@@ -110,6 +154,7 @@ var initListSort = function(listInner) {
 			listInner.getChildren('.rsce_list_item').each(function(el) {
 				restoreTinyMCEs(el);
 			});
+			updateListButtons(listInner.getParent('.rsce_list'));
 		}
 	}));
 
@@ -117,9 +162,12 @@ var initListSort = function(listInner) {
 
 var newElementAtPosition = function(listElement, position) {
 
-	var dummyItem = $(listElement)
+	listElement = $(listElement);
+	var config = listElement.retrieve('rsce_config', {});
+
+	var dummyItem = listElement
 		.getChildren('.rsce_list_item.rsce_list_item_dummy')[0];
-	var listInner = $(listElement).getChildren('.rsce_list_inner');
+	var listInner = listElement.getChildren('.rsce_list_inner');
 	if (!listInner.length) {
 		listInner = new Element('div', {'class': 'rsce_list_inner'})
 			.inject(listElement);
@@ -128,6 +176,14 @@ var newElementAtPosition = function(listElement, position) {
 		listInner = listInner[0];
 	}
 	var allItems = listInner.getChildren('.rsce_list_item');
+
+	if (
+		typeof config.maxItems === 'number'
+		&& allItems.length >= config.maxItems
+	) {
+		return;
+	}
+
 	var newItem = new Element('div', {'class': 'rsce_list_item'});
 
 	allItems.each(function(el) {
@@ -177,7 +233,10 @@ var newElementAtPosition = function(listElement, position) {
 	}
 
 	newItem.getElements('[name^="' + newKey + '"]').each(function(input) {
-		if (input.get('name').indexOf('__rsce_dummy') === -1) {
+		if (
+			input.getParent('.rsce_list_item') === newItem &&
+			input.get('name').indexOf('__rsce_dummy') === -1
+		) {
 			newFields.push(input.get('name').split('[')[0]);
 		}
 	});
@@ -196,6 +255,10 @@ var newElementAtPosition = function(listElement, position) {
 		renameElement(el);
 	});
 
+	newItem.getElements('.rsce_list').each(function(el) {
+		initList(el);
+	});
+
 	allItems.each(function(el) {
 		restoreTinyMCEs(el);
 	});
@@ -207,6 +270,8 @@ var newElementAtPosition = function(listElement, position) {
 	else {
 		initListSort(listInner);
 	}
+
+	updateListButtons(listElement);
 
 	try {
 		window.fireEvent('ajax_change');
@@ -236,8 +301,17 @@ var newElementAfter = function(linkElement) {
 var deleteElement = function(linkElement) {
 
 	var element = $(linkElement).getParent('.rsce_list_item');
+	var listElement = element.getParent('.rsce_list');
 	var listInner = element.getParent('.rsce_list_inner');
+	var allItems = listInner.getChildren('.rsce_list_item');
 	var nextElements = element.getAllNext('.rsce_list_item');
+
+	var config = listElement.retrieve('rsce_config', {});
+
+	if (config.minItems && allItems.length <= config.minItems) {
+		return;
+	}
+
 	removeTinyMCEs(element);
 	if (listInner.retrieve('listSort')) {
 		listInner.retrieve('listSort').removeItems(element);
@@ -252,6 +326,8 @@ var deleteElement = function(linkElement) {
 	nextElements.each(function(nextElement) {
 		restoreTinyMCEs(nextElement);
 	});
+
+	updateListButtons(listElement);
 
 	$(document.body).getChildren('.tip-wrap').each(function(el) {
 		el.dispose();
@@ -292,6 +368,8 @@ var moveElement = function(linkElement, offset) {
 	restoreTinyMCEs(swapElement);
 	restoreTinyMCEs(element);
 
+	updateListButtons(element.getParent('.rsce_list'));
+
 };
 
 var removeFormFields = function(fields, input) {
@@ -314,8 +392,18 @@ var initList = function(listElement) {
 		return;
 	}
 
+	if (listElement.get('data-config')) {
+		listElement.store(
+			'rsce_config',
+			JSON.decode(listElement.get('data-config'))
+		);
+	}
+
 	var listInner = new Element('div', {'class': 'rsce_list_inner'})
-		.inject(listElement);
+		.inject(
+			listElement.getChildren('.rsce_list_item.rsce_list_item_dummy')[0],
+			'after'
+		);
 
 	listElement.getChildren('.rsce_list_item').each(function(element) {
 
@@ -362,6 +450,8 @@ var initList = function(listElement) {
 	);
 
 	initListSort(listInner);
+
+	updateListButtons(listElement);
 
 };
 
