@@ -79,6 +79,20 @@ var restoreTinyMCEs = function(element) {
 
 };
 
+var restoreChosens = function(element) {
+
+	$(element).getElements('.chzn-container').each(function(container) {
+		var select = container.getPrevious('select');
+		if (!select) {
+			return;
+		}
+		select.setStyle('display', '').removeClass('chzn-done');
+		container.destroy();
+		$$([select]).chosen();
+	});
+
+};
+
 var updateListButtons = function(listElement) {
 
 	listElement = $(listElement);
@@ -155,6 +169,7 @@ var initListSort = function(listInner) {
 				restoreTinyMCEs(el);
 			});
 			updateListButtons(listInner.getParent('.rsce_list'));
+			restoreChosens(listInner);
 		}
 	}));
 
@@ -245,6 +260,8 @@ var newElementAtPosition = function(listElement, position) {
 		el.set('title', el.get('data-rsce-title'));
 	});
 
+	restoreChosens(newItem);
+
 	newItem.grab(new Element('input', {
 		type: 'hidden',
 		name: 'FORM_FIELDS[]',
@@ -253,6 +270,7 @@ var newElementAtPosition = function(listElement, position) {
 
 	newItem.getAllNext('.rsce_list_item').each(function(el) {
 		renameElement(el);
+		restoreChosens(el);
 	});
 
 	newItem.getElements('.rsce_list').each(function(el) {
@@ -324,6 +342,7 @@ var deleteElement = function(linkElement) {
 		renameElement(nextElement);
 	});
 	nextElements.each(function(nextElement) {
+		restoreChosens(nextElement);
 		restoreTinyMCEs(nextElement);
 	});
 
@@ -364,6 +383,9 @@ var moveElement = function(linkElement, offset) {
 
 	renameElement(swapElement);
 	renameElement(element);
+
+	restoreChosens(swapElement);
+	restoreChosens(element);
 
 	restoreTinyMCEs(swapElement);
 	restoreTinyMCEs(element);
