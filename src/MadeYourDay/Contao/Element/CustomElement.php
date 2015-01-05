@@ -9,6 +9,7 @@
 namespace MadeYourDay\Contao\Element;
 
 use MadeYourDay\Contao\Template\CustomTemplate;
+use MadeYourDay\Contao\CustomElements;
 
 /**
  * Custom content element and frontend module
@@ -31,12 +32,9 @@ class CustomElement extends \ContentElement
 	{
 		$this->strTemplate = $this->type;
 
-		if (TL_MODE === 'BE' && (
-			in_array($this->type, $GLOBALS['TL_WRAPPERS']['start'])
-			|| in_array($this->type, $GLOBALS['TL_WRAPPERS']['stop'])
-			|| in_array($this->type, $GLOBALS['TL_WRAPPERS']['separator'])
-		)) {
-			return '';
+		// Return output for the backend if in BE mode
+		if (($output = $this->rsceGetBackendOutput()) !== null) {
+			return $output;
 		}
 
 		try {
@@ -59,6 +57,55 @@ class CustomElement extends \ContentElement
 
 			throw $exception;
 		}
+	}
+
+	/**
+	 * Generate backend output if TL_MODE is set to BE
+	 *
+	 * @return string|null Backend output or null
+	 */
+	public function rsceGetBackendOutput()
+	{
+		if (TL_MODE !== 'BE') {
+			return null;
+		}
+
+		$config = CustomElements::getConfigByType($this->type) ?: array();
+
+		// Handle newsletter output the same way as the frontend
+		if (!empty($config['isNewsletter'])) {
+
+			if (\Input::get('do') === 'newsletter') {
+				return null;
+			}
+
+			foreach(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS) as $entry) {
+				$method = $entry['class'] . '::' . $entry['function'];
+				if (
+					$entry['file'] === TL_ROOT . '/system/modules/newsletter/classes/Newsletter.php'
+					|| $method === 'Contao\\Newsletter::send'
+					|| $method === 'tl_newsletter::listNewsletters'
+				) {
+					return null;
+				}
+			}
+
+		}
+
+		if (!empty($config['beTemplate'])) {
+			$this->strTemplate = $config['beTemplate'];
+			return null;
+		}
+
+		if (
+			in_array($this->type, $GLOBALS['TL_WRAPPERS']['start'])
+			|| in_array($this->type, $GLOBALS['TL_WRAPPERS']['stop'])
+			|| in_array($this->type, $GLOBALS['TL_WRAPPERS']['separator'])
+		) {
+			return '';
+		}
+
+		return null;
 	}
 
 	/**

@@ -796,7 +796,7 @@ class CustomElements
 	 * @param  string     $type Element type beginning with "rsce_"
 	 * @return array|null       Configuration array
 	 */
-	protected static function getConfigByType($type)
+	public static function getConfigByType($type)
 	{
 		$configPath = null;
 
