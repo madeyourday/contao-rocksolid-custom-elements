@@ -12,4 +12,4 @@
  * @author Martin Auswöger <martin@madeyourday.net>
  */
 
-$GLOBALS['TL_LANG']['tl_module']['rsce_data'][0] = 'Element-Daten';
+$GLOBALS['TL_LANG']['tl_module']['rsce_data'][0] = 'Custom Elements Daten';
