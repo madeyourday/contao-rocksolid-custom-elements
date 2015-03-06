@@ -39,6 +39,12 @@ var renameElement = function(element) {
 		});
 	});
 
+	element.getElements('script').each(function(el) {
+		if (el.text && el.text.indexOf(oldName) !== -1) {
+			el.text = el.text.split(oldName).join(newName);
+		}
+	});
+
 };
 
 var removeTinyMCEs = function(element) {
@@ -212,9 +218,11 @@ var newElementAtPosition = function(listElement, position) {
 	var newFields = [];
 
 	newItem.set('data-rsce-name', newKey);
-	newItem.set('html', dummyItem.get('html')
+
+	var newItemHtml = dummyItem.get('html')
 		.split(key + '__rsce_dummy')
-		.join(newKey));
+		.join(newKey);
+	newItem.set('html', newItemHtml);
 
 	var newItemTextareas = [];
 	dummyItem.retrieve('rsce_tinyMCE_textareas', []).each(function(data) {
@@ -239,6 +247,8 @@ var newElementAtPosition = function(listElement, position) {
 			el.get('data-rsce-label').split('%s').join(position + 1)
 		);
 	});
+
+	newItem.getElements('.sortable.sortable-done').removeClass('sortable-done');
 
 	if (position) {
 		newItem.inject(allItems[position - 1], 'after');
@@ -282,6 +292,24 @@ var newElementAtPosition = function(listElement, position) {
 	});
 	restoreTinyMCEs(newItem);
 
+	newItemHtml.replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, function(all, code){
+
+		code = code.replace(/<!--|\/\/-->|<!\[CDATA\[\/\/>|<!\]\]>/g, '');
+
+		// Ignore tinyMCEs
+		if (/^\s*window\.tinymce\s*&&\s*tinymce.init\s*\(/.test(code)) {
+			return '';
+		}
+
+		try {
+			Browser.exec(code);
+		}
+		catch(e) {}
+
+		return '';
+
+	});
+
 	if (listInner.retrieve('listSort')) {
 		listInner.retrieve('listSort').addItems(newItem);
 	}
@@ -290,6 +318,11 @@ var newElementAtPosition = function(listElement, position) {
 	}
 
 	updateListButtons(listElement);
+
+	try {
+		window.fireEvent('subpalette');
+	}
+	catch(e) {}
 
 	try {
 		window.fireEvent('ajax_change');
@@ -411,6 +444,11 @@ var initList = function(listElement) {
 	listElement = $(listElement);
 
 	if (listElement.get('id').indexOf('__rsce_dummy__') !== -1) {
+		return;
+	}
+
+	if (listElement.getChildren('.rsce_list_inner').length) {
+		// Already initialized
 		return;
 	}
 
