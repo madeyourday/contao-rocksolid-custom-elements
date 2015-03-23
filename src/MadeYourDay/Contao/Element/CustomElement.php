@@ -188,7 +188,7 @@ class CustomElement extends \ContentElement
 	 * @param  int          $maxSize Gets passed to addImageToTemplate
 	 * @return object                Image object (similar as addImageToTemplate)
 	 */
-	public function getImageObject($id, $size = null, $maxSize = null)
+	public function getImageObject($id, $size = null, $maxSize = null, $fullsize = null)
 	{
 		global $objPage;
 
@@ -240,9 +240,10 @@ class CustomElement extends \ContentElement
 			'alt' => $imageMeta['title'],
 			'imageUrl' => $imageMeta['link'],
 			'caption' => $imageMeta['caption'],
+            		'fullsize' => $fullsize ? true : false,
 		);
 
-		$imageObject = new \stdClass();
+		$imageObject = new \FrontendTemplate();
 		$this->addImageToTemplate($imageObject, $image, $maxSize);
 
 		if (empty($imageObject->src)) {
