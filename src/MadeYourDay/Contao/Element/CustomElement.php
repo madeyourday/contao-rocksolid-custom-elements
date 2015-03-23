@@ -183,12 +183,13 @@ class CustomElement extends \ContentElement
 	/**
 	 * Get an image object from id/uuid and an optional size configuration
 	 *
-	 * @param  int|string   $id      ID, UUID string or binary
-	 * @param  string|array $size    [width, height, mode] optionally serialized
-	 * @param  int          $maxSize Gets passed to addImageToTemplate
-	 * @return object                Image object (similar as addImageToTemplate)
+	 * @param  int|string   $id       ID, UUID string or binary
+	 * @param  string|array $size     [width, height, mode] optionally serialized
+	 * @param  int          $maxSize  Gets passed to addImageToTemplate
+	 * @param  bool         $fullsize Gets passed to addImageToTemplate as $arrItem['fullsize']
+	 * @return object                 Image object (similar as addImageToTemplate)
 	 */
-	public function getImageObject($id, $size = null, $maxSize = null)
+	public function getImageObject($id, $size = null, $maxSize = null, $fullsize = null)
 	{
 		global $objPage;
 
@@ -240,10 +241,12 @@ class CustomElement extends \ContentElement
 			'alt' => $imageMeta['title'],
 			'imageUrl' => $imageMeta['link'],
 			'caption' => $imageMeta['caption'],
+			'fullsize' => (bool)$fullsize,
 		);
 
-		$imageObject = new \stdClass();
+		$imageObject = new \FrontendTemplate('rsce_image_object');
 		$this->addImageToTemplate($imageObject, $image, $maxSize);
+		$imageObject = (object)$imageObject->getData();
 
 		if (empty($imageObject->src)) {
 			$imageObject->src = $imageObject->singleSRC;
