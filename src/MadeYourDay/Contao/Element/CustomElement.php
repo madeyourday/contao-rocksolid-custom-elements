@@ -183,13 +183,14 @@ class CustomElement extends \ContentElement
 	/**
 	 * Get an image object from id/uuid and an optional size configuration
 	 *
-	 * @param  int|string   $id       ID, UUID string or binary
-	 * @param  string|array $size     [width, height, mode] optionally serialized
-	 * @param  int          $maxSize  Gets passed to addImageToTemplate
-	 * @param  bool         $fullsize Gets passed to addImageToTemplate as $arrItem['fullsize']
-	 * @return object                 Image object (similar as addImageToTemplate)
+	 * @param  int|string   $id         ID, UUID string or binary
+	 * @param  string|array $size       [width, height, mode] optionally serialized
+	 * @param  int          $maxSize    Gets passed to addImageToTemplate as $intMaxWidth
+	 * @param  string       $lightboxId Gets passed to addImageToTemplate as $strLightboxId
+	 * @param  array        $item       Gets merged and passed to addImageToTemplate as $arrItem
+	 * @return object                   Image object (similar as addImageToTemplate)
 	 */
-	public function getImageObject($id, $size = null, $maxSize = null, $fullsize = null)
+	public function getImageObject($id, $size = null, $maxSize = null, $lightboxId = null, $item = array())
 	{
 		global $objPage;
 
@@ -241,11 +242,12 @@ class CustomElement extends \ContentElement
 			'alt' => $imageMeta['title'],
 			'imageUrl' => $imageMeta['link'],
 			'caption' => $imageMeta['caption'],
-			'fullsize' => (bool)$fullsize,
 		);
 
+		$image = array_merge($image, $item);
+
 		$imageObject = new \FrontendTemplate('rsce_image_object');
-		$this->addImageToTemplate($imageObject, $image, $maxSize);
+		$this->addImageToTemplate($imageObject, $image, $maxSize, $lightboxId);
 		$imageObject = (object)$imageObject->getData();
 
 		if (empty($imageObject->src)) {
