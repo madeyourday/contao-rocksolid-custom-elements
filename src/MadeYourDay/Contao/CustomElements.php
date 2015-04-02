@@ -956,6 +956,11 @@ class CustomElements
 	 */
 	public static function loadConfig($bypassCache = false)
 	{
+		// Don't load the config in the install tool
+		if (\Environment::get('script') === 'contao/install.php') {
+			return;
+		}
+
 		$filePath = 'system/cache/rocksolid_custom_elements_config.php';
 		$fileFullPath = TL_ROOT . '/' . $filePath;
 
