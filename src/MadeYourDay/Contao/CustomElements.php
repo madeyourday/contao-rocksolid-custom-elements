@@ -46,11 +46,9 @@ class CustomElements
 	 */
 	public function onloadCallback($dc)
 	{
-		if (\Input::get('act') !== 'edit' && \Input::get('act') !== 'editAll' && \Input::get('act') !== 'show') {
-			return;
+		if (\Input::get('act') === 'edit') {
+			$this->reloadConfig();
 		}
-
-		$this->reloadConfig();
 
 		if ($dc->table === 'tl_content' && class_exists('CeAccess')) {
 			$ceAccess = new \CeAccess;
@@ -73,21 +71,11 @@ class CustomElements
 
 		$createFromPost = \Input::post('FORM_SUBMIT') === $dc->table;
 
-		if ((
-			\Environment::get('script') === 'contao/file.php' ||
-			\Environment::get('script') === 'contao/page.php'
-		) && \Input::get('field')) {
+		if (\Input::get('field') && substr(\Input::get('field'), 0, 11) === 'rsce_field_') {
 			// Ensures that the fileTree oder pageTree field exists
 			$this->createDca($dc, $type, $createFromPost, \Input::get('field'));
 		}
-		else if (
-			\Environment::get('script') === 'contao/main.php'
-			&& (
-				\Input::post('action') === 'reloadFiletree'
-				|| \Input::post('action') === 'reloadPagetree'
-			)
-			&& \Input::post('name')
-		) {
+		else if (\Input::post('name') && substr(\Input::post('name'), 0, 11) === 'rsce_field_') {
 			// Ensures that the fileTree oder pageTree field exists
 			$this->createDca($dc, $type, $createFromPost, \Input::post('name'));
 		}
@@ -140,10 +128,7 @@ class CustomElements
 	 */
 	public function loadCallback($value, $dc)
 	{
-		if (\Input::get('field') === $dc->field && (
-			\Environment::get('script') === 'contao/file.php'
-			|| \Environment::get('script') === 'contao/page.php'
-		)) {
+		if ($value !== null) {
 			return $value;
 		}
 
