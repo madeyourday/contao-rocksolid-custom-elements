@@ -1057,20 +1057,20 @@ class CustomElements
 			$element = array(
 				'config' => $config,
 				'label' => isset($config['label']) ? $config['label'] : array(implode(' ', array_map('ucfirst', explode('_', substr($template, 5)))), ''),
+				'labelPrefix' => '',
 				'types' => isset($config['types']) ? $config['types'] : array('content', 'module'),
 				'contentCategory' => isset($config['contentCategory']) ? $config['contentCategory'] : 'custom_elements',
 				'moduleCategory' => isset($config['moduleCategory']) ? $config['moduleCategory'] : 'custom_elements',
 				'template' => $template,
 				'path' => substr(dirname($configPath), strlen(TL_ROOT . '/')),
 			);
-			$element['plainLabel'] = $element['label'][0];
 
 			if ($element['path'] && substr($element['path'], 10)) {
 				if (isset($themeNamesByTemplateDir[$element['path']])) {
-					$element['label'][0] = $themeNamesByTemplateDir[$element['path']] . ': ' . $element['label'][0];
+					$element['labelPrefix'] = $themeNamesByTemplateDir[$element['path']] . ': ';
 				}
 				else {
-					$element['label'][0] = implode(' ', array_map('ucfirst', preg_split('(\\W)', substr($element['path'], 10)))) . ': ' . $element['label'][0];
+					$element['labelPrefix'] = implode(' ', array_map('ucfirst', preg_split('(\\W)', substr($element['path'], 10)))) . ': ';
 				}
 			}
 
@@ -1086,19 +1086,16 @@ class CustomElements
 				if ($b['path'] === 'templates') {
 					return 1;
 				}
+				return strcmp($a['labelPrefix'], $b['labelPrefix']);
 			}
-			return strcmp($a['label'][0], $b['label'][0]);
+			return strcmp($a['template'], $b['template']);
 		});
 
-		$usePlainLabels = count(array_unique(array_map(function($element) {
+		$addLabelPrefix = count(array_unique(array_map(function($element) {
 			return $element['path'];
-		}, $elements))) < 2;
+		}, $elements))) > 1;
 
 		foreach ($elements as $element) {
-
-			if ($usePlainLabels) {
-				$element['label'][0] = $element['plainLabel'];
-			}
 
 			if (in_array('content', $element['types'])) {
 
@@ -1107,6 +1104,11 @@ class CustomElements
 
 				$GLOBALS['TL_LANG']['CTE'][$element['template']] = static::getLabelTranslated($element['label']);
 				$contents[] = '$GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $element['template'] . '\'] = \\MadeYourDay\\Contao\\CustomElements::getLabelTranslated(' . var_export($element['label'], true) . ');';
+
+				if ($addLabelPrefix && $element['labelPrefix']) {
+					$GLOBALS['TL_LANG']['CTE'][$element['template']][0] = $element['labelPrefix'] . $GLOBALS['TL_LANG']['CTE'][$element['template']][0];
+					$contents[] = '$GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $element['template'] . '\'][0] = ' . var_export($element['labelPrefix'], true) . ' . $GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $element['template'] . '\'][0];';
+				}
 
 				if (!empty($element['config']['wrapper']['type'])) {
 					$GLOBALS['TL_WRAPPERS'][$element['config']['wrapper']['type']][] = $element['template'];
@@ -1122,6 +1124,11 @@ class CustomElements
 
 				$GLOBALS['TL_LANG']['FMD'][$element['template']] = static::getLabelTranslated($element['label']);
 				$contents[] = '$GLOBALS[\'TL_LANG\'][\'FMD\'][\'' . $element['template'] . '\'] = \\MadeYourDay\\Contao\\CustomElements::getLabelTranslated(' . var_export($element['label'], true) . ');';
+
+				if ($addLabelPrefix && $element['labelPrefix']) {
+					$GLOBALS['TL_LANG']['FMD'][$element['template']][0] = $element['labelPrefix'] . $GLOBALS['TL_LANG']['FMD'][$element['template']][0];
+					$contents[] = '$GLOBALS[\'TL_LANG\'][\'FMD\'][\'' . $element['template'] . '\'][0] = ' . var_export($element['labelPrefix'], true) . ' . $GLOBALS[\'TL_LANG\'][\'FMD\'][\'' . $element['template'] . '\'][0];';
+				}
 
 			}
 
