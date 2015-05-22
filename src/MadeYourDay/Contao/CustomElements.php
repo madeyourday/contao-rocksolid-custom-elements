@@ -627,9 +627,18 @@ class CustomElements
 	 * @param  \DataContainer $dc Data container
 	 * @return string             Page picker button html code
 	 */
-	public function pagePicker($dc) {
+	public function pagePicker($dc)
+	{
+		if (version_compare(VERSION, '4.0', '>=')) {
+			$url = \System::getContainer()->get('router')->generate('contao_backend_page');
+		}
+		else {
+			$url = 'contao/page.php';
+		}
+
 		return ' <a'
-			. ' href="contao/page.php'
+			. ' href="'
+				. $url
 				. '?do=' . \Input::get('do')
 				. '&amp;table=' . $dc->table
 				. '&amp;field=' . $dc->field
@@ -916,21 +925,46 @@ class CustomElements
 	}
 
 	/**
-	 * Purge cache file system/cache/rocksolid_custom_elements_config.php
+	 * Purge cache file rocksolid_custom_elements_config.php
 	 *
 	 * @return void
 	 */
 	public static function purgeCache()
 	{
-		$filePath = 'system/cache/rocksolid_custom_elements_config.php';
-		$fileFullPath = TL_ROOT . '/' . $filePath;
+		$filePaths = static::getCacheFilePaths();
 
-		if (file_exists($fileFullPath)) {
-			$file = new \File($filePath, true);
+		if (file_exists($filePaths['fullPath'])) {
+			$file = new \File($filePaths['path'], true);
 			$file->write('');
 			$file->close();
-			static::refreshOpcodeCache($fileFullPath);
+			static::refreshOpcodeCache($filePaths['fullPath']);
 		}
+	}
+
+	/**
+	 * Get path and fullPath to the cache file
+	 *
+	 * @return string
+	 */
+	public static function getCacheFilePaths()
+	{
+		if (version_compare(VERSION, '4.0', '>=')) {
+			$cacheDir = \System::getContainer()->getParameter('kernel.cache_dir') . '/contao';
+		}
+		else {
+			$cacheDir = TL_ROOT . '/system/cache';
+		}
+
+		$fileFullPath = $cacheDir . '/rocksolid_custom_elements_config.php';
+		$filePath = $fileFullPath;
+		if (substr($filePath, 0, strlen(TL_ROOT) + 1) === TL_ROOT . '/') {
+			$filePath = substr($filePath, strlen(TL_ROOT) + 1);
+		}
+
+		return array(
+			'path' => $filePath,
+			'fullPath' => $fileFullPath,
+		);
 	}
 
 	/**
@@ -946,17 +980,16 @@ class CustomElements
 			return;
 		}
 
-		$filePath = 'system/cache/rocksolid_custom_elements_config.php';
-		$fileFullPath = TL_ROOT . '/' . $filePath;
+		$filePaths = static::getCacheFilePaths();
 
 		$cacheHash = md5(implode(',', array_merge(
 			glob(TL_ROOT . '/templates/rsce_*') ?: array(),
 			glob(TL_ROOT . '/templates/*/rsce_*') ?: array()
 		)));
 
-		if (!$bypassCache && file_exists($fileFullPath)) {
+		if (!$bypassCache && file_exists($filePaths['fullPath'])) {
 			$fileCacheHash = null;
-			include $fileFullPath;
+			include $filePaths['fullPath'];
 			if ($fileCacheHash === $cacheHash) {
 				// the cache file is valid and loaded
 				return;
@@ -1134,10 +1167,10 @@ class CustomElements
 
 		}
 
-		$file = new \File($filePath, true);
+		$file = new \File($filePaths['path'], true);
 		$file->write(implode("\n", $contents));
 		$file->close();
-		static::refreshOpcodeCache($fileFullPath);
+		static::refreshOpcodeCache($filePaths['fullPath']);
 	}
 
 	/**
