@@ -976,8 +976,15 @@ class CustomElements
 	public static function loadConfig($bypassCache = false)
 	{
 		// Don't load the config in the install tool
-		if (\Environment::get('script') === 'contao/install.php') {
-			return;
+		if (version_compare(VERSION, '4.0', '>=')) {
+			if (\System::getContainer()->get('request')->get('_route') === 'contao_backend_install') {
+				return;
+			}
+		}
+		else {
+			if (\Environment::get('script') === 'contao/install.php') {
+				return;
+			}
 		}
 
 		$filePaths = static::getCacheFilePaths();
