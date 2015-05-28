@@ -104,6 +104,31 @@ class CustomElementsConvert extends \Backend implements \executable
 
 			}
 
+			$formElements = \FormFieldModel::findBy(array(\FormFieldModel::getTable() . '.type LIKE ?'), 'rsce_%');
+
+			while ($formElements && $formElements->next()) {
+
+				$html = $this->getHtmlFromElement($formElements);
+
+				if (!$html) {
+					$failedElements[] = array('form', $formElements->id, $formElements->type);
+				}
+				else {
+
+					$this->createInitialVersion(\FormFieldModel::getTable(), $formElements->id);
+
+					$this->Database
+						->prepare('UPDATE ' . \FormFieldModel::getTable() . ' SET tstamp = ?, type = \'html\', html = ? WHERE id = ?')
+						->executeUncached(time(), $html, $formElements->id);
+					$elementsCount++;
+
+					$this->createNewVersion(\FormFieldModel::getTable(), $formElements->id);
+					$this->log('A new version of record "' . \FormFieldModel::getTable() . '.id=' . $formElements->id . '" has been created', __METHOD__, TL_GENERAL);
+
+				}
+
+			}
+
 			foreach ($failedElements as $element) {
 				$this->log('Failed to convert ' . $element[0] . ' element ID ' . $element[1] . ' (' . $element[2] . ') to a standard HTML element', __METHOD__, TL_ERROR);
 			}

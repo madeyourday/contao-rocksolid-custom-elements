@@ -11,7 +11,7 @@ namespace MadeYourDay\Contao;
 use MadeYourDay\Contao\Template\CustomTemplate;
 
 /**
- * RockSolid Custom Elements DCA (tl_content and tl_module)
+ * RockSolid Custom Elements DCA (tl_content, tl_module and tl_form_field)
  *
  * Provide miscellaneous methods that are used by the data configuration arrays.
  *
@@ -37,7 +37,7 @@ class CustomElements
 	protected $fieldsConfig = array();
 
 	/**
-	 * tl_content and tl_module DCA onload callback
+	 * tl_content, tl_module and tl_form_field DCA onload callback
 	 *
 	 * Reloads config and creates the DCA fields
 	 *
@@ -85,7 +85,7 @@ class CustomElements
 	}
 
 	/**
-	 * tl_content and tl_module DCA onsubmit callback
+	 * tl_content, tl_module and tl_form_field DCA onsubmit callback
 	 *
 	 * Creates empty arrays for empty lists if no data is available
 	 * (e.g. for new elements)
@@ -417,7 +417,7 @@ class CustomElements
 			$standardFields
 		);
 
-		$GLOBALS['TL_LANG'][$dc->table]['rsce_legend'] = $GLOBALS['TL_LANG'][$dc->table === 'tl_content' ? 'CTE' : 'FMD'][$type][0];
+		$GLOBALS['TL_LANG'][$dc->table]['rsce_legend'] = $GLOBALS['TL_LANG'][$dc->table === 'tl_content' ? 'CTE' : ($dc->table === 'tl_module' ? 'FMD' : 'FFL')][$type][0];
 	}
 
 	/**
@@ -820,7 +820,7 @@ class CustomElements
 	/**
 	 * Generates the palette definition
 	 *
-	 * @param  string $table          "tl_content" or "tl_module"
+	 * @param  string $table          "tl_content", "tl_module" or "tl_form_field"
 	 * @param  array  $paletteFields  Palette fields
 	 * @param  array  $standardFields Standard fields
 	 * @return string                 Palette definition
@@ -838,7 +838,7 @@ class CustomElements
 		}
 		else {
 			$palette .= '{type_legend},type';
-			if (in_array('headline', $standardFields)) {
+			if ($table === 'tl_content' && in_array('headline', $standardFields)) {
 				$palette .= ',headline';
 			}
 			if (in_array('columns', $standardFields)) {
@@ -865,13 +865,20 @@ class CustomElements
 			$palette .= ';{image_legend},addImage';
 		}
 
-		$palette .= ';{protected_legend:hide},protected;{expert_legend:hide},guests';
-
-		if (in_array('cssID', $standardFields)) {
-			$palette .= ',cssID';
+		if ($table === 'tl_form_field') {
+			$palette .= ';{expert_legend:hide},class';
 		}
-		if (in_array('space', $standardFields)) {
-			$palette .= ',space';
+		else {
+
+			$palette .= ';{protected_legend:hide},protected;{expert_legend:hide},guests';
+
+			if (in_array('cssID', $standardFields)) {
+				$palette .= ',cssID';
+			}
+			if (in_array('space', $standardFields)) {
+				$palette .= ',space';
+			}
+
 		}
 
 		if ($table === 'tl_content') {
@@ -934,7 +941,7 @@ class CustomElements
 	}
 
 	/**
-	 * Load the TL_CTE and FE_MOD configuration and use caching if possible
+	 * Load the TL_CTE, FE_MOD and TL_FFL configuration and use caching if possible
 	 *
 	 * @param  bool $bypassCache
 	 * @return void
@@ -1058,7 +1065,7 @@ class CustomElements
 				'config' => $config,
 				'label' => isset($config['label']) ? $config['label'] : array(implode(' ', array_map('ucfirst', explode('_', substr($template, 5)))), ''),
 				'labelPrefix' => '',
-				'types' => isset($config['types']) ? $config['types'] : array('content', 'module'),
+				'types' => isset($config['types']) ? $config['types'] : array('content', 'module', 'form'),
 				'contentCategory' => isset($config['contentCategory']) ? $config['contentCategory'] : 'custom_elements',
 				'moduleCategory' => isset($config['moduleCategory']) ? $config['moduleCategory'] : 'custom_elements',
 				'template' => $template,
@@ -1110,11 +1117,6 @@ class CustomElements
 					$contents[] = '$GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $element['template'] . '\'][0] = ' . var_export($element['labelPrefix'], true) . ' . $GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $element['template'] . '\'][0];';
 				}
 
-				if (!empty($element['config']['wrapper']['type'])) {
-					$GLOBALS['TL_WRAPPERS'][$element['config']['wrapper']['type']][] = $element['template'];
-					$contents[] = '$GLOBALS[\'TL_WRAPPERS\'][' . var_export($element['config']['wrapper']['type'], true) . '][] = ' . var_export($element['template'], true) . ';';
-				}
-
 			}
 
 			if (in_array('module', $element['types'])) {
@@ -1130,6 +1132,26 @@ class CustomElements
 					$contents[] = '$GLOBALS[\'TL_LANG\'][\'FMD\'][\'' . $element['template'] . '\'][0] = ' . var_export($element['labelPrefix'], true) . ' . $GLOBALS[\'TL_LANG\'][\'FMD\'][\'' . $element['template'] . '\'][0];';
 				}
 
+			}
+
+			if (in_array('form', $element['types'])) {
+
+				$GLOBALS['TL_FFL'][$element['template']] = 'MadeYourDay\\Contao\\Form\\CustomWidget';
+				$contents[] = '$GLOBALS[\'TL_FFL\'][\'' . $element['template'] . '\'] = \'MadeYourDay\\\\Contao\\\\Form\\\\CustomWidget\';';
+
+				$GLOBALS['TL_LANG']['FFL'][$element['template']] = static::getLabelTranslated($element['label']);
+				$contents[] = '$GLOBALS[\'TL_LANG\'][\'FFL\'][\'' . $element['template'] . '\'] = \\MadeYourDay\\Contao\\CustomElements::getLabelTranslated(' . var_export($element['label'], true) . ');';
+
+				if ($addLabelPrefix && $element['labelPrefix']) {
+					$GLOBALS['TL_LANG']['FFL'][$element['template']][0] = $element['labelPrefix'] . $GLOBALS['TL_LANG']['FFL'][$element['template']][0];
+					$contents[] = '$GLOBALS[\'TL_LANG\'][\'FFL\'][\'' . $element['template'] . '\'][0] = ' . var_export($element['labelPrefix'], true) . ' . $GLOBALS[\'TL_LANG\'][\'FFL\'][\'' . $element['template'] . '\'][0];';
+				}
+
+			}
+
+			if (!empty($element['config']['wrapper']['type'])) {
+				$GLOBALS['TL_WRAPPERS'][$element['config']['wrapper']['type']][] = $element['template'];
+				$contents[] = '$GLOBALS[\'TL_WRAPPERS\'][' . var_export($element['config']['wrapper']['type'], true) . '][] = ' . var_export($element['template'], true) . ';';
 			}
 
 		}
