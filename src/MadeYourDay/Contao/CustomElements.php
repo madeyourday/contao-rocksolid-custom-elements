@@ -388,9 +388,13 @@ class CustomElements
 	 */
 	protected function createDca($dc, $type, $createFromPost = false, $tmpField = null)
 	{
+		$assetsDir = version_compare(VERSION, '4.0', '>=')
+			? 'bundles/rocksolidcustomelements'
+			: 'system/modules/rocksolid-custom-elements/assets';
+
 		if (TL_MODE === 'BE') {
-			$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/rocksolid-custom-elements/assets/js/be_main.js';
-			$GLOBALS['TL_CSS'][] = 'system/modules/rocksolid-custom-elements/assets/css/be_main.css';
+			$GLOBALS['TL_JAVASCRIPT'][] = $assetsDir . '/js/be_main.js';
+			$GLOBALS['TL_CSS'][] = $assetsDir . '/css/be_main.css';
 		}
 
 		$paletteFields = array();
