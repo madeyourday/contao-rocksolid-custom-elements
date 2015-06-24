@@ -910,7 +910,7 @@ class CustomElements
 		if ($dc->activeRecord) {
 			$value = $dc->activeRecord->$fieldName;
 		}
-		else {
+		elseif ($dc->table && $dc->id) {
 			$record = \Database::getInstance()
 				->prepare("SELECT * FROM {$dc->table} WHERE id=?")
 				->execute($dc->id);
