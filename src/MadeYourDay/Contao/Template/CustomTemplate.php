@@ -16,6 +16,18 @@ namespace MadeYourDay\Contao\Template;
 class CustomTemplate extends \FrontendTemplate
 {
 	/**
+	 * {@inheritdoc}
+	 */
+	protected function getTemplatePath($template, $format = 'html5', $default = false)
+	{
+		if ($default) {
+			return parent::getTemplatePath($template, $format, $default);
+		}
+
+		return static::getTemplate($template, $format);
+	}
+
+	/**
 	 * Get the template path
 	 *
 	 * @param  string $template Template name

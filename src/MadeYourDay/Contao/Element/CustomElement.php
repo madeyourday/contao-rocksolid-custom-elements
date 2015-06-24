@@ -83,6 +83,7 @@ class CustomElement extends \ContentElement
 				$method = $entry['class'] . '::' . $entry['function'];
 				if (
 					$entry['file'] === TL_ROOT . '/system/modules/newsletter/classes/Newsletter.php'
+					|| $entry['file'] === TL_ROOT . '/vendor/contao/newsletter-bundle/src/Resources/contao/classes/Newsletter.php'
 					|| $method === 'Contao\\Newsletter::send'
 					|| $method === 'tl_newsletter::listNewsletters'
 				) {

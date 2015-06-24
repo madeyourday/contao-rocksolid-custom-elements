@@ -28,10 +28,14 @@ ClassLoader::addClasses(array(
 	'MadeYourDay\\Contao\\Widget\\Hidden' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/Widget/Hidden.php',
 ));
 
+$templatesFolder = version_compare(VERSION, '4.0', '>=')
+	? 'vendor/madeyourday/contao-rocksolid-custom-elements/templates'
+	: 'system/modules/rocksolid-custom-elements/templates';
+
 TemplateLoader::addFiles(array(
-	'form_rsce_plain' => 'system/modules/rocksolid-custom-elements/templates',
-	'be_rsce_list' => 'system/modules/rocksolid-custom-elements/templates',
-	'be_rsce_group' => 'system/modules/rocksolid-custom-elements/templates',
-	'be_rsce_hidden' => 'system/modules/rocksolid-custom-elements/templates',
-	'be_rsce_convert' => 'system/modules/rocksolid-custom-elements/templates',
+	'form_rsce_plain' => $templatesFolder,
+	'be_rsce_list' => $templatesFolder,
+	'be_rsce_group' => $templatesFolder,
+	'be_rsce_hidden' => $templatesFolder,
+	'be_rsce_convert' => $templatesFolder,
 ));
