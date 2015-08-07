@@ -138,11 +138,10 @@ class CustomElements
 			$value = $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['default'];
 		}
 
-		if (
-			version_compare(VERSION, '3.2', '>=') &&
-			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fileTree' &&
-			$value
-		) {
+		if (version_compare(VERSION, '3.2', '>=') && $value && (
+			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fileTree'
+			|| $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fineUploader'
+		)) {
 			// Multiple files
 			if (substr($value, 0, 2) === 'a:') {
 				$value = serialize(array_map(function($value) {
@@ -288,10 +287,10 @@ class CustomElements
 			return;
 		}
 
-		if (
-			version_compare(VERSION, '3.2', '>=') &&
+		if (version_compare(VERSION, '3.2', '>=') && (
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fileTree'
-		) {
+			|| $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fineUploader'
+		)) {
 			if (trim($value)) {
 				if (strlen($value) === 16) {
 					$value = \String::binToUuid($value);
@@ -1491,7 +1490,10 @@ class CustomElements
 			}
 
 			// UUIDs to paths and vice versa
-			else if ($fieldConfig['inputType'] === 'fileTree' && $value) {
+			else if ($value && (
+				$fieldConfig['inputType'] === 'fileTree'
+				|| $fieldConfig['inputType'] === 'fineUploader'
+			)) {
 
 				if (empty($fieldConfig['eval']['multiple'])) {
 
