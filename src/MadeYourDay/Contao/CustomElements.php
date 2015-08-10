@@ -421,6 +421,17 @@ class CustomElements
 		);
 
 		$GLOBALS['TL_LANG'][$dc->table]['rsce_legend'] = $GLOBALS['TL_LANG'][$dc->table === 'tl_content' ? 'CTE' : ($dc->table === 'tl_module' ? 'FMD' : 'FFL')][$type][0];
+
+		if ($config['onloadCallback'] && is_array($config['onloadCallback'])) {
+			foreach ($config['onloadCallback'] as $callback) {
+				if (is_array($callback)) {
+					\System::importStatic($callback[0])->$callback[1]($dc);
+				}
+				else if (is_callable($callback)) {
+					$callback($dc);
+				}
+			}
+		}
 	}
 
 	/**
@@ -615,8 +626,13 @@ class CustomElements
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName] = $fieldConfig;
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['eval']['alwaysSave'] = true;
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['eval']['doNotSaveEmpty'] = true;
-			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['load_callback'][] =
-				array('MadeYourDay\\Contao\\CustomElements', 'loadCallback');
+			if (!is_array($GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['load_callback'])) {
+				$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['load_callback'] = array();
+			}
+			array_unshift(
+				$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['load_callback'],
+				array('MadeYourDay\\Contao\\CustomElements', 'loadCallback')
+			);
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['save_callback'][] =
 				array('MadeYourDay\\Contao\\CustomElements', 'saveCallback');
 			$paletteFields[] = $fieldPrefix . $fieldName;
