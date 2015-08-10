@@ -291,7 +291,7 @@ class CustomElements
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fileTree'
 			|| $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fineUploader'
 		)) {
-			if (trim($value)) {
+			if (trim($value) && $value !== 'a:1:{i:0;s:0:"";}') {
 				if (strlen($value) === 16) {
 					$value = \String::binToUuid($value);
 				}
