@@ -46,6 +46,10 @@ class CustomElements
 	 */
 	public function onloadCallback($dc)
 	{
+		if (\Input::get('act') === 'create') {
+			return;
+		}
+
 		if (\Input::get('act') === 'edit') {
 			$this->reloadConfig();
 		}
