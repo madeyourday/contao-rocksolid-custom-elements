@@ -625,6 +625,12 @@ class CustomElements
 				$fieldConfig['eval']['tl_class'] =
 					(isset($fieldConfig['eval']['tl_class']) ? $fieldConfig['eval']['tl_class'] . ' ' : '')
 					. 'wizard';
+				if (!isset($fieldConfig['eval']['fieldType'])) {
+					$fieldConfig['eval']['fieldType'] = 'radio';
+				}
+				if (!isset($fieldConfig['eval']['filesOnly'])) {
+					$fieldConfig['eval']['filesOnly'] = true;
+				}
 			}
 
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName] = $fieldConfig;
@@ -666,6 +672,7 @@ class CustomElements
 				. '&amp;table=' . $dc->table
 				. '&amp;field=' . $dc->field
 				. '&amp;value=' . str_replace(array('{{link_url::', '}}'), '', $dc->value)
+				. (version_compare(VERSION, '3.5', '>=') ? '&amp;switch=1&amp;id=' . $dc->id : '')
 			. '"'
 			. ' title="' . specialchars($GLOBALS['TL_LANG']['MSC']['pagepicker']) . '"'
 			. ' onclick="'
