@@ -220,6 +220,8 @@ var newElementAtPosition = function(listElement, position) {
 	newItem.set('data-rsce-name', newKey);
 
 	var newItemHtml = dummyItem.get('html')
+		.split(' data-rsce-required="data-rsce-required"')
+		.join(' required="required"')
 		.split(key + '__rsce_dummy')
 		.join(newKey);
 	newItem.set('html', newItemHtml);
@@ -501,6 +503,10 @@ var initList = function(listElement) {
 
 	var dummyFields = [];
 	listElement.getElements('[name*="__rsce_dummy__"]').each(function(input) {
+		if (input.required) {
+			input.required = false;
+			input.setProperty('data-rsce-required', 'data-rsce-required');
+		}
 		dummyFields.push(input.get('name').split('[')[0]);
 	});
 	removeFormFields(
