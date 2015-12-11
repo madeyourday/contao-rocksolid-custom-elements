@@ -150,7 +150,7 @@ class CustomElements
 			if (substr($value, 0, 2) === 'a:') {
 				$value = serialize(array_map(function($value) {
 					if (strlen($value) === 36) {
-						$value = \String::uuidToBin($value);
+						$value = \StringUtil::uuidToBin($value);
 					}
 					else if (is_numeric($value) && $file = \FilesModel::findByPk($value)) {
 						// Convert 3.1 format into 3.2 format
@@ -162,7 +162,7 @@ class CustomElements
 			// Single file
 			else {
 				if (strlen($value) === 36) {
-					$value = \String::uuidToBin($value);
+					$value = \StringUtil::uuidToBin($value);
 				}
 				else if (is_numeric($value) && $file = \FilesModel::findByPk($value)) {
 					// Convert 3.1 format into 3.2 format
@@ -297,7 +297,7 @@ class CustomElements
 		)) {
 			if (trim($value) && $value !== 'a:1:{i:0;s:0:"";}') {
 				if (strlen($value) === 16) {
-					$value = \String::binToUuid($value);
+					$value = \StringUtil::binToUuid($value);
 				}
 				else {
 					$value = serialize(array_map('String::binToUuid', deserialize($value)));
@@ -1532,7 +1532,7 @@ class CustomElements
 					if ($import) {
 						$file = \FilesModel::findByPath(\Config::get('uploadPath') . '/' . preg_replace('(^files/)', '', $value));
 						if ($file) {
-							$data[$fieldName] = \String::binToUuid($file->uuid);
+							$data[$fieldName] = \StringUtil::binToUuid($file->uuid);
 						}
 					}
 					else {
@@ -1550,7 +1550,7 @@ class CustomElements
 							if ($import) {
 								$file = \FilesModel::findByPath(\Config::get('uploadPath') . '/' . preg_replace('(^files/)', '', $value));
 								if ($file) {
-									return \String::binToUuid($file->uuid);
+									return \StringUtil::binToUuid($file->uuid);
 								}
 							}
 							else {

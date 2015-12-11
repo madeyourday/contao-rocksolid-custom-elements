@@ -200,7 +200,7 @@ class CustomElement extends \ContentElement
 		}
 
 		if (strlen($id) === 36) {
-			$id = \String::uuidToBin($id);
+			$id = \StringUtil::uuidToBin($id);
 		}
 		if (strlen($id) === 16) {
 			$image = \FilesModel::findByUuid($id);
