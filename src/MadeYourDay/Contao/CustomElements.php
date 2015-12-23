@@ -429,7 +429,7 @@ class CustomElements
 		if ($config['onloadCallback'] && is_array($config['onloadCallback'])) {
 			foreach ($config['onloadCallback'] as $callback) {
 				if (is_array($callback)) {
-					\System::importStatic($callback[0])->$callback[1]($dc);
+					\System::importStatic($callback[0])->{$callback[1]}($dc);
 				}
 				else if (is_callable($callback)) {
 					$callback($dc);
