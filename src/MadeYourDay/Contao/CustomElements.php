@@ -300,7 +300,7 @@ class CustomElements
 					$value = \StringUtil::binToUuid($value);
 				}
 				else {
-					$value = serialize(array_map('String::binToUuid', deserialize($value)));
+					$value = serialize(array_map('StringUtil::binToUuid', deserialize($value)));
 				}
 			}
 			else {
