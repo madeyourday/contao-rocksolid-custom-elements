@@ -44,9 +44,6 @@ class CustomElement extends \ContentElement
 
 			if (TL_MODE === 'BE') {
 
-				// close unclosed output buffer
-				ob_end_clean();
-
 				$template = new CustomTemplate($this->strTemplate);
 				$template->setData($this->Template->getData());
 				$this->Template = $template;
