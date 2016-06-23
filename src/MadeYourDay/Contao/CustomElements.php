@@ -1015,7 +1015,11 @@ class CustomElements
 		// Don't load the config in the install tool
 		if (version_compare(VERSION, '4.0', '>=')) {
 			try {
-				if (\System::getContainer()->get('request')->get('_route') === 'contao_backend_install') {
+				if (
+					\System::getContainer()->get('request_stack')
+					&& \System::getContainer()->get('request_stack')->getCurrentRequest()
+					&& \System::getContainer()->get('request_stack')->getCurrentRequest()->get('_route') === 'contao_backend_install'
+				) {
 					return;
 				}
 			}
