@@ -1263,7 +1263,7 @@ class CustomElements
 
 			// Zend OPcache
 			if (function_exists('opcache_invalidate')) {
-				opcache_invalidate($path, true);
+				@opcache_invalidate($path, true);
 			}
 
 			// Zend Optimizer+
