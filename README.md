@@ -1,8 +1,12 @@
 # RockSolid Custom Elements Contao Extension
 
-Install to */system/modules/rocksolid-custom-elements/*
+## Installation
 
-More information: 
+```sh
+$ composer require madeyourday/contao-rocksolid-custom-elements
+```
 
-* English: http://rocksolidthemes.com/en/contao/plugins/custom-content-elements
-* German: http://rocksolidthemes.com/de/contao/plugins/custom-content-elements
+## Documentation:
+
+* English: https://rocksolidthemes.com/en/contao/plugins/custom-content-elements
+* German: https://rocksolidthemes.com/de/contao/plugins/custom-content-elements
