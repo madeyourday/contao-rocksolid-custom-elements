@@ -12,11 +12,6 @@
  * @author Martin Auswöger <martin@madeyourday.net>
  */
 
-// Backwards compatibility for Contao < 3.5.1
-if (!class_exists('StringUtil') && class_exists('String')) {
-	class_alias('String', 'StringUtil');
-}
-
 $GLOBALS['TL_HOOKS']['initializeSystem'][] = array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'loadConfig');
 $GLOBALS['TL_HOOKS']['loadLanguageFile'][] = array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'loadLanguageFileHook');
 $GLOBALS['TL_HOOKS']['exportTheme'][] = array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'exportThemeHook');
