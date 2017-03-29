@@ -6,7 +6,7 @@
  * file that was distributed with this source code.
  */
 
-namespace MadeYourDay\Contao;
+namespace MadeYourDay\RockSolidCustomElements;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 

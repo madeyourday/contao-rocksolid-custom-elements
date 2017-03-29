@@ -6,10 +6,10 @@
  * file that was distributed with this source code.
  */
 
-namespace MadeYourDay\Contao\Form;
+namespace MadeYourDay\RockSolidCustomElements\Form;
 
-use MadeYourDay\Contao\Element\CustomElement;
-use MadeYourDay\Contao\Model\DummyModel;
+use MadeYourDay\RockSolidCustomElements\Element\CustomElement;
+use MadeYourDay\RockSolidCustomElements\Model\DummyModel;
 
 /**
  * Custom form widget

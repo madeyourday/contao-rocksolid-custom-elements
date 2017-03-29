@@ -17,22 +17,22 @@ if (!class_exists('StringUtil') && class_exists('String')) {
 	class_alias('String', 'StringUtil');
 }
 
-$GLOBALS['TL_HOOKS']['initializeSystem'][] = array('MadeYourDay\\Contao\\CustomElements', 'loadConfig');
-$GLOBALS['TL_HOOKS']['loadLanguageFile'][] = array('MadeYourDay\\Contao\\CustomElements', 'loadLanguageFileHook');
-$GLOBALS['TL_HOOKS']['exportTheme'][] = array('MadeYourDay\\Contao\\CustomElements', 'exportThemeHook');
-$GLOBALS['TL_HOOKS']['extractThemeFiles'][] = array('MadeYourDay\\Contao\\CustomElements', 'extractThemeFilesHook');
+$GLOBALS['TL_HOOKS']['initializeSystem'][] = array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'loadConfig');
+$GLOBALS['TL_HOOKS']['loadLanguageFile'][] = array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'loadLanguageFileHook');
+$GLOBALS['TL_HOOKS']['exportTheme'][] = array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'exportThemeHook');
+$GLOBALS['TL_HOOKS']['extractThemeFiles'][] = array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'extractThemeFilesHook');
 
-$GLOBALS['BE_FFL']['rsce_list_start'] = 'MadeYourDay\\Contao\\Widget\\ListStart';
-$GLOBALS['BE_FFL']['rsce_list_stop'] = 'MadeYourDay\\Contao\\Widget\\ListStop';
-$GLOBALS['BE_FFL']['rsce_list_item_start'] = 'MadeYourDay\\Contao\\Widget\\ListItemStart';
-$GLOBALS['BE_FFL']['rsce_list_item_stop'] = 'MadeYourDay\\Contao\\Widget\\ListItemStop';
-$GLOBALS['BE_FFL']['rsce_group_start'] = 'MadeYourDay\\Contao\\Widget\\GroupStart';
-$GLOBALS['BE_FFL']['rsce_list_hidden'] = 'MadeYourDay\\Contao\\Widget\\Hidden';
+$GLOBALS['BE_FFL']['rsce_list_start'] = 'MadeYourDay\\RockSolidCustomElements\\Widget\\ListStart';
+$GLOBALS['BE_FFL']['rsce_list_stop'] = 'MadeYourDay\\RockSolidCustomElements\\Widget\\ListStop';
+$GLOBALS['BE_FFL']['rsce_list_item_start'] = 'MadeYourDay\\RockSolidCustomElements\\Widget\\ListItemStart';
+$GLOBALS['BE_FFL']['rsce_list_item_stop'] = 'MadeYourDay\\RockSolidCustomElements\\Widget\\ListItemStop';
+$GLOBALS['BE_FFL']['rsce_group_start'] = 'MadeYourDay\\RockSolidCustomElements\\Widget\\GroupStart';
+$GLOBALS['BE_FFL']['rsce_list_hidden'] = 'MadeYourDay\\RockSolidCustomElements\\Widget\\Hidden';
 
-$GLOBALS['TL_MAINTENANCE'][] = 'MadeYourDay\\Contao\\CustomElementsConvert';
+$GLOBALS['TL_MAINTENANCE'][] = 'MadeYourDay\\RockSolidCustomElements\\CustomElementsConvert';
 
 $GLOBALS['TL_PURGE']['custom']['rocksolid_custom_elements'] = array(
-	'callback' => array('MadeYourDay\\Contao\\CustomElements', 'purgeCache'),
+	'callback' => array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'purgeCache'),
 );
 
 // Insert the custom_elements category

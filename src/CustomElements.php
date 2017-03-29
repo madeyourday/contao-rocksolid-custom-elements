@@ -6,9 +6,9 @@
  * file that was distributed with this source code.
  */
 
-namespace MadeYourDay\Contao;
+namespace MadeYourDay\RockSolidCustomElements;
 
-use MadeYourDay\Contao\Template\CustomTemplate;
+use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
 
 /**
  * RockSolid Custom Elements DCA (tl_content, tl_module and tl_form_field)
@@ -494,7 +494,7 @@ class CustomElements
 			&& count(array_filter($fieldConfig['reference'], 'is_array'))
 		) {
 			$fieldConfig['reference'] = array_map(function($label) {
-				return \MadeYourDay\Contao\CustomElements::getLabelTranslated($label);
+				return \MadeYourDay\RockSolidCustomElements\CustomElements::getLabelTranslated($label);
 			}, $fieldConfig['reference']);
 		}
 
@@ -620,7 +620,7 @@ class CustomElements
 			if ($fieldConfig['inputType'] === 'url') {
 				$fieldConfig['inputType'] = 'text';
 				$fieldConfig['wizard'] = array(
-					array('MadeYourDay\\Contao\\CustomElements', 'pagePicker')
+					array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'pagePicker')
 				);
 				$fieldConfig['eval']['tl_class'] =
 					(isset($fieldConfig['eval']['tl_class']) ? $fieldConfig['eval']['tl_class'] . ' ' : '')
@@ -641,10 +641,10 @@ class CustomElements
 			}
 			array_unshift(
 				$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['load_callback'],
-				array('MadeYourDay\\Contao\\CustomElements', 'loadCallback')
+				array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'loadCallback')
 			);
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['save_callback'][] =
-				array('MadeYourDay\\Contao\\CustomElements', 'saveCallback');
+				array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'saveCallback');
 			$paletteFields[] = $fieldPrefix . $fieldName;
 
 		}
@@ -1185,11 +1185,11 @@ class CustomElements
 
 			if (in_array('content', $element['types'])) {
 
-				$GLOBALS['TL_CTE'][$element['contentCategory']][$element['template']] = 'MadeYourDay\\Contao\\Element\\CustomElement';
+				$GLOBALS['TL_CTE'][$element['contentCategory']][$element['template']] = 'MadeYourDay\\RockSolidCustomElements\\Element\\CustomElement';
 				$contents[] = '$GLOBALS[\'TL_CTE\'][\'' . $element['contentCategory'] . '\'][\'' . $element['template'] . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
 
 				$GLOBALS['TL_LANG']['CTE'][$element['template']] = static::getLabelTranslated($element['label']);
-				$contents[] = '$GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $element['template'] . '\'] = \\MadeYourDay\\Contao\\CustomElements::getLabelTranslated(' . var_export($element['label'], true) . ');';
+				$contents[] = '$GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $element['template'] . '\'] = \\MadeYourDay\\RockSolidCustomElements\\CustomElements::getLabelTranslated(' . var_export($element['label'], true) . ');';
 
 				if ($addLabelPrefix && $element['labelPrefix']) {
 					$GLOBALS['TL_LANG']['CTE'][$element['template']][0] = $element['labelPrefix'] . $GLOBALS['TL_LANG']['CTE'][$element['template']][0];
@@ -1200,11 +1200,11 @@ class CustomElements
 
 			if (in_array('module', $element['types'])) {
 
-				$GLOBALS['FE_MOD'][$element['moduleCategory']][$element['template']] = 'MadeYourDay\\Contao\\Element\\CustomElement';
+				$GLOBALS['FE_MOD'][$element['moduleCategory']][$element['template']] = 'MadeYourDay\\RockSolidCustomElements\\Element\\CustomElement';
 				$contents[] = '$GLOBALS[\'FE_MOD\'][\'' . $element['moduleCategory'] . '\'][\'' . $element['template'] . '\'] = \'MadeYourDay\\\\Contao\\\\Element\\\\CustomElement\';';
 
 				$GLOBALS['TL_LANG']['FMD'][$element['template']] = static::getLabelTranslated($element['label']);
-				$contents[] = '$GLOBALS[\'TL_LANG\'][\'FMD\'][\'' . $element['template'] . '\'] = \\MadeYourDay\\Contao\\CustomElements::getLabelTranslated(' . var_export($element['label'], true) . ');';
+				$contents[] = '$GLOBALS[\'TL_LANG\'][\'FMD\'][\'' . $element['template'] . '\'] = \\MadeYourDay\\RockSolidCustomElements\\CustomElements::getLabelTranslated(' . var_export($element['label'], true) . ');';
 
 				if ($addLabelPrefix && $element['labelPrefix']) {
 					$GLOBALS['TL_LANG']['FMD'][$element['template']][0] = $element['labelPrefix'] . $GLOBALS['TL_LANG']['FMD'][$element['template']][0];
@@ -1215,11 +1215,11 @@ class CustomElements
 
 			if (in_array('form', $element['types'])) {
 
-				$GLOBALS['TL_FFL'][$element['template']] = 'MadeYourDay\\Contao\\Form\\CustomWidget';
+				$GLOBALS['TL_FFL'][$element['template']] = 'MadeYourDay\\RockSolidCustomElements\\Form\\CustomWidget';
 				$contents[] = '$GLOBALS[\'TL_FFL\'][\'' . $element['template'] . '\'] = \'MadeYourDay\\\\Contao\\\\Form\\\\CustomWidget\';';
 
 				$GLOBALS['TL_LANG']['FFL'][$element['template']] = static::getLabelTranslated($element['label']);
-				$contents[] = '$GLOBALS[\'TL_LANG\'][\'FFL\'][\'' . $element['template'] . '\'] = \\MadeYourDay\\Contao\\CustomElements::getLabelTranslated(' . var_export($element['label'], true) . ');';
+				$contents[] = '$GLOBALS[\'TL_LANG\'][\'FFL\'][\'' . $element['template'] . '\'] = \\MadeYourDay\\RockSolidCustomElements\\CustomElements::getLabelTranslated(' . var_export($element['label'], true) . ');';
 
 				if ($addLabelPrefix && $element['labelPrefix']) {
 					$GLOBALS['TL_LANG']['FFL'][$element['template']][0] = $element['labelPrefix'] . $GLOBALS['TL_LANG']['FFL'][$element['template']][0];

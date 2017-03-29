@@ -6,9 +6,9 @@
  * file that was distributed with this source code.
  */
 
-namespace MadeYourDay\Contao;
+namespace MadeYourDay\RockSolidCustomElements;
 
-use MadeYourDay\Contao\Element\CustomElement;
+use MadeYourDay\RockSolidCustomElements\Element\CustomElement;
 
 /**
  * RockSolid Custom Elements Convert

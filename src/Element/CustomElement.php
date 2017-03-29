@@ -6,10 +6,10 @@
  * file that was distributed with this source code.
  */
 
-namespace MadeYourDay\Contao\Element;
+namespace MadeYourDay\RockSolidCustomElements\Element;
 
-use MadeYourDay\Contao\Template\CustomTemplate;
-use MadeYourDay\Contao\CustomElements;
+use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
+use MadeYourDay\RockSolidCustomElements\CustomElements;
 
 /**
  * Custom content element and frontend module
@@ -263,7 +263,7 @@ class CustomElement extends \ContentElement
 	 */
 	public function getColumnClassName($index)
 	{
-		if (!class_exists('MadeYourDay\\Contao\\Element\\ColumnsStart')) {
+		if (!class_exists('MadeYourDay\\RockSolidCustomElements\\Element\\ColumnsStart')) {
 			return '';
 		}
 

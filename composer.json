@@ -24,7 +24,7 @@
 	},
 	"autoload":{
 		"psr-4": {
-			"MadeYourDay\\Contao\\": "src/"
+			"MadeYourDay\\RockSolidCustomElements\\": "src/"
 		}
 	},
 	"replace":{

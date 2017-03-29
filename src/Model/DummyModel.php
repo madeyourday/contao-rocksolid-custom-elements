@@ -6,7 +6,7 @@
  * file that was distributed with this source code.
  */
 
-namespace MadeYourDay\Contao\Model;
+namespace MadeYourDay\RockSolidCustomElements\Model;
 
 /**
  * Dummy model

@@ -6,7 +6,7 @@
  * file that was distributed with this source code.
  */
 
-namespace MadeYourDay\Contao\Template;
+namespace MadeYourDay\RockSolidCustomElements\Template;
 
 /**
  * Custom backend template
