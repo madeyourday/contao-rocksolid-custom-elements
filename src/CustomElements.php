@@ -899,9 +899,6 @@ class CustomElements
 			if (in_array('cssID', $standardFields)) {
 				$palette .= ',cssID';
 			}
-			if (in_array('space', $standardFields)) {
-				$palette .= ',space';
-			}
 
 		}
 
