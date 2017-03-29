@@ -2,25 +2,29 @@
 	"name":"madeyourday/contao-rocksolid-custom-elements",
 	"description":"Create your own, nestable content elements using a modular system. End the WYSIWYG chaos with your own content elements.",
 	"keywords":["contao","custom-elements","content-elements"],
-	"type":"contao-module",
-	"homepage":"http://rocksolidthemes.com/de/contao/plugins/custom-content-elements",
+	"type":"contao-bundle",
+	"homepage":"https://rocksolidthemes.com/de/contao/plugins/custom-content-elements",
 	"license":"MIT",
 	"authors":[
 		{
 			"name":"RockSolid Themes",
-			"homepage":"http://rocksolidthemes.com/de/contao-themes",
+			"homepage":"https://rocksolidthemes.com/de/contao-themes",
 			"role":"Developer"
 		}
 	],
 	"support":{
-		"forum":"http://help.rocksolidthemes.com/discussions",
+		"forum":"http://help.rocksolidthemes.com/discussions/contao",
 		"issues":"https://github.com/madeyourday/contao-rocksolid-custom-elements/issues",
 		"source":"https://github.com/madeyourday/contao-rocksolid-custom-elements"
 	},
 	"require":{
-		"php":">=5.3",
-		"madeyourday/contao-rocksolid-columns":"~1.0",
-		"madeyourday/contao-rocksolid-icon-picker":"~1.0"
+		"php":">=5.5",
+		"contao/core-bundle":"^4.3",
+		"madeyourday/contao-rocksolid-columns":"^2.0",
+		"madeyourday/contao-rocksolid-icon-picker":"^2.0"
+	},
+	"conflict": {
+		"contao/core": "*"
 	},
 	"autoload":{
 		"psr-4": {
@@ -33,11 +37,6 @@
 	"extra":{
 		"branch-alias": {
 			"dev-develop": "2.0.x-dev"
-		},
-		"contao":{
-			"sources":{
-				"":"system/modules/rocksolid-custom-elements"
-			}
 		}
 	}
 }
