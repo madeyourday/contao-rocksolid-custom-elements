@@ -8,6 +8,7 @@
 
 namespace MadeYourDay\RockSolidCustomElements\Element;
 
+use MadeYourDay\RockSolidColumns\Element\ColumnsStart;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
 use MadeYourDay\RockSolidCustomElements\CustomElements;
 
@@ -258,7 +259,7 @@ class CustomElement extends \ContentElement
 	 */
 	public function getColumnClassName($index)
 	{
-		if (!class_exists('MadeYourDay\\RockSolidCustomElements\\Element\\ColumnsStart')) {
+		if (!class_exists(ColumnsStart::class)) {
 			return '';
 		}
 
