@@ -28,9 +28,7 @@ ClassLoader::addClasses(array(
 	'MadeYourDay\\RockSolidCustomElements\\Widget\\Hidden' => 'system/modules/rocksolid-custom-elements/src/MadeYourDay/Contao/Widget/Hidden.php',
 ));
 
-$templatesFolder = version_compare(VERSION, '4.0', '>=')
-	? 'vendor/madeyourday/contao-rocksolid-custom-elements/templates'
-	: 'system/modules/rocksolid-custom-elements/templates';
+$templatesFolder = 'vendor/madeyourday/contao-rocksolid-custom-elements/templates';
 
 TemplateLoader::addFiles(array(
 	'form_rsce_plain' => $templatesFolder,

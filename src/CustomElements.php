@@ -142,7 +142,7 @@ class CustomElements
 			$value = $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['default'];
 		}
 
-		if (version_compare(VERSION, '3.2', '>=') && $value && (
+		if ($value && (
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fileTree'
 			|| $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fineUploader'
 		)) {
@@ -152,10 +152,6 @@ class CustomElements
 					if (strlen($value) === 36) {
 						$value = \StringUtil::uuidToBin($value);
 					}
-					else if (is_numeric($value) && $file = \FilesModel::findByPk($value)) {
-						// Convert 3.1 format into 3.2 format
-						$value = $file->uuid;
-					}
 					return $value;
 				}, deserialize($value)));
 			}
@@ -163,10 +159,6 @@ class CustomElements
 			else {
 				if (strlen($value) === 36) {
 					$value = \StringUtil::uuidToBin($value);
-				}
-				else if (is_numeric($value) && $file = \FilesModel::findByPk($value)) {
-					// Convert 3.1 format into 3.2 format
-					$value = $file->uuid;
 				}
 			}
 		}
@@ -291,10 +283,10 @@ class CustomElements
 			return;
 		}
 
-		if (version_compare(VERSION, '3.2', '>=') && (
+		if (
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fileTree'
 			|| $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fineUploader'
-		)) {
+		) {
 			if (trim($value) && $value !== 'a:1:{i:0;s:0:"";}') {
 				if (strlen($value) === 16) {
 					$value = \StringUtil::binToUuid($value);
@@ -391,9 +383,7 @@ class CustomElements
 	 */
 	protected function createDca($dc, $type, $createFromPost = false, $tmpField = null)
 	{
-		$assetsDir = version_compare(VERSION, '4.0', '>=')
-			? 'bundles/rocksolidcustomelements'
-			: 'system/modules/rocksolid-custom-elements/assets';
+		$assetsDir = 'bundles/rocksolidcustomelements';
 
 		if (TL_MODE === 'BE') {
 			$GLOBALS['TL_JAVASCRIPT'][] = $assetsDir . '/js/be_main.js';
@@ -658,12 +648,7 @@ class CustomElements
 	 */
 	public function pagePicker($dc)
 	{
-		if (version_compare(VERSION, '4.0', '>=')) {
-			$url = \System::getContainer()->get('router')->generate('contao_backend_page');
-		}
-		else {
-			$url = 'contao/page.php';
-		}
+		$url = \System::getContainer()->get('router')->generate('contao_backend_page');
 
 		return ' <a'
 			. ' href="'
@@ -672,7 +657,7 @@ class CustomElements
 				. '&amp;table=' . $dc->table
 				. '&amp;field=' . $dc->field
 				. '&amp;value=' . str_replace(array('{{link_url::', '}}'), '', $dc->value)
-				. (version_compare(VERSION, '3.5', '>=') ? '&amp;switch=1&amp;id=' . $dc->id : '')
+				. '&amp;switch=1&amp;id=' . $dc->id
 			. '"'
 			. ' title="' . specialchars($GLOBALS['TL_LANG']['MSC']['pagepicker']) . '"'
 			. ' onclick="'
@@ -985,12 +970,7 @@ class CustomElements
 	 */
 	public static function getCacheFilePaths()
 	{
-		if (version_compare(VERSION, '4.0', '>=')) {
-			$cacheDir = \System::getContainer()->getParameter('kernel.cache_dir') . '/contao';
-		}
-		else {
-			$cacheDir = TL_ROOT . '/system/cache';
-		}
+		$cacheDir = \System::getContainer()->getParameter('kernel.cache_dir') . '/contao';
 
 		$fileFullPath = $cacheDir . '/rocksolid_custom_elements_config.php';
 		$filePath = $fileFullPath;
@@ -1013,24 +993,17 @@ class CustomElements
 	public static function loadConfig($bypassCache = false)
 	{
 		// Don't load the config in the install tool
-		if (version_compare(VERSION, '4.0', '>=')) {
-			try {
-				if (
-					\System::getContainer()->get('request_stack')
-					&& \System::getContainer()->get('request_stack')->getCurrentRequest()
-					&& \System::getContainer()->get('request_stack')->getCurrentRequest()->get('_route') === 'contao_backend_install'
-				) {
-					return;
-				}
-			}
-			catch (\Exception $exception) {
+		try {
+			if (
+				\System::getContainer()->get('request_stack')
+				&& \System::getContainer()->get('request_stack')->getCurrentRequest()
+				&& \System::getContainer()->get('request_stack')->getCurrentRequest()->get('_route') === 'contao_backend_install'
+			) {
 				return;
 			}
 		}
-		else {
-			if (\Environment::get('script') === 'contao/install.php' || \Environment::get('script') === 'install.php') {
-				return;
-			}
+		catch (\Exception $exception) {
+			return;
 		}
 
 		$filePaths = static::getCacheFilePaths();
