@@ -155,10 +155,10 @@ class CustomElement extends \ContentElement
 		foreach ($data as $key => $value) {
 			if (is_string($value) && trim($value)) {
 				if (is_object($data)) {
-					$data->$key = deserialize($value);
+					$data->$key = \StringUtil::deserialize($value);
 				}
 				else {
-					$data[$key] = deserialize($value);
+					$data[$key] = \StringUtil::deserialize($value);
 				}
 			}
 			else if (is_array($value) || is_object($value)) {
@@ -218,7 +218,7 @@ class CustomElement extends \ContentElement
 		$imageMeta = $this->getMetaData($image->meta, $objPage->language);
 
 		if (is_string($size) && trim($size)) {
-			$size = deserialize($size);
+			$size = \StringUtil::deserialize($size);
 		}
 		if (!is_array($size)) {
 			$size = array();

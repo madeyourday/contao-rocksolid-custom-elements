@@ -45,7 +45,7 @@ class CustomElementsConvert extends \Backend implements \executable
 			// Check the request token
 			if (!isset($_GET['rt']) || !\RequestToken::validate(\Input::get('rt')))
 			{
-				$this->Session->set('INVALID_TOKEN_URL', \Environment::get('request'));
+				\System::getContainer()->get('session')->getBag('contao_backend')->set('INVALID_TOKEN_URL', \Environment::get('request'));
 				$this->redirect('contao/confirm.php');
 			}
 

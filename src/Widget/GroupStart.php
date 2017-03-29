@@ -34,7 +34,7 @@ class GroupStart extends \Widget
 	{
 		$this->loadLanguageFile('rocksolid_custom_elements');
 
-		$fs = $this->Session->get('fieldset_states');
+		$fs = \System::getContainer()->get('session')->getBag('contao_backend')->get('fieldset_states');
 
 		return '</fieldset>'
 			. '<div class="clear"></div>'

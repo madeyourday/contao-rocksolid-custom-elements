@@ -153,7 +153,7 @@ class CustomElements
 						$value = \StringUtil::uuidToBin($value);
 					}
 					return $value;
-				}, deserialize($value)));
+				}, \StringUtil::deserialize($value)));
 			}
 			// Single file
 			else {
@@ -292,7 +292,7 @@ class CustomElements
 					$value = \StringUtil::binToUuid($value);
 				}
 				else {
-					$value = serialize(array_map('StringUtil::binToUuid', deserialize($value)));
+					$value = serialize(array_map('StringUtil::binToUuid', \StringUtil::deserialize($value)));
 				}
 			}
 			else {
@@ -659,12 +659,12 @@ class CustomElements
 				. '&amp;value=' . str_replace(array('{{link_url::', '}}'), '', $dc->value)
 				. '&amp;switch=1&amp;id=' . $dc->id
 			. '"'
-			. ' title="' . specialchars($GLOBALS['TL_LANG']['MSC']['pagepicker']) . '"'
+			. ' title="' . \StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['pagepicker']) . '"'
 			. ' onclick="'
 				. 'Backend.getScrollOffset();'
 				. 'Backend.openModalSelector({'
 					. '\'width\':765,'
-					. '\'title\':' . specialchars(json_encode($GLOBALS['TL_LANG']['MOD']['page'][0])) . ','
+					. '\'title\':' . \StringUtil::specialchars(json_encode($GLOBALS['TL_LANG']['MOD']['page'][0])) . ','
 					. '\'url\':this.href,'
 					. '\'id\':\'' . $dc->field . '\','
 					. '\'tag\':\'ctrl_'. $dc->field . ((\Input::get('act') == 'editAll') ? '_' . $dc->id : '') . '\','
@@ -697,7 +697,7 @@ class CustomElements
 			return false;
 		}
 
-		$formFields = array_unique(trimsplit(
+		$formFields = array_unique(\StringUtil::trimsplit(
 			'[,;]',
 			implode(',', \Input::post('FORM_FIELDS'))
 		));
@@ -1538,7 +1538,7 @@ class CustomElements
 							}
 							return $value;
 						},
-						deserialize($value, true)
+						\StringUtil::deserialize($value, true)
 					));
 
 				}
@@ -1548,7 +1548,7 @@ class CustomElements
 			// tl_image_size IDs
 			else if ($fieldConfig['inputType'] === 'imageSize' && $value && $import) {
 
-				$value = deserialize($value, true);
+				$value = \StringUtil::deserialize($value, true);
 
 				if (
 					!empty($value[2])

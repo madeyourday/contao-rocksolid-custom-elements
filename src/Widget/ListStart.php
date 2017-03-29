@@ -38,7 +38,7 @@ class ListStart extends \Widget
 		$toolbar .= '<a class="header_new" href="" onclick="rsceNewElement(this);return false;">' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['new_list_item'] . '</a> ';
 		$toolbar .= '</div>';
 
-		$fs = $this->Session->get('fieldset_states');
+		$fs = \System::getContainer()->get('session')->getBag('contao_backend')->get('fieldset_states');
 
 		$config = array(
 			'minItems' => $this->minItems,
