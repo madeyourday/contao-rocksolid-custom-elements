@@ -23,7 +23,9 @@
 		"madeyourday/contao-rocksolid-icon-picker":"~1.0"
 	},
 	"autoload":{
-		"classmap":["src/"]
+		"psr-4": {
+			"MadeYourDay\\Contao\\": "src/"
+		}
 	},
 	"replace":{
 		"contao-legacy/rocksolid-custom-elements":"self.version"
