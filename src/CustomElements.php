@@ -683,9 +683,8 @@ class CustomElements
 				. 'return false;'
 			. '">'
 			. \Image::getHtml(
-				'pickpage.gif',
-				$GLOBALS['TL_LANG']['MSC']['pagepicker'],
-				'style="vertical-align:top;cursor:pointer"'
+				'pickpage.svg',
+				$GLOBALS['TL_LANG']['MSC']['pagepicker']
 			)
 			. '</a>';
 	}
