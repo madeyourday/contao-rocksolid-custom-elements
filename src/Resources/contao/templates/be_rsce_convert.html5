@@ -1,6 +1,3 @@
-<?php
-	$GLOBALS['TL_CSS'][] = 'system/modules/rocksolid-custom-elements/assets/css/be_main.css';
-?>
 <div id="tl_maintenance_rsce_convert" class="maintenance_<?= $this->isActive ? 'active' : 'inactive' ?>">
 
 	<h2 class="sub_headline sub_headline_rsce_convert"><?= $GLOBALS['TL_LANG']['rocksolid_custom_elements']['convert_headline'] ?></h2>
