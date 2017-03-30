@@ -414,6 +414,16 @@ class CustomElements
 			$standardFields
 		);
 
+		$GLOBALS['TL_DCA'][$dc->table]['fields']['customTpl']['options_callback'] = function($dc) {
+			$templates = \Controller::getTemplateGroup($dc->activeRecord->type);
+			foreach ($templates as $key => $label) {
+				if (substr($key, -7) === '_config' || $key === $dc->activeRecord->type) {
+					unset($templates[$key]);
+				}
+			}
+			return $templates;
+		};
+
 		$GLOBALS['TL_LANG'][$dc->table]['rsce_legend'] = $GLOBALS['TL_LANG'][$dc->table === 'tl_content' ? 'CTE' : ($dc->table === 'tl_module' ? 'FMD' : 'FFL')][$type][0];
 
 		if ($config['onloadCallback'] && is_array($config['onloadCallback'])) {
@@ -892,7 +902,10 @@ class CustomElements
 		if ($table === 'tl_form_field') {
 			$palette .= ';{expert_legend:hide},class';
 		}
-		else {
+
+		$palette .= ';{template_legend:hide},customTpl';
+
+		if ($table !== 'tl_form_field') {
 
 			$palette .= ';{protected_legend:hide},protected;{expert_legend:hide},guests';
 

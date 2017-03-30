@@ -31,7 +31,7 @@ class CustomElement extends \ContentElement
 	 */
 	public function generate()
 	{
-		$this->strTemplate = $this->type;
+		$this->strTemplate = $this->customTpl ?: $this->type;
 
 		// Return output for the backend if in BE mode
 		if (($output = $this->rsceGetBackendOutput()) !== null) {
