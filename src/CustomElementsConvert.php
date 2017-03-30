@@ -65,15 +65,18 @@ class CustomElementsConvert extends \Backend implements \executable
 				}
 				else {
 
-					$this->createInitialVersion(\ContentModel::getTable(), $contentElements->id);
+					$GLOBALS['TL_DCA'][\ContentModel::getTable()]['config']['ptable'] = $contentElements->ptable ?: \ArticleModel::getTable();
+
+					$versions = new \Versions(\ContentModel::getTable(), $contentElements->id);
+
+					$versions->initialize();
 
 					$this->Database
 						->prepare('UPDATE ' . \ContentModel::getTable() . ' SET tstamp = ?, type = \'html\', html = ? WHERE id = ?')
-						->executeUncached(time(), $html, $contentElements->id);
+						->execute(time(), $html, $contentElements->id);
 					$elementsCount++;
 
-					$this->createNewVersion(\ContentModel::getTable(), $contentElements->id);
-					$this->log('A new version of record "' . \ContentModel::getTable() . '.id=' . $contentElements->id . '" has been created', __METHOD__, TL_GENERAL);
+					$versions->create();
 
 				}
 
@@ -90,15 +93,16 @@ class CustomElementsConvert extends \Backend implements \executable
 				}
 				else {
 
-					$this->createInitialVersion(\ModuleModel::getTable(), $moduleElements->id);
+					$versions = new \Versions(\ModuleModel::getTable(), $moduleElements->id);
+
+					$versions->initialize();
 
 					$this->Database
 						->prepare('UPDATE ' . \ModuleModel::getTable() . ' SET tstamp = ?, type = \'html\', html = ? WHERE id = ?')
 						->executeUncached(time(), $html, $moduleElements->id);
 					$elementsCount++;
 
-					$this->createNewVersion(\ModuleModel::getTable(), $moduleElements->id);
-					$this->log('A new version of record "' . \ModuleModel::getTable() . '.id=' . $moduleElements->id . '" has been created', __METHOD__, TL_GENERAL);
+					$versions->create();
 
 				}
 
@@ -115,15 +119,16 @@ class CustomElementsConvert extends \Backend implements \executable
 				}
 				else {
 
-					$this->createInitialVersion(\FormFieldModel::getTable(), $formElements->id);
+					$versions = new \Versions(\FormFieldModel::getTable(), $formElements->id);
+
+					$versions->initialize();
 
 					$this->Database
 						->prepare('UPDATE ' . \FormFieldModel::getTable() . ' SET tstamp = ?, type = \'html\', html = ? WHERE id = ?')
 						->executeUncached(time(), $html, $formElements->id);
 					$elementsCount++;
 
-					$this->createNewVersion(\FormFieldModel::getTable(), $formElements->id);
-					$this->log('A new version of record "' . \FormFieldModel::getTable() . '.id=' . $formElements->id . '" has been created', __METHOD__, TL_GENERAL);
+					$versions->create();
 
 				}
 
