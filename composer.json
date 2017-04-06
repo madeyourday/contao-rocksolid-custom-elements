@@ -39,9 +39,6 @@
 		"contao-legacy/rocksolid-custom-elements":"self.version"
 	},
 	"extra":{
-		"branch-alias": {
-			"dev-develop": "2.0.x-dev"
-		},
 		"contao-manager-plugin": "MadeYourDay\\RockSolidCustomElements\\ContaoManagerPlugin"
 	}
 }
