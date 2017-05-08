@@ -74,18 +74,27 @@ class CustomElements
 		}
 
 		$createFromPost = \Input::post('FORM_SUBMIT') === $dc->table;
+		$tmpField = null;
 
 		if (\Input::get('field') && substr(\Input::get('field'), 0, 11) === 'rsce_field_') {
 			// Ensures that the fileTree oder pageTree field exists
-			$this->createDca($dc, $type, $createFromPost, \Input::get('field'));
+			$tmpField = \Input::get('field');
 		}
-		else if (\Input::post('name') && substr(\Input::post('name'), 0, 11) === 'rsce_field_') {
+		elseif (
+			\Input::get('target')
+			&& ($target = explode('.', \Input::get('target'), 3))
+			&& $target[0] === $dc->table
+			&& substr($target[1], 0, 11) === 'rsce_field_'
+		) {
 			// Ensures that the fileTree oder pageTree field exists
-			$this->createDca($dc, $type, $createFromPost, \Input::post('name'));
+			$tmpField = $target[1];
 		}
-		else {
-			$this->createDca($dc, $type, $createFromPost);
+		elseif (\Input::post('name') && substr(\Input::post('name'), 0, 11) === 'rsce_field_') {
+			// Ensures that the fileTree oder pageTree field exists
+			$tmpField = \Input::post('name');
 		}
+
+		$this->createDca($dc, $type, $createFromPost, $tmpField);
 	}
 
 	/**
@@ -943,13 +952,25 @@ class CustomElements
 		if ($dc->activeRecord) {
 			$value = $dc->activeRecord->$fieldName;
 		}
-		elseif ($dc->table && $dc->id) {
-			$record = \Database::getInstance()
-				->prepare("SELECT * FROM {$dc->table} WHERE id=?")
-				->execute($dc->id);
-			if ($record->next()) {
-				$value = $record->$fieldName;
+		else {
+
+			$table = $dc->table;
+			$id = $dc->id;
+
+			if (\Input::get('target')) {
+				$table = explode('.', \Input::get('target'), 2)[0];
+				$id = (int) explode('.', \Input::get('target'), 3)[2];
 			}
+
+			if ($table && $id) {
+				$record = \Database::getInstance()
+					->prepare("SELECT * FROM {$table} WHERE id=?")
+					->execute($id);
+				if ($record->next()) {
+					$value = $record->$fieldName;
+				}
+			}
+
 		}
 
 		return $value;
@@ -1006,7 +1027,11 @@ class CustomElements
 			if (
 				\System::getContainer()->get('request_stack')
 				&& \System::getContainer()->get('request_stack')->getCurrentRequest()
-				&& \System::getContainer()->get('request_stack')->getCurrentRequest()->get('_route') === 'contao_backend_install'
+				&& in_array(
+					\System::getContainer()->get('request_stack')->getCurrentRequest()->get('_route'),
+					['contao_install', 'contao_backend_install'],
+					true
+				)
 			) {
 				return;
 			}
