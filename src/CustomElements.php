@@ -1004,7 +1004,10 @@ class CustomElements
 
 		$fileFullPath = $cacheDir . '/rocksolid_custom_elements_config.php';
 		$filePath = $fileFullPath;
-		if (substr($filePath, 0, strlen(TL_ROOT) + 1) === TL_ROOT . '/') {
+		if (
+			substr($filePath, 0, strlen(TL_ROOT) + 1) === TL_ROOT . '/'
+			|| substr($filePath, 0, strlen(TL_ROOT) + 1) === TL_ROOT . '\\'
+		) {
 			$filePath = substr($filePath, strlen(TL_ROOT) + 1);
 		}
 
