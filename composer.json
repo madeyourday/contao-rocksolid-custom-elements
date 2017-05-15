@@ -20,11 +20,12 @@
 	"require":{
 		"php":">=5.5",
 		"contao/core-bundle":"^4.3",
-		"madeyourday/contao-rocksolid-columns":"^2.0",
-		"madeyourday/contao-rocksolid-icon-picker":"^2.0"
 	},
 	"require-dev": {
 		"contao/manager-plugin": "^2.0"
+	},
+	"suggest": {
+        	"madeyourday/contao-rocksolid-columns": "For grid column support. See documentation for more information.",
 	},
 	"conflict": {
 		"contao/core": "*",
