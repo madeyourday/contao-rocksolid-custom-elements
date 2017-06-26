@@ -642,6 +642,12 @@ class CustomElements
 				}
 			}
 
+			if ($fieldConfig['inputType'] === 'pageTree' || $fieldConfig['inputType'] === 'fileTree') {
+				if (!isset($fieldConfig['eval']['fieldType'])) {
+					$fieldConfig['eval']['fieldType'] = 'radio';
+				}
+			}
+
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName] = $fieldConfig;
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['eval']['alwaysSave'] = true;
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['eval']['doNotSaveEmpty'] = true;
