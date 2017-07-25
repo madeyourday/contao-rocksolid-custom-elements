@@ -98,39 +98,6 @@ class CustomElements
 	}
 
 	/**
-	 * loadDataContainer hook
-	 *
-	 * Creates fields if loaded in a picker context
-	 *
-	 * @param  string $table
-	 * @return void
-	 */
-	public function loadDataContainerHook($table)
-	{
-		if (!in_array($table, ['tl_content', 'tl_module', 'tl_form_field'], true)) {
-			return;
-		}
-
-		// Ensures that the fileTree oder pageTree field exists
-		if (
-			\Input::get('target')
-			&& ($target = explode('.', \Input::get('target'), 3))
-			&& $target[0] === $table
-			&& substr($target[1], 0, 11) === 'rsce_field_'
-		) {
-			$dc = new \stdClass;
-			$dc->table = $table;
-
-			$type = $this->getDcaFieldValue($dc, 'type');
-			if (!$type || substr($type, 0, 5) !== 'rsce_') {
-				return;
-			}
-
-			$this->createDca($dc, $type, false, $target[1]);
-		}
-	}
-
-	/**
 	 * tl_content, tl_module and tl_form_field DCA onsubmit callback
 	 *
 	 * Creates empty arrays for empty lists if no data is available

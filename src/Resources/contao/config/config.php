@@ -13,7 +13,6 @@
  */
 
 $GLOBALS['TL_HOOKS']['initializeSystem'][] = array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'loadConfig');
-$GLOBALS['TL_HOOKS']['loadDataContainer'][] = array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'loadDataContainerHook');
 $GLOBALS['TL_HOOKS']['loadLanguageFile'][] = array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'loadLanguageFileHook');
 $GLOBALS['TL_HOOKS']['exportTheme'][] = array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'exportThemeHook');
 $GLOBALS['TL_HOOKS']['extractThemeFiles'][] = array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'extractThemeFilesHook');
