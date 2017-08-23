@@ -19,7 +19,7 @@
 	},
 	"require":{
 		"php":">=5.5",
-		"contao/core-bundle":"^4.3"
+		"contao/core-bundle":"^4.4"
 	},
 	"require-dev": {
 		"contao/manager-plugin": "^2.0"

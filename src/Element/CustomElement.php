@@ -119,7 +119,7 @@ class CustomElement extends \ContentElement
 			$fileModel = \FilesModel::findByUuid($this->singleSRC);
 			if ($fileModel !== null && is_file(TL_ROOT . '/' . $fileModel->path)) {
 				$this->singleSRC = $fileModel->path;
-				$this->addImageToTemplate($this->Template, $this->arrData);
+				$this->addImageToTemplate($this->Template, $this->arrData, null, null, $fileModel);
 			}
 		}
 
@@ -186,20 +186,18 @@ class CustomElement extends \ContentElement
 	 */
 	public function getImageObject($id, $size = null, $maxSize = null, $lightboxId = null, $item = array())
 	{
-		global $objPage;
-
 		if (!$id) {
 			return null;
 		}
 
-		if (strlen($id) === 36) {
-			$id = \StringUtil::uuidToBin($id);
-		}
-		if (strlen($id) === 16) {
+		if (\Validator::isUuid($id)) {
 			$image = \FilesModel::findByUuid($id);
 		}
-		else {
+		elseif (is_numeric($id)) {
 			$image = \FilesModel::findByPk($id);
+		}
+		else {
+			$image = \FilesModel::findByPath($id);
 		}
 		if (!$image) {
 			return null;
@@ -215,8 +213,6 @@ class CustomElement extends \ContentElement
 			return null;
 		}
 
-		$imageMeta = $this->getMetaData($image->meta, $objPage->language);
-
 		if (is_string($size) && trim($size)) {
 			$size = \StringUtil::deserialize($size);
 		}
@@ -227,26 +223,26 @@ class CustomElement extends \ContentElement
 		$size[1] = isset($size[1]) ? $size[1] : 0;
 		$size[2] = isset($size[2]) ? $size[2] : 'crop';
 
-		$image = array(
+		$imageItem = array(
 			'id' => $image->id,
 			'uuid' => isset($image->uuid) ? $image->uuid : null,
 			'name' => $file->basename,
 			'singleSRC' => $image->path,
 			'size' => serialize($size),
-			'alt' => $imageMeta['title'],
-			'imageUrl' => $imageMeta['link'],
-			'caption' => $imageMeta['caption'],
 		);
 
-		$image = array_merge($image, $item);
+		$imageItem = array_merge($imageItem, $item);
 
 		$imageObject = new \FrontendTemplate('rsce_image_object');
-		$this->addImageToTemplate($imageObject, $image, $maxSize, $lightboxId);
+		$this->addImageToTemplate($imageObject, $imageItem, $maxSize, $lightboxId, $image);
 		$imageObject = (object)$imageObject->getData();
 
 		if (empty($imageObject->src)) {
 			$imageObject->src = $imageObject->singleSRC;
 		}
+
+		$imageObject->id = $image->id;
+		$imageObject->uuid = isset($image->uuid) ? \StringUtil::binToUuid($image->uuid) : null;
 
 		return $imageObject;
 	}
