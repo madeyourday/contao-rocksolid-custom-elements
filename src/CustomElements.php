@@ -155,21 +155,48 @@ class CustomElements
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fileTree'
 			|| $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fineUploader'
 		)) {
-			// Multiple files
-			if (substr($value, 0, 2) === 'a:') {
-				$value = serialize(array_map(function($value) {
-					if (strlen($value) === 36) {
-						$value = \StringUtil::uuidToBin($value);
-					}
-					return $value;
-				}, \StringUtil::deserialize($value)));
-			}
-			// Single file
-			else {
-				if (strlen($value) === 36) {
-					$value = \StringUtil::uuidToBin($value);
-				}
-			}
+			$value = $this->uuidTextToBin($value);
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Field load callback multi edit
+	 *
+	 * Finds the current value for the field directly from the database
+	 *
+	 * @param  string         $value Current value
+	 * @param  \DataContainer $dc    Data container
+	 * @return string                Current value for the field
+	 */
+	public function loadCallbackMultiEdit($value, $dc)
+	{
+		if ($value !== null) {
+			return $value;
+		}
+
+		$field = substr($dc->field, strlen($dc->activeRecord->type . '_field_'));
+
+		$data = \Database::getInstance()
+			->prepare("SELECT rsce_data FROM {$dc->table} WHERE id=?")
+			->execute($dc->id)
+			->rsce_data;
+		$data = $data ? json_decode($data, true) : [];
+
+		if (isset($data[$field])) {
+			$value = $data[$field];
+		}
+
+		if ($value === null && isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['default'])) {
+			$value = $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['default'];
+		}
+
+		if ($value && (
+			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fileTree'
+			|| $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fineUploader'
+		)) {
+			$value = $this->uuidTextToBin($value);
 		}
 
 		return $value;
@@ -296,17 +323,7 @@ class CustomElements
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fileTree'
 			|| $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fineUploader'
 		) {
-			if (trim($value) && $value !== 'a:1:{i:0;s:0:"";}') {
-				if (strlen($value) === 16) {
-					$value = \StringUtil::binToUuid($value);
-				}
-				else {
-					$value = serialize(array_map('StringUtil::binToUuid', \StringUtil::deserialize($value)));
-				}
-			}
-			else {
-				$value = '';
-			}
+			$value = $this->uuidBinToText($value);
 		}
 
 		$field = preg_split('(__([0-9]+)__)', substr($dc->field, 11), -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -332,6 +349,41 @@ class CustomElements
 				$data = $value;
 			}
 		}
+	}
+
+	/**
+	 * Field save callback multi edit
+	 *
+	 * Saves the field data directly into the database field rsce_data
+	 *
+	 * @param  string         $value Field value
+	 * @param  \DataContainer $dc    Data container
+	 * @return void
+	 */
+	public function saveCallbackMultiEdit($value, $dc)
+	{
+		if (
+			$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fileTree'
+			|| $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['inputType'] === 'fineUploader'
+		) {
+			$value = $this->uuidBinToText($value);
+		}
+
+		$field = substr($dc->field, strlen($dc->activeRecord->type . '_field_'));
+
+		$data = \Database::getInstance()
+			->prepare("SELECT rsce_data FROM {$dc->table} WHERE id=?")
+			->execute($dc->id)
+			->rsce_data;
+		$data = $data ? json_decode($data, true) : [];
+
+		$data[$field] = $value;
+
+		$data = json_encode($data);
+
+		\Database::getInstance()
+			->prepare("UPDATE {$dc->table} SET rsce_data = ? WHERE id = ?")
+			->execute($data, $dc->id);
 	}
 
 	/**
@@ -458,9 +510,10 @@ class CustomElements
 	 * @param  array          $paletteFields  Reference to the list of all fields
 	 * @param  \DataContainer $dc             Data container
 	 * @param  boolean        $createFromPost Whether to create the field structure from post data or not
+	 * @param  boolean        $multiEdit      Whether to create the field for the multi edit view
 	 * @return void
 	 */
-	protected function createDcaItem($fieldPrefix, $fieldName, $fieldConfig, &$paletteFields, $dc, $createFromPost)
+	protected function createDcaItem($fieldPrefix, $fieldName, $fieldConfig, &$paletteFields, $dc, $createFromPost, $multiEdit = false)
 	{
 		if (!is_string($fieldConfig) && !is_array($fieldConfig)) {
 			throw new \Exception('Field config must be of type array or string.');
@@ -586,7 +639,7 @@ class CustomElements
 		}
 		else if ($fieldConfig['inputType'] === 'standardField') {
 
-			if ($fieldPrefix !== 'rsce_field_') {
+			if (strpos($fieldPrefix, '__') !== false) {
 				throw new \Exception('Input type "standardField" is not allowed inside lists.');
 			}
 
@@ -656,10 +709,11 @@ class CustomElements
 			}
 			array_unshift(
 				$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['load_callback'],
-				array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'loadCallback')
+				array('MadeYourDay\\RockSolidCustomElements\\CustomElements', $multiEdit ? 'loadCallbackMultiEdit' : 'loadCallback')
 			);
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['save_callback'][] =
-				array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'saveCallback');
+				array('MadeYourDay\\RockSolidCustomElements\\CustomElements', $multiEdit ? 'saveCallbackMultiEdit' : 'saveCallback');
+
 			$paletteFields[] = $fieldPrefix . $fieldName;
 
 		}
@@ -780,7 +834,7 @@ class CustomElements
 	 */
 	protected function createDcaMultiEdit($dc)
 	{
-		$session = \Session::getInstance()->getData();
+		$session = \System::getContainer()->get('session')->all();
 		if (empty($session['CURRENT']['IDS']) || !is_array($session['CURRENT']['IDS'])) {
 			return;
 		}
@@ -809,8 +863,8 @@ class CustomElements
 			$standardFields = is_array($config['standardFields']) ? $config['standardFields'] : array();
 
 			foreach ($config['fields'] as $fieldName => $fieldConfig) {
-				if (isset($fieldConfig['inputType']) && $fieldConfig['inputType'] === 'standardField') {
-					$paletteFields[] = $fieldName;
+				if (isset($fieldConfig['inputType']) && $fieldConfig['inputType'] !== 'list') {
+					$this->createDcaItem($type . '_field_', $fieldName, $fieldConfig, $paletteFields, $dc, false, true);
 				}
 			}
 
@@ -1607,5 +1661,49 @@ class CustomElements
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Convert binary UUIDs to text
+	 *
+	 * @param string $value
+	 *
+	 * @return string
+	 */
+	private function uuidBinToText($value)
+	{
+		if (trim($value) && $value !== 'a:1:{i:0;s:0:"";}') {
+			if (strlen($value) === 16) {
+				return \StringUtil::binToUuid($value);
+			}
+			return serialize(array_map('StringUtil::binToUuid', \StringUtil::deserialize($value)));
+		}
+		return '';
+	}
+
+	/**
+	 * Convert text UUIDs to binary
+	 *
+	 * @param string $value
+	 *
+	 * @return string
+	 */
+	private function uuidTextToBin($value)
+	{
+		// Multiple files
+		if (substr($value, 0, 2) === 'a:') {
+			return serialize(array_map(function($value) {
+				if (strlen($value) === 36) {
+					$value = \StringUtil::uuidToBin($value);
+				}
+				return $value;
+			}, \StringUtil::deserialize($value)));
+		}
+		// Single file
+		if (strlen($value) === 36) {
+			return \StringUtil::uuidToBin($value);
+		}
+
+		return $value;
 	}
 }
