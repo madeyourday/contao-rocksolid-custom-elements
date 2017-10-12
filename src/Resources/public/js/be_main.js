@@ -226,22 +226,7 @@ var newElementAtPosition = function(listElement, position) {
 		.join(newKey);
 	newItem.set('html', newItemHtml);
 
-	var newItemTextareas = [];
-	dummyItem.retrieve('rsce_tinyMCE_textareas', []).each(function(data) {
-		var newData = {
-			settings: Object.append({}, data.settings)
-		};
-		// Get textarea by id does not work here
-		newItem.getElements('textarea').each(function(el) {
-			if (el.get('id') === data.textarea.get('id').split(key + '__rsce_dummy').join(newKey)) {
-				newData.textarea = el;
-			}
-		});
-		if (newData.textarea) {
-			newItemTextareas.push(newData);
-		}
-	});
-	newItem.store('rsce_tinyMCE_textareas', newItemTextareas);
+	copyTinyMceConfigs(dummyItem, key + '__rsce_dummy', newItem, newKey);
 
 	newItem.getChildren('[data-rsce-label]').each(function(el) {
 		el.set(
@@ -294,23 +279,7 @@ var newElementAtPosition = function(listElement, position) {
 	});
 	restoreTinyMCEs(newItem);
 
-	newItemHtml.replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, function(all, code){
-
-		code = code.replace(/<!--|\/\/-->|<!\[CDATA\[\/\/>|<!\]\]>/g, '');
-
-		// Ignore tinyMCEs
-		if (/^\s*window\.tinymce\s*&&\s*tinymce.init\s*\(/.test(code)) {
-			return '';
-		}
-
-		try {
-			Browser.exec(code);
-		}
-		catch(e) {}
-
-		return '';
-
-	});
+	executeHtmlScripts(newItemHtml);
 
 	if (listInner.retrieve('listSort')) {
 		listInner.retrieve('listSort').addItems(newItem);
@@ -333,6 +302,51 @@ var newElementAtPosition = function(listElement, position) {
 
 };
 
+var copyTinyMceConfigs = function(origItem, origKey, newItem, newKey) {
+
+	var textareas = [];
+
+	origItem.retrieve('rsce_tinyMCE_textareas', []).each(function(data) {
+		var newData = {
+			settings: Object.append({}, data.settings)
+		};
+		// Get textarea by id does not work here
+		newItem.getElements('textarea').each(function(el) {
+			if (el.get('id') === data.textarea.get('id').split(origKey).join(newKey)) {
+				newData.textarea = el;
+			}
+		});
+		if (newData.textarea) {
+			textareas.push(newData);
+		}
+	});
+
+	newItem.store('rsce_tinyMCE_textareas', textareas);
+
+};
+
+var executeHtmlScripts = function(html) {
+
+	html.replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, function(all, code){
+
+		code = code.replace(/<!--|\/\/-->|<!\[CDATA\[\/\/>|<!\]\]>/g, '');
+
+		// Ignore tinyMCEs
+		if (/^\s*window\.tinymce\s*&&\s*tinymce.init\s*\(/.test(code)) {
+			return '';
+		}
+
+		try {
+			Browser.exec(code);
+		}
+		catch(e) {}
+
+		return '';
+
+	});
+
+}
+
 var newElement = function(linkElement) {
 
 	var listElement = $(linkElement).getParent('.rsce_list');
@@ -348,6 +362,57 @@ var newElementAfter = function(linkElement) {
 		.getAllPrevious('.rsce_list_item').length + 1;
 
 	return newElementAtPosition(listElement, position);
+
+};
+
+var duplicateElement = function(linkElement) {
+
+	var element = $(linkElement).getParent('.rsce_list_item');
+	var listInner = element.getParent('.rsce_list_inner');
+
+	// The order is important to prevent id conflicts:
+	// remove tinyMCEs => duplicate the element => rename => restoring tinyMCEs
+
+	removeTinyMCEs(element);
+
+	var newItem = element.cloneNode(true);
+
+	copyTinyMceConfigs(element, element.get('data-rsce-name'), newItem, element.get('data-rsce-name'));
+
+	newItem.inject(element, 'after');
+
+	renameElement(newItem);
+	restoreChosens(newItem);
+
+	newItem.getAllNext('.rsce_list_item').each(function(el) {
+		renameElement(el);
+		restoreChosens(el);
+	});
+
+	newItem.getElements('.rsce_list').each(function(el) {
+		initList(el);
+	});
+
+	newItem.getElements('.rsce_list_inner').each(function(el) {
+		initListSort(el);
+	});
+
+	newItem.getAllNext('.rsce_list_item').each(function(el) {
+		restoreTinyMCEs(el);
+	});
+	restoreTinyMCEs(newItem);
+	restoreTinyMCEs(element);
+
+	executeHtmlScripts(newItem.get('html'));
+
+	if (listInner.retrieve('listSort')) {
+		listInner.retrieve('listSort').addItems(newItem);
+	}
+	else {
+		initListSort(listInner);
+	}
+
+	updateListButtons(element.getParent('.rsce_list'));
 
 };
 
@@ -524,6 +589,7 @@ var initList = function(listElement) {
 // public objects
 window.rsceNewElement = newElement;
 window.rsceNewElementAfter = newElementAfter;
+window.rsceDuplicateElement = duplicateElement;
 window.rsceDeleteElement = deleteElement;
 window.rsceMoveElement = moveElement;
 window.rsceInitList = initList;
