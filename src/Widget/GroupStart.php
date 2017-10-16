@@ -34,13 +34,21 @@ class GroupStart extends \Widget
 	{
 		$this->loadLanguageFile('rocksolid_custom_elements');
 
+		$classes = ['tl_box', 'rsce_group'];
 		$fs = \System::getContainer()->get('session')->getBag('contao_backend')->get('fieldset_states');
+
+		if (
+			(isset($fs[$this->strTable][$this->strId]) && !$fs[$this->strTable][$this->strId])
+			|| (!isset($fs[$this->strTable][$this->strId]) && !empty($this->arrConfiguration['collapsed']))
+		) {
+			$classes[] = 'collapsed';
+		}
 
 		return '</fieldset>'
 			. '<div class="clear"></div>'
 			. '<fieldset'
 			. ' id="pal_' . $this->strId . '"'
-			. ' class="tl_box rsce_group' . ((!isset($fs[$this->strTable][$this->strId]) || $fs[$this->strTable][$this->strId]) ? '' : ' collapsed') . '"'
+			. ' class="' . implode(' ', $classes) . '"'
 			. '>'
 			. '<legend'
 			. ' onclick="AjaxRequest.toggleFieldset(this, &quot;' . $this->strId . '&quot;, &quot;' . $this->strTable . '&quot;)"'

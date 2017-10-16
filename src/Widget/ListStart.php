@@ -38,7 +38,15 @@ class ListStart extends \Widget
 		$toolbar .= '<a class="header_new" href="" onclick="rsceNewElement(this);return false;">' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['new_list_item'] . '</a> ';
 		$toolbar .= '</div>';
 
+		$classes = ['tl_box', 'rsce_list'];
 		$fs = \System::getContainer()->get('session')->getBag('contao_backend')->get('fieldset_states');
+
+		if (
+			(isset($fs[$this->strTable][$this->strId]) && !$fs[$this->strTable][$this->strId])
+			|| (!isset($fs[$this->strTable][$this->strId]) && !empty($this->arrConfiguration['collapsed']))
+		) {
+			$classes[] = 'collapsed';
+		}
 
 		$config = array(
 			'minItems' => $this->minItems,
@@ -49,7 +57,7 @@ class ListStart extends \Widget
 			. '<div class="clear"></div>'
 			. '<fieldset'
 			. ' id="pal_' . $this->strId . '"'
-			. ' class="tl_box rsce_list' . ((!isset($fs[$this->strTable][$this->strId]) || $fs[$this->strTable][$this->strId]) ? '' : ' collapsed') . '"'
+			. ' class="' . implode(' ', $classes) . '"'
 			. ' data-config="' . htmlspecialchars(json_encode($config), ENT_QUOTES) . '"'
 			. '>'
 			. '<legend'

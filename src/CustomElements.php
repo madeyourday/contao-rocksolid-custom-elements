@@ -576,10 +576,10 @@ class CustomElements
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '_rsce_list_start'] = array(
 				'label' => $fieldConfig['label'],
 				'inputType' => 'rsce_list_start',
-				'eval' => array(
+				'eval' => array_merge(isset($fieldConfig['eval']) ? $fieldConfig['eval'] : array(), array(
 					'minItems' => $fieldConfig['minItems'],
 					'maxItems' => $fieldConfig['maxItems'],
-				),
+				)),
 			);
 			$paletteFields[] = $fieldPrefix . $fieldName . '_rsce_list_start';
 
