@@ -99,6 +99,10 @@ var restoreChosens = function(element) {
 
 };
 
+var removeACEs = function(element) {
+	$(element).getElements('div.ace_editor').destroy();
+}
+
 var updateListButtons = function(listElement) {
 
 	listElement = $(listElement);
@@ -211,6 +215,7 @@ var newElementAtPosition = function(listElement, position) {
 		removeTinyMCEs(el);
 	});
 	removeTinyMCEs(dummyItem);
+	removeACEs(dummyItem);
 
 	var key = dummyItem.get('data-rsce-name')
 		.substr(0, dummyItem.get('data-rsce-name').length - 12);
@@ -378,6 +383,7 @@ var duplicateElement = function(linkElement) {
 	var newItem = element.cloneNode(true);
 
 	copyTinyMceConfigs(element, element.get('data-rsce-name'), newItem, element.get('data-rsce-name'));
+	removeACEs(newItem);
 
 	newItem.inject(element, 'after');
 
