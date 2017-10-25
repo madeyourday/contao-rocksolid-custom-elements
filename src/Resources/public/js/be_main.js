@@ -139,6 +139,10 @@ var updateListButtons = function(listElement) {
 			'display',
 			minReached ? 'none' : ''
 		);
+		toolbar.getFirst('.rsce_list_toolbar_duplicate').setStyle(
+			'display',
+			maxReached ? 'none' : ''
+		);
 		toolbar.getFirst('.rsce_list_toolbar_new').setStyle(
 			'display',
 			maxReached ? 'none' : ''
