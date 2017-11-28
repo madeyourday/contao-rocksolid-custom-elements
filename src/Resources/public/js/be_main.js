@@ -103,6 +103,30 @@ var removeACEs = function(element) {
 	$(element).getElements('div.ace_editor').destroy();
 }
 
+var restoreSelectorScripts = function(element) {
+
+	$(element).getElements('.selector_container').each(function(container) {
+
+		var input = container.getPrevious('input');
+		if (container.getElement('script') || !input) {
+			return;
+		}
+
+		var name = input.name;
+		var dummyName = name.replace(/__\d+__/g, '__rsce_dummy__');
+		var dummyScript = $(document.body).getElement('input[name="' + dummyName + '"] + .selector_container > script');
+		if (!dummyScript) {
+			return;
+		}
+
+		var script = new Element('script', {
+			html: dummyScript.get('html').split(dummyName).join(name),
+		}).inject(container);
+
+	});
+
+}
+
 var updateListButtons = function(listElement) {
 
 	listElement = $(listElement);
@@ -383,6 +407,7 @@ var duplicateElement = function(linkElement) {
 	// remove tinyMCEs => duplicate the element => rename => restoring tinyMCEs
 
 	removeTinyMCEs(element);
+	restoreSelectorScripts(element);
 
 	var newItem = element.cloneNode(true);
 
