@@ -127,6 +127,25 @@ var restoreSelectorScripts = function(element) {
 
 }
 
+var persistSelects = function(element) {
+
+	$(element).getElements('select').each(function(select) {
+
+		var option = select.getElement('option:selected') || select.getElement('option');
+		var oldOption = select.getElement('option[selected]');
+
+		if (oldOption) {
+			oldOption.removeAttribute('selected');
+		}
+
+		if (option) {
+			option.setAttribute('selected', '');
+		}
+
+	});
+
+}
+
 var updateListButtons = function(listElement) {
 
 	listElement = $(listElement);
@@ -408,6 +427,7 @@ var duplicateElement = function(linkElement) {
 
 	removeTinyMCEs(element);
 	restoreSelectorScripts(element);
+	persistSelects(element);
 
 	var newItem = element.cloneNode(true);
 
