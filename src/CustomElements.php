@@ -444,6 +444,12 @@ class CustomElements
 	 */
 	protected function createDca($dc, $type, $createFromPost = false, $tmpField = null)
 	{
+        $config = static::getConfigByType($type);
+
+		if (!$config) {
+		    return;
+        }
+
 		$assetsDir = 'bundles/rocksolidcustomelements';
 
 		if (TL_MODE === 'BE') {
@@ -452,8 +458,6 @@ class CustomElements
 		}
 
 		$paletteFields = array();
-
-		$config = static::getConfigByType($type);
 		$standardFields = is_array($config['standardFields']) ? $config['standardFields'] : array();
 		$this->fieldsConfig = $config['fields'];
 
@@ -858,8 +862,12 @@ class CustomElements
 		foreach ($types as $type) {
 
 			$paletteFields = array();
+            $config = static::getConfigByType($type);
 
-			$config = static::getConfigByType($type);
+			if (!$config) {
+			    continue;
+            }
+
 			$standardFields = is_array($config['standardFields']) ? $config['standardFields'] : array();
 
 			foreach ($config['fields'] as $fieldName => $fieldConfig) {
