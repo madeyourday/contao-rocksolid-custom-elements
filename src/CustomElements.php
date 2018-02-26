@@ -446,8 +446,8 @@ class CustomElements
 	{
         $config = static::getConfigByType($type);
 
-		if (!$config) {
-		    return;
+        if (!$config) {
+            return;
         }
 
 		$assetsDir = 'bundles/rocksolidcustomelements';
@@ -864,8 +864,8 @@ class CustomElements
 			$paletteFields = array();
             $config = static::getConfigByType($type);
 
-			if (!$config) {
-			    continue;
+            if (!$config) {
+                continue;
             }
 
 			$standardFields = is_array($config['standardFields']) ? $config['standardFields'] : array();
