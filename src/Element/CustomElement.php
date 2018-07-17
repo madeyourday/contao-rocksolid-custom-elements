@@ -8,6 +8,7 @@
 
 namespace MadeYourDay\RockSolidCustomElements\Element;
 
+use Contao\Image\PictureConfigurationInterface;
 use MadeYourDay\RockSolidColumns\Element\ColumnsStart;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
 use MadeYourDay\RockSolidCustomElements\CustomElements;
@@ -177,12 +178,12 @@ class CustomElement extends \ContentElement
 	/**
 	 * Get an image object from id/uuid and an optional size configuration
 	 *
-	 * @param  int|string   $id         ID, UUID string or binary
-	 * @param  string|array $size       [width, height, mode] optionally serialized
-	 * @param  int          $maxSize    Gets passed to addImageToTemplate as $intMaxWidth
-	 * @param  string       $lightboxId Gets passed to addImageToTemplate as $strLightboxId
-	 * @param  array        $item       Gets merged and passed to addImageToTemplate as $arrItem
-	 * @return object                   Image object (similar as addImageToTemplate)
+	 * @param  int|string                                 $id         ID, UUID string or binary
+	 * @param  string|array|PictureConfigurationInterface $size       [width, height, mode] optionally serialized or a config object
+	 * @param  int                                        $maxSize    Gets passed to addImageToTemplate as $intMaxWidth
+	 * @param  string                                     $lightboxId Gets passed to addImageToTemplate as $strLightboxId
+	 * @param  array                                      $item       Gets merged and passed to addImageToTemplate as $arrItem
+	 * @return object                                                 Image object (similar as addImageToTemplate)
 	 */
 	public function getImageObject($id, $size = null, $maxSize = null, $lightboxId = null, $item = array())
 	{
@@ -213,22 +214,24 @@ class CustomElement extends \ContentElement
 			return null;
 		}
 
-		if (is_string($size) && trim($size)) {
-			$size = \StringUtil::deserialize($size);
+		if (!$size instanceof PictureConfigurationInterface) {
+			if (is_string($size) && trim($size)) {
+				$size = \StringUtil::deserialize($size);
+			}
+			if (!is_array($size)) {
+				$size = array();
+			}
+			$size[0] = isset($size[0]) ? $size[0] : 0;
+			$size[1] = isset($size[1]) ? $size[1] : 0;
+			$size[2] = isset($size[2]) ? $size[2] : 'crop';
 		}
-		if (!is_array($size)) {
-			$size = array();
-		}
-		$size[0] = isset($size[0]) ? $size[0] : 0;
-		$size[1] = isset($size[1]) ? $size[1] : 0;
-		$size[2] = isset($size[2]) ? $size[2] : 'crop';
 
 		$imageItem = array(
 			'id' => $image->id,
 			'uuid' => isset($image->uuid) ? $image->uuid : null,
 			'name' => $file->basename,
 			'singleSRC' => $image->path,
-			'size' => serialize($size),
+			'size' => $size,
 		);
 
 		$imageItem = array_merge($imageItem, $item);
