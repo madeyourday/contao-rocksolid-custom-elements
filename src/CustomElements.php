@@ -551,7 +551,10 @@ class CustomElements
 		}
 
 		if (isset($fieldConfig['label'])) {
-			$fieldConfig['label'] = static::getLabelTranslated($fieldConfig['label']);
+			$translatedLabel = static::getLabelTranslated($fieldConfig['label']);
+			// Don’t overwrite referenced variable
+			unset($fieldConfig['label']);
+			$fieldConfig['label'] = $translatedLabel;
 		}
 
 		if (
@@ -559,15 +562,21 @@ class CustomElements
 			&& is_array($fieldConfig['reference'])
 			&& count(array_filter($fieldConfig['reference'], 'is_array'))
 		) {
-			$fieldConfig['reference'] = array_map(function($label) {
+			$translatedReference = array_map(function($label) {
 				return \MadeYourDay\RockSolidCustomElements\CustomElements::getLabelTranslated($label);
 			}, $fieldConfig['reference']);
+			// Don’t overwrite referenced variable
+			unset($fieldConfig['reference']);
+			$fieldConfig['reference'] = $translatedReference;
 		}
 
 		if ($fieldConfig['inputType'] === 'list') {
 
 			if (isset($fieldConfig['elementLabel'])) {
-				$fieldConfig['elementLabel'] = static::getLabelTranslated($fieldConfig['elementLabel']);
+				$translatedLabel = static::getLabelTranslated($fieldConfig['elementLabel']);
+				// Don’t overwrite referenced variable
+				unset($fieldConfig['elementLabel']);
+				$fieldConfig['elementLabel'] = $translatedLabel;
 			}
 
 			$fieldConfig['minItems'] = isset($fieldConfig['minItems']) ? (int)$fieldConfig['minItems'] : 0;
