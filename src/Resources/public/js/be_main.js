@@ -549,16 +549,17 @@ var moveElement = function(linkElement, offset) {
 
 };
 
-var removeFormFields = function(fields, input) {
-	if (!fields || !fields.length || !input) {
-		return;
-	}
-	input = $(input);
-	var value = input.get('value');
-	fields.each(function(field) {
-		value = value.split(',' + field + ',').join(',');
+var removeListFormFields = function(form) {
+	form.getElements('input[name="FORM_FIELDS[]"]').each(function(input) {
+		input = $(input);
+		if (input.getParent().hasClass('rsce_list_item')) {
+			return;
+		}
+		input.set('value', input.get('value').replace(
+			/(?:^|,)rsce_[^,;]+?__[^,;]+/gi,
+			''
+		));
 	});
-	input.set('value', value);
 };
 
 var initList = function(listElement) {
@@ -611,12 +612,6 @@ var initList = function(listElement) {
 			value: fields.join(',')
 		}));
 
-		removeFormFields(
-			fields,
-			element.getParent('form')
-				.getElements('input[name="FORM_FIELDS[]"]')[0]
-		);
-
 		element.inject(listInner);
 
 	});
@@ -629,11 +624,12 @@ var initList = function(listElement) {
 		}
 		dummyFields.push(input.get('name').split('[')[0]);
 	});
-	removeFormFields(
-		dummyFields,
-		listElement.getParent('form')
-			.getElements('input[name="FORM_FIELDS[]"]')[0]
-	);
+
+	var parentForm = listElement.getParent('form');
+	removeListFormFields(parentForm);
+	window.addEvent('ajax_change', function () {
+		removeListFormFields(parentForm);
+	});
 
 	initListSort(listInner);
 
