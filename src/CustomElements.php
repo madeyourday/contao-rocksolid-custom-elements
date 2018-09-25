@@ -694,18 +694,12 @@ class CustomElements
 
 			if ($fieldConfig['inputType'] === 'url') {
 				$fieldConfig['inputType'] = 'text';
-				$fieldConfig['wizard'] = array(
-					array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'pagePicker')
-				);
-				$fieldConfig['eval']['tl_class'] =
-					(isset($fieldConfig['eval']['tl_class']) ? $fieldConfig['eval']['tl_class'] . ' ' : '')
-					. 'wizard';
-				if (!isset($fieldConfig['eval']['fieldType'])) {
-					$fieldConfig['eval']['fieldType'] = 'radio';
-				}
-				if (!isset($fieldConfig['eval']['filesOnly'])) {
-					$fieldConfig['eval']['filesOnly'] = true;
-				}
+				$fieldConfig['eval'] = array_merge(array(
+					'rgxp' => 'url',
+					'decodeEntities' => true,
+					'dcaPicker' => true,
+					'addWizardClass' => false,
+				), isset($fieldConfig['eval']) ? $fieldConfig['eval'] : []);
 			}
 
 			if ($fieldConfig['inputType'] === 'pageTree' || $fieldConfig['inputType'] === 'fileTree') {
@@ -740,35 +734,9 @@ class CustomElements
 	 */
 	public function pagePicker($dc)
 	{
-		$url = \System::getContainer()->get('router')->generate('contao_backend_page');
+		@trigger_error('Using pagePicker() has been deprecated and will be removed in a future version. Set the "dcaPicker" eval attribute instead.', E_USER_DEPRECATED);
 
-		return ' <a'
-			. ' href="'
-				. $url
-				. '?do=' . \Input::get('do')
-				. '&amp;table=' . $dc->table
-				. '&amp;field=' . $dc->field
-				. '&amp;value=' . str_replace(array('{{link_url::', '}}'), '', $dc->value)
-				. '&amp;switch=1&amp;id=' . $dc->id
-			. '"'
-			. ' title="' . \StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['pagepicker']) . '"'
-			. ' onclick="'
-				. 'Backend.getScrollOffset();'
-				. 'Backend.openModalSelector({'
-					. '\'width\':765,'
-					. '\'title\':' . \StringUtil::specialchars(json_encode($GLOBALS['TL_LANG']['MOD']['page'][0])) . ','
-					. '\'url\':this.href,'
-					. '\'id\':\'' . $dc->field . '\','
-					. '\'tag\':\'ctrl_'. $dc->field . ((\Input::get('act') == 'editAll') ? '_' . $dc->id : '') . '\','
-					. '\'self\':this'
-				. '});'
-				. 'return false;'
-			. '">'
-			. \Image::getHtml(
-				'pickpage.svg',
-				$GLOBALS['TL_LANG']['MSC']['pagepicker']
-			)
-			. '</a>';
+		return \Backend::getDcaPickerWizard(true, $dc->table, $dc->field, $dc->inputName);
 	}
 
 	/**
