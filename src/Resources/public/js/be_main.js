@@ -99,24 +99,27 @@ var restoreChosens = function(element) {
 
 };
 
-var removeMooRainbows = function(element) {
+var removePicker = function(element) {
 	$(element).getElements('script').each(function(script) {
-		var match = script.get('html').match(/new MooRainbow\("(moo_rsce_field_[^"]+)"[^]*?id:\s*"([^"]+)"/);
-		if (!match) {
-			return;
+		var match;
+		if (match = script.get('html').match(/new MooRainbow\("(moo_rsce_field_[^"]+)"[^]*?id:\s*"([^"]+)"/)) {
+			$(match[1]).removeEvents('click');
+			$(document.body).getChildren('#'+match[2]).destroy();
 		}
-		$(match[1]).removeEvents('click');
-		$(document.body).getChildren('#'+match[2]).destroy();
+		else if (match = script.get('html').match(/\$\("(pp_rsce_field_[^"]+)"\)\.addEvent\("click"/)) {
+			$(match[1]).removeEvents('click');
+		}
 	});
 };
 
-var restoreMooRainbows = function(element) {
+var restorePicker = function(element) {
 	$(element).getElements('script').each(function(script) {
-		var match = script.get('html').match(/new MooRainbow\("(moo_rsce_field_[^"]+)"[^]*?id:\s*"([^"]+)"/);
-		if (!match) {
-			return;
+		if (script.get('html').match(/new MooRainbow\("(moo_rsce_field_[^"]+)"[^]*?id:\s*"([^"]+)"/)) {
+			Browser.exec(script.get('html'));
 		}
-		Browser.exec(script.get('html'));
+		else if (script.get('html').match(/\$\("(pp_rsce_field_[^"]+)"\)\.addEvent\("click"/)) {
+			Browser.exec(script.get('html'));
+		}
 	});
 };
 
@@ -237,7 +240,7 @@ var initListSort = function(listInner) {
 		},
 		onComplete: function() {
 			ds.stop();
-			removeMooRainbows(listInner);
+			removePicker(listInner);
 			listInner.getChildren('.rsce_list_item').each(function(el) {
 				removeTinyMCEs(el);
 			});
@@ -248,7 +251,7 @@ var initListSort = function(listInner) {
 				restoreTinyMCEs(el);
 			});
 			updateListButtons(listInner.getParent('.rsce_list'));
-			restoreMooRainbows(listInner);
+			restorePicker(listInner);
 			restoreChosens(listInner);
 		}
 	}));
@@ -283,7 +286,7 @@ var newElementAtPosition = function(listElement, position) {
 
 	allItems.each(function(el) {
 		removeTinyMCEs(el);
-		removeMooRainbows(el);
+		removePicker(el);
 	});
 	removeTinyMCEs(dummyItem);
 	removeACEs(dummyItem);
@@ -351,7 +354,7 @@ var newElementAtPosition = function(listElement, position) {
 	});
 
 	allItems.each(function(el) {
-		restoreMooRainbows(el);
+		restorePicker(el);
 		restoreTinyMCEs(el);
 	});
 	restoreTinyMCEs(newItem);
@@ -451,7 +454,7 @@ var duplicateElement = function(linkElement) {
 	// remove tinyMCEs => duplicate the element => rename => restoring tinyMCEs
 
 	removeTinyMCEs(element);
-	removeMooRainbows(listInner);
+	removePicker(listInner);
 	restoreSelectorScripts(element);
 	persistSelects(element);
 
@@ -486,8 +489,8 @@ var duplicateElement = function(linkElement) {
 
 	executeHtmlScripts(newItem.get('html'));
 
-	removeMooRainbows(newItem);
-	restoreMooRainbows(listInner);
+	removePicker(newItem);
+	restorePicker(listInner);
 
 	if (listInner.retrieve('listSort')) {
 		listInner.retrieve('listSort').addItems(newItem);
@@ -514,7 +517,7 @@ var deleteElement = function(linkElement) {
 		return;
 	}
 
-	removeMooRainbows(listInner);
+	removePicker(listInner);
 
 	removeTinyMCEs(element);
 	if (listInner.retrieve('listSort')) {
@@ -532,7 +535,7 @@ var deleteElement = function(linkElement) {
 		restoreTinyMCEs(nextElement);
 	});
 
-	restoreMooRainbows(listInner);
+	restorePicker(listInner);
 
 	updateListButtons(listElement);
 
@@ -567,8 +570,8 @@ var moveElement = function(linkElement, offset) {
 	removeTinyMCEs(swapElement);
 	removeTinyMCEs(element);
 
-	removeMooRainbows(swapElement);
-	removeMooRainbows(element);
+	removePicker(swapElement);
+	removePicker(element);
 
 	element.inject(swapElement, offset > 0 ? 'after' : 'before');
 
@@ -578,8 +581,8 @@ var moveElement = function(linkElement, offset) {
 	restoreChosens(swapElement);
 	restoreChosens(element);
 
-	restoreMooRainbows(swapElement);
-	restoreMooRainbows(element);
+	restorePicker(swapElement);
+	restorePicker(element);
 
 	restoreTinyMCEs(swapElement);
 	restoreTinyMCEs(element);
