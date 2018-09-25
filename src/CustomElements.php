@@ -1270,8 +1270,10 @@ class CustomElements
 
 			if (in_array('form', $element['types'])) {
 
-				$GLOBALS['TL_FFL'][$element['template']] = 'MadeYourDay\\RockSolidCustomElements\\Form\\CustomWidget';
-				$contents[] = '$GLOBALS[\'TL_FFL\'][\'' . $element['template'] . '\'] = \'MadeYourDay\\\\RockSolidCustomElements\\\\Form\\\\CustomWidget\';';
+                $hasInput = isset($element['config']['fields']['name']['inputType']) && $element['config']['fields']['name']['inputType'] === 'standardField';
+
+				$GLOBALS['TL_FFL'][$element['template']] = 'MadeYourDay\\RockSolidCustomElements\\Form\\CustomWidget'.($hasInput ? '' : 'NoInput');
+				$contents[] = '$GLOBALS[\'TL_FFL\'][\'' . $element['template'] . '\'] = \'MadeYourDay\\\\RockSolidCustomElements\\\\Form\\\\CustomWidget'.($hasInput ? '' : 'NoInput').'\';';
 
 				$GLOBALS['TL_LANG']['FFL'][$element['template']] = static::getLabelTranslated($element['label']);
 				$contents[] = '$GLOBALS[\'TL_LANG\'][\'FFL\'][\'' . $element['template'] . '\'] = \\MadeYourDay\\RockSolidCustomElements\\CustomElements::getLabelTranslated(' . var_export($element['label'], true) . ');';

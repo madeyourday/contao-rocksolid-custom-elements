@@ -18,6 +18,8 @@ use MadeYourDay\RockSolidCustomElements\Model\DummyModel;
  */
 class CustomWidget extends \Widget
 {
+	protected $blnSubmitInput = true;
+
 	/**
 	 * @var string Template
 	 */
@@ -26,7 +28,7 @@ class CustomWidget extends \Widget
 	/**
 	 * @var CustomElement
 	 */
-	private $customElement;
+	protected $customElement;
 
 	/**
 	 * {@inheritdoc}
@@ -47,14 +49,27 @@ class CustomWidget extends \Widget
 	 */
 	public function generate()
 	{
+		$cssID = $this->customElement->cssID;
+		$cssID[1] = (isset($cssID[1]) ? $cssID[1] . ' ' : '') . $this->class;
+		$this->customElement->cssID = $cssID;
+
+		$this->customElement->value = $this->value;
+
+		foreach ([
+			'hasErrors',
+			'getErrors',
+			'getErrorAsString',
+			'getErrorsAsString',
+			'getErrorAsHTML',
+			'getAttributes',
+			'getAttribute',
+		] as $methodName) {
+			$this->customElement->$methodName = function() use($methodName) {
+				return call_user_func_array([$this, $methodName], func_get_args());
+			};
+		}
+
 		return $this->customElement->generate();
 	}
 
-	/**
-	 * Do not validate
-	 */
-	public function validate()
-	{
-		return;
-	}
 }
