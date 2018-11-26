@@ -8,6 +8,7 @@
 
 namespace MadeYourDay\RockSolidCustomElements;
 
+use Doctrine\DBAL\DBALException;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
 
 /**
@@ -1153,10 +1154,15 @@ class CustomElements
 			}
 		}
 
-		$themes = \Database::getInstance()
-			->prepare('SELECT name, templates FROM tl_theme')
-			->execute()
-			->fetchAllAssoc();
+		try {
+			$themes = \Database::getInstance()
+				->prepare('SELECT name, templates FROM tl_theme')
+				->execute()
+				->fetchAllAssoc();
+		}
+		catch (DBALException $e) {
+			$themes = array();
+		}
 		$themeNamesByTemplateDir = array();
 		foreach ($themes as $theme) {
 			if ($theme['templates']) {
