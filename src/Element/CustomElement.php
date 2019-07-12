@@ -101,16 +101,16 @@ class CustomElement extends \ContentElement
 
 		// Display a backend wildcard in the backend
 		if (!empty($config['showBackendWildcard'])) {
-            $template = new BackendTemplate('be_wildcard');
-            $label = CustomElements::getLabelTranslated($config['label']);
+			$template = new BackendTemplate('be_wildcard');
+			$label = CustomElements::getLabelTranslated($config['label']);
 
-            $template->wildcard = '### ' . Utf8::strtoupper(is_array($label) ? $label[0] : $label) . ' ###';
-            $template->title = $this->headline;
-            $template->id = $this->id;
-            $template->link = $this->name;
+			$template->wildcard = '### ' . Utf8::strtoupper(is_array($label) ? $label[0] : $label) . ' ###';
+			$template->title = $this->headline;
+			$template->id = $this->id;
+			$template->link = $this->name;
 
-            return $template->parse();
-        }
+			return $template->parse();
+		}
 
 		if (
 			in_array($this->type, $GLOBALS['TL_WRAPPERS']['start'])
