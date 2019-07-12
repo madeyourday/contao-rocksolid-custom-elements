@@ -8,10 +8,12 @@
 
 namespace MadeYourDay\RockSolidCustomElements\Element;
 
+use Contao\BackendTemplate;
 use Contao\Image\PictureConfigurationInterface;
 use MadeYourDay\RockSolidColumns\Element\ColumnsStart;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
 use MadeYourDay\RockSolidCustomElements\CustomElements;
+use Patchwork\Utf8;
 
 /**
  * Custom content element and frontend module
@@ -96,6 +98,19 @@ class CustomElement extends \ContentElement
 			$this->strTemplate = $config['beTemplate'];
 			return null;
 		}
+
+		// Display a backend wildcard in the backend
+		if (!empty($config['showBackendWildcard'])) {
+            $template = new BackendTemplate('be_wildcard');
+            $label = CustomElements::getLabelTranslated($config['label']);
+
+            $template->wildcard = '### ' . Utf8::strtoupper(is_array($label) ? $label[0] : $label) . ' ###';
+            $template->title = $this->headline;
+            $template->id = $this->id;
+            $template->link = $this->name;
+
+            return $template->parse();
+        }
 
 		if (
 			in_array($this->type, $GLOBALS['TL_WRAPPERS']['start'])
