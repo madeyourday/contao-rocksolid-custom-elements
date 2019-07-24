@@ -9,9 +9,11 @@
 namespace MadeYourDay\RockSolidCustomElements\Element;
 
 use Contao\Image\PictureConfigurationInterface;
+use Contao\ModuleModel;
 use MadeYourDay\RockSolidColumns\Element\ColumnsStart;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
 use MadeYourDay\RockSolidCustomElements\CustomElements;
+use Patchwork\Utf8;
 
 /**
  * Custom content element and frontend module
@@ -93,7 +95,27 @@ class CustomElement extends \ContentElement
 		}
 
 		if (!empty($config['beTemplate'])) {
+
+			if (!isset($this->arrData['wildcard'])) {
+				$label = CustomElements::getLabelTranslated($config['label']);
+				$this->arrData['wildcard'] = '### ' . Utf8::strtoupper(is_array($label) ? $label[0] : $label) . ' ###';
+			}
+
+			if (!isset($this->arrData['title'])) {
+				$this->arrData['title'] = $this->headline;
+			}
+
+			if (
+				!isset($this->arrData['link'])
+				&& !isset($this->arrData['href'])
+				&& $this->objModel instanceof ModuleModel
+			) {
+				$this->arrData['link'] = $this->name;
+				$this->arrData['href'] = 'contao/main.php?do=themes&amp;table=tl_module&amp;act=edit&amp;id=' . $this->id;
+			}
+
 			$this->strTemplate = $config['beTemplate'];
+
 			return null;
 		}
 
