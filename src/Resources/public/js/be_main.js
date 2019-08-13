@@ -33,7 +33,7 @@ var renameElement = function(element) {
 		'[' + attributes.join('*="' + oldName + '"],[') + '*="' + oldName + '"]'
 	).each(function(el) {
 		attributes.each(function(attribute) {
-			if (el.get(attribute)) {
+			if (el.get(attribute) && el.get(attribute).split(oldName).length > 1) {
 				el.set(attribute, el.get(attribute).split(oldName).join(newName));
 			}
 		});
@@ -155,16 +155,16 @@ var persistSelects = function(element) {
 
 	$(element).getElements('select').each(function(select) {
 
-		var option = select.getElement('option:selected') || select.getElement('option');
-		var oldOption = select.getElement('option[selected]');
+		var options = select.getElements('option:selected');
+		var oldOptions = select.getElements('option[selected]');
 
-		if (oldOption) {
+		oldOptions.each(function (oldOption) {
 			oldOption.removeAttribute('selected');
-		}
+		});
 
-		if (option) {
+		options.each(function (option) {
 			option.setAttribute('selected', '');
-		}
+		});
 
 	});
 
