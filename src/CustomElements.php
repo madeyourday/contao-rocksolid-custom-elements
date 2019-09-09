@@ -1212,7 +1212,7 @@ class CustomElements
 				'path' => substr(dirname($configPath), strlen(TL_ROOT . '/')),
 			);
 
-			if ($element['path'] && substr($element['path'], 10)) {
+			if ($element['path'] && substr($element['path'], 0, 10) === 'templates/') {
 				if (isset($themeNamesByTemplateDir[$element['path']])) {
 					$element['labelPrefix'] = $themeNamesByTemplateDir[$element['path']] . ': ';
 				}
