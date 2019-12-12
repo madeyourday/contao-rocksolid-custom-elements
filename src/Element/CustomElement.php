@@ -201,12 +201,12 @@ class CustomElement extends \ContentElement
 	/**
 	 * Get an image object from id/uuid and an optional size configuration
 	 *
-	 * @param  int|string                                 $id         ID, UUID string or binary
-	 * @param  string|array|PictureConfiguration          $size       [width, height, mode] optionally serialized or a config object
-	 * @param  int                                        $maxSize    Gets passed to addImageToTemplate as $intMaxWidth
-	 * @param  string                                     $lightboxId Gets passed to addImageToTemplate as $strLightboxId
-	 * @param  array                                      $item       Gets merged and passed to addImageToTemplate as $arrItem
-	 * @return object                                                 Image object (similar as addImageToTemplate)
+	 * @param  int|string                        $id         ID, UUID string or binary
+	 * @param  string|array|PictureConfiguration $size       [width, height, mode] optionally serialized or a config object
+	 * @param  int                               $maxSize    Gets passed to addImageToTemplate as $intMaxWidth
+	 * @param  string                            $lightboxId Gets passed to addImageToTemplate as $strLightboxId
+	 * @param  array                             $item       Gets merged and passed to addImageToTemplate as $arrItem
+	 * @return object                                        Image object (similar as addImageToTemplate)
 	 */
 	public function getImageObject($id, $size = null, $maxSize = null, $lightboxId = null, $item = array())
 	{
