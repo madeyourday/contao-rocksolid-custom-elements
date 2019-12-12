@@ -8,6 +8,7 @@
 
 namespace MadeYourDay\RockSolidCustomElements\Element;
 
+use Contao\Image\PictureConfiguration;
 use Contao\Image\PictureConfigurationInterface;
 use Contao\ModuleModel;
 use MadeYourDay\RockSolidColumns\Element\ColumnsStart;
@@ -200,12 +201,12 @@ class CustomElement extends \ContentElement
 	/**
 	 * Get an image object from id/uuid and an optional size configuration
 	 *
-	 * @param  int|string                                 $id         ID, UUID string or binary
-	 * @param  string|array|PictureConfigurationInterface $size       [width, height, mode] optionally serialized or a config object
-	 * @param  int                                        $maxSize    Gets passed to addImageToTemplate as $intMaxWidth
-	 * @param  string                                     $lightboxId Gets passed to addImageToTemplate as $strLightboxId
-	 * @param  array                                      $item       Gets merged and passed to addImageToTemplate as $arrItem
-	 * @return object                                                 Image object (similar as addImageToTemplate)
+	 * @param  int|string                        $id         ID, UUID string or binary
+	 * @param  string|array|PictureConfiguration $size       [width, height, mode] optionally serialized or a config object
+	 * @param  int                               $maxSize    Gets passed to addImageToTemplate as $intMaxWidth
+	 * @param  string                            $lightboxId Gets passed to addImageToTemplate as $strLightboxId
+	 * @param  array                             $item       Gets merged and passed to addImageToTemplate as $arrItem
+	 * @return object                                        Image object (similar as addImageToTemplate)
 	 */
 	public function getImageObject($id, $size = null, $maxSize = null, $lightboxId = null, $item = array())
 	{
@@ -236,7 +237,7 @@ class CustomElement extends \ContentElement
 			return null;
 		}
 
-		if (!$size instanceof PictureConfigurationInterface) {
+		if (!$size instanceof PictureConfiguration && !$size instanceof PictureConfigurationInterface) {
 			if (is_string($size) && trim($size)) {
 				$size = \StringUtil::deserialize($size);
 			}
