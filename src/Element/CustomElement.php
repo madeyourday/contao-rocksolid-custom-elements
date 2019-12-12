@@ -9,6 +9,7 @@
 namespace MadeYourDay\RockSolidCustomElements\Element;
 
 use Contao\Image\PictureConfiguration;
+use Contao\Image\PictureConfigurationInterface;
 use Contao\ModuleModel;
 use MadeYourDay\RockSolidColumns\Element\ColumnsStart;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
@@ -236,7 +237,7 @@ class CustomElement extends \ContentElement
 			return null;
 		}
 
-		if (!$size instanceof PictureConfiguration) {
+		if (!$size instanceof PictureConfiguration && !$size instanceof PictureConfigurationInterface) {
 			if (is_string($size) && trim($size)) {
 				$size = \StringUtil::deserialize($size);
 			}
