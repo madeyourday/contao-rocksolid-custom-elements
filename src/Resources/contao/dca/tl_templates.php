@@ -18,7 +18,7 @@ use Contao\CoreBundle\Util\PackageUtil;
 if (
 	is_callable([PackageUtil::class, 'getContaoVersion'])
 	&& version_compare(PackageUtil::getContaoVersion(), '4.7', '>=')
-    && version_compare(PackageUtil::getContaoVersion(), '4.9.2', '<')
+    	&& version_compare(PackageUtil::getContaoVersion(), '4.9.2', '<')
 ) {
 	$GLOBALS['TL_DCA']['tl_templates']['config']['validFileTypes'] .= ',php';
 	$GLOBALS['TL_DCA']['tl_templates']['config']['onload_callback'][] = function() {
