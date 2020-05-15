@@ -481,7 +481,7 @@ class CustomElements
 		);
 
 		$GLOBALS['TL_DCA'][$dc->table]['fields']['customTpl']['options_callback'] = function($dc) {
-			$templates = \Controller::getTemplateGroup($dc->activeRecord->type);
+			$templates = \Controller::getTemplateGroup($dc->activeRecord->type.'_', [], $dc->activeRecord->type);
 			foreach ($templates as $key => $label) {
 				if (substr($key, -7) === '_config' || $key === $dc->activeRecord->type) {
 					unset($templates[$key]);
