@@ -106,7 +106,7 @@ var removePicker = function(element) {
 			$(match[1]).removeEvents('click');
 			$(document.body).getChildren('#'+match[2]).destroy();
 		}
-		else if (match = script.get('html').match(/\$\("(pp_rsce_field_[^"]+)"\)\.addEvent\("click"/)) {
+		else if (match = script.get('html').match(/\$\("((?:pp|ft)_rsce_field_[^"]+)"\)\.addEvent\("click"/)) {
 			$(match[1]).removeEvents('click');
 		}
 	});
@@ -117,7 +117,7 @@ var restorePicker = function(element) {
 		if (script.get('html').match(/new MooRainbow\("(moo_rsce_field_[^"]+)"[^]*?id:\s*"([^"]+)"/)) {
 			Browser.exec(script.get('html'));
 		}
-		else if (script.get('html').match(/\$\("(pp_rsce_field_[^"]+)"\)\.addEvent\("click"/)) {
+		else if (script.get('html').match(/\$\("((?:pp|ft)_rsce_field_[^"]+)"\)\.addEvent\("click"/)) {
 			Browser.exec(script.get('html'));
 		}
 	});
