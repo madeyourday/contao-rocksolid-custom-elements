@@ -170,6 +170,19 @@ var persistSelects = function(element) {
 
 }
 
+var preserveRadioButtons = function(element) {
+	$(element).getElements('input[type=radio]:checked').each(function(input) {
+		input.setAttribute('data-rsce-checked', '');
+	});
+}
+
+var restoreRadioButtons = function(element) {
+	$(element).getElements('input[type=radio][data-rsce-checked]').each(function(input) {
+		input.checked = true;
+		input.removeAttribute('data-rsce-checked');
+	});
+}
+
 var updateListButtons = function(listElement) {
 
 	listElement = $(listElement);
@@ -236,6 +249,7 @@ var initListSort = function(listInner) {
 		handle: '.drag-handle',
 		onStart: function(element) {
 			removeTinyMCEs(element);
+			preserveRadioButtons(listInner);
 			ds.start();
 		},
 		onComplete: function() {
@@ -253,6 +267,7 @@ var initListSort = function(listInner) {
 			updateListButtons(listInner.getParent('.rsce_list'));
 			restorePicker(listInner);
 			restoreChosens(listInner);
+			restoreRadioButtons(listInner);
 		}
 	}));
 
@@ -288,6 +303,7 @@ var newElementAtPosition = function(listElement, position) {
 		removeTinyMCEs(el);
 		removePicker(el);
 	});
+	preserveRadioButtons(listElement);
 	removeTinyMCEs(dummyItem);
 	removeACEs(dummyItem);
 
@@ -358,6 +374,7 @@ var newElementAtPosition = function(listElement, position) {
 		restoreTinyMCEs(el);
 	});
 	restoreTinyMCEs(newItem);
+	restoreRadioButtons(listElement);
 
 	executeHtmlScripts(newItemHtml);
 
@@ -457,6 +474,7 @@ var duplicateElement = function(linkElement) {
 	removePicker(listInner);
 	restoreSelectorScripts(element);
 	persistSelects(element);
+	preserveRadioButtons(listInner);
 
 	var newItem = element.cloneNode(true);
 
@@ -492,6 +510,8 @@ var duplicateElement = function(linkElement) {
 	removePicker(newItem);
 	restorePicker(listInner);
 
+	restoreRadioButtons(listInner);
+
 	if (listInner.retrieve('listSort')) {
 		listInner.retrieve('listSort').addItems(newItem);
 	}
@@ -518,6 +538,7 @@ var deleteElement = function(linkElement) {
 	}
 
 	removePicker(listInner);
+	preserveRadioButtons(listInner);
 
 	removeTinyMCEs(element);
 	if (listInner.retrieve('listSort')) {
@@ -536,6 +557,7 @@ var deleteElement = function(linkElement) {
 	});
 
 	restorePicker(listInner);
+	restoreRadioButtons(listInner);
 
 	updateListButtons(listElement);
 
@@ -573,6 +595,9 @@ var moveElement = function(linkElement, offset) {
 	removePicker(swapElement);
 	removePicker(element);
 
+	preserveRadioButtons(swapElement);
+	preserveRadioButtons(element);
+
 	element.inject(swapElement, offset > 0 ? 'after' : 'before');
 
 	renameElement(swapElement);
@@ -583,6 +608,9 @@ var moveElement = function(linkElement, offset) {
 
 	restorePicker(swapElement);
 	restorePicker(element);
+
+	restoreRadioButtons(swapElement);
+	restoreRadioButtons(element);
 
 	restoreTinyMCEs(swapElement);
 	restoreTinyMCEs(element);
