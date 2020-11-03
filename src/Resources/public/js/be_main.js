@@ -386,6 +386,7 @@ var newElementAtPosition = function(listElement, position) {
 	}
 
 	updateListButtons(listElement);
+	updateDependingFields(newItem);
 
 	try {
 		window.fireEvent('subpalette');
@@ -520,6 +521,7 @@ var duplicateElement = function(linkElement) {
 	}
 
 	updateListButtons(element.getParent('.rsce_list'));
+	updateDependingFields(newItem);
 
 };
 
@@ -707,6 +709,67 @@ var initList = function(listElement) {
 
 };
 
+var allDependingWidgets = [];
+
+var updateDependingFields = function(formElement) {
+
+	formElement.getElements('[data-rsce-depends-on]').each(function(dependentInput) {
+		var widget = dependentInput.getParent('div.widget');
+		if (!widget || allDependingWidgets.indexOf(widget) !== -1) {
+			return;
+		}
+		var dependsOnData = JSON.parse(dependentInput.getAttribute('data-rsce-depends-on'));
+		if (!dependsOnData || !dependsOnData.field) {
+			return;
+		}
+
+		var input = document.body.getElement('[name="'+dependsOnData.field+'"][type!=hidden],[name^="'+dependsOnData.field+'["][type!=hidden]');
+
+		if (!input) {
+			return;
+		}
+
+		allDependingWidgets.push(widget);
+
+		input.addEvent('input', updateWidget);
+		input.addEvent('change', updateWidget);
+		input.addEvent('click', updateWidget);
+		updateWidget();
+
+		function updateWidget() {
+			var value = input.get('value');
+
+			if (input.type === 'checkbox' && !input.checked) {
+				value = '';
+			}
+
+			if (input.type === 'radio') {
+				value = input.form.elements[input.name];
+			}
+
+			if (
+				Array.isArray(dependsOnData.value) ? dependsOnData.value.indexOf(value) !== -1
+				: dependsOnData.value === true ? value
+				: dependsOnData.value === value
+			) {
+				widget.style.display = 'block';
+			}
+			else {
+				widget.style.display = 'none';
+			}
+		}
+
+	});
+
+};
+
+var init = function(formElement) {
+	updateDependingFields($(formElement));
+	window.addEvent('domready', function() {
+		updateDependingFields($(formElement));
+	});
+};
+
 // public objects
 window.rsceNewElement = newElement;
 window.rsceNewElementAfter = newElementAfter;
@@ -714,5 +777,6 @@ window.rsceDuplicateElement = duplicateElement;
 window.rsceDeleteElement = deleteElement;
 window.rsceMoveElement = moveElement;
 window.rsceInitList = initList;
+window.rsceInit = init;
 
 })(document.id, window);

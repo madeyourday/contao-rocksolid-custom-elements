@@ -272,6 +272,45 @@ class CustomElements
 	}
 
 	/**
+	 * Unset a value of the nested data array $this->saveData from field name
+	 *
+	 * @param  string $field Field name
+	 * @return void
+	 */
+	protected function unsetNestedValue($field)
+	{
+		$field = preg_split('(__([0-9]+)__)', substr($field, 11), -1, PREG_SPLIT_DELIM_CAPTURE);
+
+		if (!isset($this->saveData[$field[0]])) {
+			return;
+		}
+
+		if (\count($field) === 1) {
+			unset($this->saveData[$field[0]]);
+
+			return;
+		}
+
+		$data =& $this->saveData[$field[0]];
+
+		for ($i = 0; isset($field[$i + 1]); $i += 2) {
+			if (!isset($data[$field[$i + 1]])) {
+				return;
+			}
+			if (!isset($data[$field[$i + 1]][$field[$i + 2]])) {
+				return;
+			}
+			if (isset($field[$i + 3])) {
+				$data =& $data[$field[$i + 1]][$field[$i + 2]];
+			}
+			else {
+				unset($data[$field[$i + 1]][$field[$i + 2]]);
+				return;
+			}
+		}
+	}
+
+	/**
 	 * Get the config from field name
 	 *
 	 * @param  string $field Field name
@@ -398,7 +437,7 @@ class CustomElements
 	 */
 	public function saveDataCallback($value, $dc)
 	{
-		$this->prepareSaveData('rsce_field_', $this->fieldsConfig);
+		$this->prepareSaveData('rsce_field_', $this->fieldsConfig, $dc);
 
 		$data = json_encode($this->saveData);
 
@@ -412,13 +451,35 @@ class CustomElements
 	/**
 	 * prepare the data to save and create empty arrays for empty lists
 	 *
-	 * @param  string $fieldPrefix  field prefix
-	 * @param  array  $fieldsConfig fields configuration
+	 * @param  string         $fieldPrefix  field prefix
+	 * @param  array          $fieldsConfig fields configuration
+	 * @param  \DataContainer $dc           Data container
 	 * @return void
 	 */
-	protected function prepareSaveData($fieldPrefix, $fieldsConfig)
+	protected function prepareSaveData($fieldPrefix, $fieldsConfig, $dc)
 	{
 		foreach ($fieldsConfig as $fieldName => $fieldConfig) {
+
+			if (!empty($fieldConfig['dependsOn'])) {
+				if (\is_string($fieldConfig['dependsOn'])) {
+					$fieldConfig['dependsOn'] = ['field' => $fieldConfig['dependsOn']];
+				}
+				if (\is_array($fieldConfig['dependsOn'])) {
+					$dependingFieldName = $this->getDependingFieldName($fieldConfig['dependsOn'], $fieldPrefix);
+					if (substr($dependingFieldName, 0, 11) === 'rsce_field_') {
+						$dependingValue = $this->getNestedValueReference($dependingFieldName);
+					}
+					else {
+						$dependingValue = $dc->activeRecord ? $dc->activeRecord->$dependingFieldName : null;
+					}
+					$compareValue = $fieldConfig['dependsOn']['value'] ?? true;
+					if (\is_array($compareValue) ? !\in_array($dependingValue, $compareValue, true) : (
+						$compareValue === true ? (!$dependingValue && $dependingValue !== '0') : ($dependingValue !== $compareValue)
+					)) {
+						$this->unsetNestedValue($fieldPrefix . $fieldName);
+					}
+				}
+			}
 
 			if (isset($fieldConfig['inputType']) && $fieldConfig['inputType'] === 'list') {
 
@@ -426,7 +487,7 @@ class CustomElements
 				$fieldData = $this->getNestedValueReference($fieldPrefix . $fieldName);
 
 				for ($dataKey = 0; isset($fieldData[$dataKey]); $dataKey++) {
-					$this->prepareSaveData($fieldPrefix . $fieldName . '__' . $dataKey . '__', $fieldConfig['fields']);
+					$this->prepareSaveData($fieldPrefix . $fieldName . '__' . $dataKey . '__', $fieldConfig['fields'], $dc);
 				}
 
 			}
@@ -471,6 +532,8 @@ class CustomElements
 				$this->createDcaItem($tmpField, '', $fieldConfig, $paletteFields, $dc, false);
 			}
 		}
+
+		$GLOBALS['TL_DCA'][$dc->table]['fields']['rsce_data']['eval']['rsceScript'] = 'window.rsceInit([...document.querySelectorAll("script")].pop().parentNode.parentNode.parentNode);';
 
 		$paletteFields[] = 'rsce_data';
 
@@ -569,6 +632,18 @@ class CustomElements
 			// Don’t overwrite referenced variable
 			unset($fieldConfig['reference']);
 			$fieldConfig['reference'] = $translatedReference;
+		}
+
+		if (isset($fieldConfig['dependsOn'])) {
+			if (\is_string($fieldConfig['dependsOn'])) {
+				$fieldConfig['dependsOn'] = ['field' => $fieldConfig['dependsOn']];
+			}
+			if (\is_array($fieldConfig['dependsOn'])) {
+				$fieldConfig['eval']['data-rsce-depends-on'] = json_encode([
+					'field' => $this->getDependingFieldName($fieldConfig['dependsOn'], $fieldPrefix),
+					'value' => $fieldConfig['dependsOn']['value'] ?? true,
+				]);
+			}
 		}
 
 		if ($fieldConfig['inputType'] === 'list') {
@@ -725,6 +800,45 @@ class CustomElements
 			$paletteFields[] = $fieldPrefix . $fieldName;
 
 		}
+	}
+
+	/**
+	 * Get depending field name from dependsOn config resoving relative ../ parts
+	 *
+	 * @param  array  $config
+	 * @param  string $prefix
+	 * @return string
+	 */
+	protected function getDependingFieldName(array $config, string $prefix): string
+	{
+		if (empty($config['field'])) {
+			return '';
+		}
+
+		$field = $config['field'];
+		$prefixParts = explode('__', substr($prefix, 11));
+
+		if ($field[0] === '/') {
+			return substr($field, 1);
+		}
+
+		while(substr($field, 0, 3) === '../') {
+			$field = substr($field, 3);
+
+			if (!\count($prefixParts)) {
+				throw new \RuntimeException(sprintf('Invalid field path "%s" for prefix "%s".', $config['field'], $prefix));
+			}
+
+			array_splice($prefixParts, -2);
+		}
+
+		if (!\count($prefixParts)) {
+			return $field;
+		}
+
+		$prefixParts[\count($prefixParts) - 1] = "";
+
+		return 'rsce_field_' . implode('__', $prefixParts) . $field;
 	}
 
 	/**

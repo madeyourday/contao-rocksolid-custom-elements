@@ -9,11 +9,11 @@
 namespace MadeYourDay\RockSolidCustomElements\Widget;
 
 /**
- * Hidden widget
+ * Data widget
  *
  * @author Martin Auswöger <martin@madeyourday.net>
  */
-class Hidden extends \Widget
+class Data extends \Widget
 {
 	/**
 	 * @var boolean Submit user input
@@ -23,7 +23,7 @@ class Hidden extends \Widget
 	/**
 	 * @var string Template
 	 */
-	protected $strTemplate = 'be_rsce_hidden';
+	protected $strTemplate = 'be_rsce_data';
 
 	/**
 	 * Generate the widget and return it as string
@@ -32,6 +32,6 @@ class Hidden extends \Widget
 	 */
 	public function generate()
 	{
-		return '';
+		return $this->rsceScript ? '<script>'.$this->rsceScript.'</script>' : '';
 	}
 }
