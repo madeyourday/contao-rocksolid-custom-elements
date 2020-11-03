@@ -22,7 +22,7 @@ $GLOBALS['BE_FFL']['rsce_list_stop'] = 'MadeYourDay\\RockSolidCustomElements\\Wi
 $GLOBALS['BE_FFL']['rsce_list_item_start'] = 'MadeYourDay\\RockSolidCustomElements\\Widget\\ListItemStart';
 $GLOBALS['BE_FFL']['rsce_list_item_stop'] = 'MadeYourDay\\RockSolidCustomElements\\Widget\\ListItemStop';
 $GLOBALS['BE_FFL']['rsce_group_start'] = 'MadeYourDay\\RockSolidCustomElements\\Widget\\GroupStart';
-$GLOBALS['BE_FFL']['rsce_list_hidden'] = 'MadeYourDay\\RockSolidCustomElements\\Widget\\Hidden';
+$GLOBALS['BE_FFL']['rsce_data'] = 'MadeYourDay\\RockSolidCustomElements\\Widget\\Data';
 
 $GLOBALS['TL_MAINTENANCE'][] = 'MadeYourDay\\RockSolidCustomElements\\CustomElementsConvert';
 

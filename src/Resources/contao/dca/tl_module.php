@@ -17,7 +17,7 @@ $GLOBALS['TL_DCA']['tl_module']['config']['onsubmit_callback'][] = array('MadeYo
 $GLOBALS['TL_DCA']['tl_module']['fields']['rsce_data'] = array(
 	'label' => &$GLOBALS['TL_LANG']['tl_module']['rsce_data'],
 	'exclude' => true,
-	'inputType' => 'rsce_list_hidden',
+	'inputType' => 'rsce_data',
 	'sql' => "mediumblob NULL",
 	'save_callback' => array(
 		array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'saveDataCallback'),
