@@ -723,39 +723,77 @@ var updateDependingFields = function(formElement) {
 			return;
 		}
 
-		var input = document.body.getElement('[name="'+dependsOnData.field+'"][type!=hidden],[name^="'+dependsOnData.field+'["][type!=hidden]');
+		var inputs = document.body.getElements('[name="'+dependsOnData.field+'"][type!=hidden],[name^="'+dependsOnData.field+'["][type!=hidden]');
 
-		if (!input) {
+		if (!inputs.length) {
 			return;
 		}
 
 		allDependingWidgets.push(widget);
 
-		input.addEvent('input', updateWidget);
-		input.addEvent('change', updateWidget);
-		input.addEvent('click', updateWidget);
+		inputs.addEvent('input', updateWidget);
+		inputs.addEvent('change', updateWidget);
+		inputs.addEvent('click', updateWidget);
 		updateWidget();
 
 		function updateWidget() {
+			var input = inputs[0];
+			inputs.each(function(el) {
+				if (el.checked) {
+					input = el;
+				}
+			});
+
 			var value = input.get('value');
 
 			if (input.type === 'checkbox' && !input.checked) {
 				value = '';
 			}
 
-			if (input.type === 'radio') {
-				value = input.form.elements[input.name];
+			if (input.type === 'radio' && input.name && input.form && input.form.elements[input.name]) {
+				value = input.form.elements[input.name].value;
 			}
 
-			if (
-				Array.isArray(dependsOnData.value) ? dependsOnData.value.indexOf(value) !== -1
-				: dependsOnData.value === true ? value
-				: dependsOnData.value === value
-			) {
+			if (input.type === 'checkbox' && input.name.substr(-2) === '[]') {
+				value = [];
+				inputs.each(function(el) {
+					if (el.checked) {
+						value.push(el.value);
+					}
+				});
+			}
+
+			if (valueMatches(dependsOnData.value, value)) {
 				widget.style.display = 'block';
 			}
 			else {
 				widget.style.display = 'none';
+			}
+
+			function valueMatches(dependingValue, actualValue) {
+				if (Array.isArray(dependingValue)) {
+					for (var i = 0; i < dependingValue.length; i++) {
+						if (valueMatches(dependingValue[i], actualValue)) {
+							return true;
+						}
+					}
+					return false;
+				}
+
+				if (Array.isArray(actualValue)) {
+					for (var i = 0; i < actualValue.length; i++) {
+						if (valueMatches(dependingValue, actualValue[i])) {
+							return true;
+						}
+					}
+					return false;
+				}
+
+				if (dependingValue === true) {
+					return !!actualValue;
+				}
+
+				return dependingValue === actualValue;
 			}
 		}
 

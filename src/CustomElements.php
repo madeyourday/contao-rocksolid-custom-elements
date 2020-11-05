@@ -206,18 +206,26 @@ class CustomElements
 	/**
 	 * Get the value of the nested data array $this->data from field name
 	 *
-	 * @param  string $field Field name
-	 * @return mixed         Value from $this->data
+	 * @param  string $field        Field name
+	 * @param  bool   $fromSaveData True to retrieve the value from $this->saveData instead of $this->data
+	 * @return mixed         Value from $this->data or $this->saveData
 	 */
-	protected function getNestedValue($field)
+	protected function getNestedValue($field, $fromSaveData = false)
 	{
 		$field = preg_split('(__([0-9]+)__)', substr($field, 11), -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		if (!isset($this->data[$field[0]])) {
-			return null;
+		if ($fromSaveData) {
+			if (!isset($this->saveData[$field[0]])) {
+				return null;
+			}
+			$data =& $this->saveData[$field[0]];
 		}
-
-		$data =& $this->data[$field[0]];
+		else {
+			if (!isset($this->data[$field[0]])) {
+				return null;
+			}
+			$data =& $this->data[$field[0]];
+		}
 
 		for ($i = 0; isset($field[$i]); $i += 2) {
 
@@ -467,15 +475,12 @@ class CustomElements
 				if (\is_array($fieldConfig['dependsOn'])) {
 					$dependingFieldName = $this->getDependingFieldName($fieldConfig['dependsOn'], $fieldPrefix);
 					if (substr($dependingFieldName, 0, 11) === 'rsce_field_') {
-						$dependingValue = $this->getNestedValueReference($dependingFieldName);
+						$actualValue = $this->getNestedValue($dependingFieldName, true);
 					}
 					else {
-						$dependingValue = $dc->activeRecord ? $dc->activeRecord->$dependingFieldName : null;
+						$actualValue = $dc->activeRecord ? $dc->activeRecord->$dependingFieldName : null;
 					}
-					$compareValue = $fieldConfig['dependsOn']['value'] ?? true;
-					if (\is_array($compareValue) ? !\in_array($dependingValue, $compareValue, true) : (
-						$compareValue === true ? (!$dependingValue && $dependingValue !== '0') : ($dependingValue !== $compareValue)
-					)) {
+					if (!$this->dependingValueMatches($fieldConfig['dependsOn']['value'] ?? true, \StringUtil::deserialize($actualValue))) {
 						$this->unsetNestedValue($fieldPrefix . $fieldName);
 					}
 				}
@@ -839,6 +844,42 @@ class CustomElements
 		$prefixParts[\count($prefixParts) - 1] = "";
 
 		return 'rsce_field_' . implode('__', $prefixParts) . $field;
+	}
+
+	/**
+	 * Compare depending value from config with actual value
+	 *
+	 * @param  bool|string|array<string> $dependingValue
+	 * @param  string|array<string>      $actualValue
+	 * @return bool
+	 */
+	protected function dependingValueMatches($dependingValue, $actualValue): bool
+	{
+		if (\is_array($dependingValue)) {
+			foreach	($dependingValue as $value) {
+				if ($this->dependingValueMatches($value, $actualValue)) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		if (\is_array($actualValue)) {
+			foreach	($actualValue as $value) {
+				if ($this->dependingValueMatches($dependingValue, $value)) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		if ($dependingValue === true) {
+			return !!$actualValue || $actualValue === '0';
+		}
+
+		return $dependingValue === $actualValue;
 	}
 
 	/**
