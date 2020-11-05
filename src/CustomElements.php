@@ -644,10 +644,13 @@ class CustomElements
 				$fieldConfig['dependsOn'] = ['field' => $fieldConfig['dependsOn']];
 			}
 			if (\is_array($fieldConfig['dependsOn'])) {
-				$fieldConfig['eval']['data-rsce-depends-on'] = json_encode([
+				if (empty($fieldConfig['eval']['tl_class'])) {
+					$fieldConfig['eval']['tl_class'] = '';
+				}
+				$fieldConfig['eval']['tl_class'] .= ' rsce-depends-on-'.rawurlencode(json_encode([
 					'field' => $this->getDependingFieldName($fieldConfig['dependsOn'], $fieldPrefix),
 					'value' => $fieldConfig['dependsOn']['value'] ?? true,
-				]);
+				]));
 			}
 		}
 

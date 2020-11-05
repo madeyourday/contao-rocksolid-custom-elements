@@ -713,8 +713,8 @@ var allDependingWidgets = [];
 
 var updateDependingFields = function(formElement) {
 
-	formElement.getElements('[data-rsce-depends-on]').each(function(dependentInput) {
-		var widget = dependentInput.hasClass('rsce_list')
+	formElement.getElements('[class*=rsce-depends-on-]').each(function(dependentInput) {
+		var widget = (dependentInput.hasClass('rsce_list') || dependentInput.hasClass('widget'))
 			? dependentInput
 			: dependentInput.getParent('div.widget');
 
@@ -722,7 +722,7 @@ var updateDependingFields = function(formElement) {
 			return;
 		}
 
-		var dependsOnData = JSON.parse(dependentInput.getAttribute('data-rsce-depends-on'));
+		var dependsOnData = JSON.parse(decodeURIComponent(dependentInput.className.match(/rsce-depends-on-\S+/)[0].substr(16)));
 		if (!dependsOnData || !dependsOnData.field) {
 			return;
 		}
