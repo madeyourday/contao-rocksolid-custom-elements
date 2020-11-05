@@ -59,6 +59,7 @@ class ListStart extends \Widget
 			. ' id="pal_' . $this->strId . '"'
 			. ' class="' . implode(' ', $classes) . '"'
 			. ' data-config="' . htmlspecialchars(json_encode($config), ENT_QUOTES) . '"'
+			. $this->getAttributes()
 			. '>'
 			. '<legend'
 			. ' onclick="AjaxRequest.toggleFieldset(this, &quot;' . $this->strId . '&quot;, &quot;' . $this->strTable . '&quot;)"'
