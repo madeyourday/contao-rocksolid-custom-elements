@@ -714,10 +714,14 @@ var allDependingWidgets = [];
 var updateDependingFields = function(formElement) {
 
 	formElement.getElements('[data-rsce-depends-on]').each(function(dependentInput) {
-		var widget = dependentInput.getParent('div.widget');
+		var widget = dependentInput.hasClass('rsce_list')
+			? dependentInput
+			: dependentInput.getParent('div.widget');
+
 		if (!widget || allDependingWidgets.indexOf(widget) !== -1) {
 			return;
 		}
+
 		var dependsOnData = JSON.parse(dependentInput.getAttribute('data-rsce-depends-on'));
 		if (!dependsOnData || !dependsOnData.field) {
 			return;
