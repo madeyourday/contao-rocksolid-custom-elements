@@ -731,6 +731,10 @@ var updateDependingFields = function(formElement) {
 
 		allDependingWidgets.push(widget);
 
+		if (inputs[0].getPrevious('[type=checkbox][id^=check_all_]')) {
+			inputs[0].getPrevious('[type=checkbox][id^=check_all_]').addEvent('click', updateWidget);
+		}
+
 		inputs.addEvent('input', updateWidget);
 		inputs.addEvent('change', updateWidget);
 		inputs.addEvent('click', updateWidget);
