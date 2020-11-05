@@ -38,7 +38,7 @@ class ListStart extends \Widget
 		$toolbar .= '<a class="header_new" href="" onclick="rsceNewElement(this);return false;">' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['new_list_item'] . '</a> ';
 		$toolbar .= '</div>';
 
-		$classes = ['tl_box', 'rsce_list'];
+		$classes = [$this->arrConfiguration['tl_class'] ?? '', 'tl_box', 'rsce_list'];
 		$fs = \System::getContainer()->get('session')->getBag('contao_backend')->get('fieldset_states');
 
 		if (
