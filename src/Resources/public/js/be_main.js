@@ -714,7 +714,12 @@ var allDependingWidgets = [];
 var updateDependingFields = function(formElement) {
 
 	formElement.getElements('[class*=rsce-depends-on-]').each(function(dependentInput) {
-		var widget = (dependentInput.hasClass('rsce_list') || dependentInput.hasClass('widget'))
+		var widget =
+			(
+				dependentInput.hasClass('rsce_list')
+				|| dependentInput.hasClass('rsce_group')
+				|| dependentInput.hasClass('widget')
+			)
 			? dependentInput
 			: dependentInput.getParent('div.widget');
 
