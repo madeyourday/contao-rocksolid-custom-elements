@@ -8,6 +8,7 @@
 
 namespace MadeYourDay\RockSolidCustomElements;
 
+use Contao\StringUtil;
 use Doctrine\DBAL\DBALException;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
 
@@ -1206,18 +1207,11 @@ class CustomElements
 	{
 		$cacheDir = \System::getContainer()->getParameter('kernel.cache_dir') . '/contao';
 
-		$fileFullPath = $cacheDir . '/rocksolid_custom_elements_config.php';
-		$filePath = $fileFullPath;
-		if (
-			substr($filePath, 0, strlen(TL_ROOT) + 1) === TL_ROOT . '/'
-			|| substr($filePath, 0, strlen(TL_ROOT) + 1) === TL_ROOT . '\\'
-		) {
-			$filePath = substr($filePath, strlen(TL_ROOT) + 1);
-		}
+		$filePath = $cacheDir . '/rocksolid_custom_elements_config.php';
 
 		return array(
-			'path' => $filePath,
-			'fullPath' => $fileFullPath,
+			'path' => StringUtil::stripRootDir($filePath),
+			'fullPath' => $filePath,
 		);
 	}
 
@@ -1229,24 +1223,6 @@ class CustomElements
 	 */
 	public static function loadConfig($bypassCache = false)
 	{
-		// Don't load the config in the install tool
-		try {
-			if (
-				\System::getContainer()->get('request_stack')
-				&& \System::getContainer()->get('request_stack')->getCurrentRequest()
-				&& in_array(
-					\System::getContainer()->get('request_stack')->getCurrentRequest()->get('_route'),
-					['contao_install', 'contao_backend_install'],
-					true
-				)
-			) {
-				return;
-			}
-		}
-		catch (\Exception $exception) {
-			return;
-		}
-
 		$filePaths = static::getCacheFilePaths();
 
 		$cacheHash = md5(implode(',', array_merge(
@@ -1262,16 +1238,6 @@ class CustomElements
 				return;
 			}
 		}
-
-		// The getInstance calls are neccessary to keep the contao instance
-		// stack intact and prevent an "Invalid connection resource" exception
-		if (TL_MODE === 'BE') {
-			\BackendUser::getInstance();
-		}
-		else if(TL_MODE === 'FE') {
-			\FrontendUser::getInstance();
-		}
-		\Database::getInstance();
 
 		$contents = array();
 		$contents[] = '<?php' . "\n";
