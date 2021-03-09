@@ -34,7 +34,7 @@ class GroupStart extends \Widget
 	{
 		$this->loadLanguageFile('rocksolid_custom_elements');
 
-		$classes = ['tl_box', 'rsce_group'];
+		$classes = [$this->arrConfiguration['tl_class'] ?? '', 'tl_box', 'rsce_group'];
 		$fs = \System::getContainer()->get('session')->getBag('contao_backend')->get('fieldset_states');
 
 		if (
