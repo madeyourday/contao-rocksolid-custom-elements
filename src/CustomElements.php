@@ -133,6 +133,100 @@ class CustomElements
 	}
 
 	/**
+	 * tl_content, tl_module and tl_form_field DCA onshow callback
+	 *
+	 * @param  array $data
+	 * @param  array $row
+	 * @param  \DataContainer $dc Data container
+	 *
+	 * @return array
+	 */
+	public static function onshowCallback($data, $row, $dc)
+	{
+		if (
+			empty($row['type'])
+			|| substr($row['type'], 0, 5) !== 'rsce_'
+			|| !$data
+			|| empty($row['rsce_data'])
+			|| $row['rsce_data'] === '{}'
+			|| !$rsceData = json_decode($row['rsce_data'], true)
+		) {
+			return $data;
+		}
+
+		$config = static::getConfigByType($row['type']);
+
+		foreach ($data as $table => $rows) {
+			foreach ($rows as $rowIndex => $rowValues) {
+				foreach ($rowValues as $label => $value) {
+					if (substr($label, -24) === '<small>rsce_data</small>') {
+						unset($data[$table][$rowIndex][$label]);
+					}
+				}
+			}
+		}
+
+		if (!isset($data['tl_content.rsce_data'])) {
+			$data = array_merge(['tl_content.rsce_data' => []], $data);
+		}
+
+		$data['tl_content.rsce_data'][] = self::formatShowData($rsceData, $config['fields'] ?? []);
+
+		return $data;
+	}
+
+	private static function formatShowData(array $rsceData, array $fieldsConfig, string $prefix = '', string $keyPrefix = ''): array
+	{
+		$data = [];
+		foreach ($rsceData as $key => $value) {
+			if (is_array($value)) {
+				foreach ($value as $valueIndex => $valueRow) {
+					$prefixLabel = static::getLabelTranslated($fieldsConfig[$key]['elementLabel'] ?? null) ?: $key . ' %s';
+					$data = array_merge(
+						$data,
+						self::formatShowData(
+							$valueRow,
+							$fieldsConfig[$key]['fields'] ?? [],
+							$prefix . sprintf($prefixLabel, $valueIndex + 1) . ' › ',
+							$keyPrefix . $key . '[' . $valueIndex . ']->'
+						)
+					);
+				}
+			}
+			else {
+				$label = $prefix;
+				$label .= (static::getLabelTranslated($fieldsConfig[$key]['label'] ?? null) ?: [$key])[0];
+				$label .= '<small>' . $keyPrefix . $key . '</small>';
+				$value = StringUtil::deserialize($value);
+				if (is_array($value)) {
+					$value = self::formatShowArray($value);
+				}
+				$data[$label] = (string) $value;
+			}
+		}
+
+		return $data;
+	}
+
+	private static function formatShowArray(array $data): string
+	{
+		$data = array_map(function($value) {
+			if (is_array($value)) {
+				return '(' . self::formatShowArray($value) . ')';
+			}
+			return (string) $value;
+		}, $data);
+
+		if ($data && array_keys($data) !== range(0, count($data) - 1)) {
+			$data = array_map(function($key, $value) {
+				return $key.': '.$value;
+			}, array_keys($data), $data);
+		}
+
+		return implode(', ', $data);
+	}
+
+	/**
 	 * Field load callback
 	 *
 	 * Finds the current value for the field

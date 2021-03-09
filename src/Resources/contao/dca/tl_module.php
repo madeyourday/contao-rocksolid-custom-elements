@@ -14,6 +14,7 @@
 
 $GLOBALS['TL_DCA']['tl_module']['config']['onload_callback'][] = array('MadeYourDay\RockSolidCustomElements\CustomElements', 'onloadCallback');
 $GLOBALS['TL_DCA']['tl_module']['config']['onsubmit_callback'][] = array('MadeYourDay\RockSolidCustomElements\CustomElements', 'onsubmitCallback');
+$GLOBALS['TL_DCA']['tl_module']['config']['onshow_callback'][] = array('MadeYourDay\RockSolidCustomElements\CustomElements', 'onshowCallback');
 $GLOBALS['TL_DCA']['tl_module']['fields']['rsce_data'] = array(
 	'label' => &$GLOBALS['TL_LANG']['tl_module']['rsce_data'],
 	'exclude' => true,
