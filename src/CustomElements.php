@@ -9,6 +9,7 @@
 namespace MadeYourDay\RockSolidCustomElements;
 
 use Contao\StringUtil;
+use Contao\System;
 use Doctrine\DBAL\DBALException;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
 
@@ -655,7 +656,7 @@ class CustomElements
 
 		$GLOBALS['TL_LANG'][$dc->table]['rsce_legend'] = $GLOBALS['TL_LANG'][$dc->table === 'tl_content' ? 'CTE' : ($dc->table === 'tl_module' ? 'FMD' : 'FFL')][$type][0];
 
-		if ($config['onloadCallback'] && is_array($config['onloadCallback'])) {
+		if (!empty($config['onloadCallback']) && is_array($config['onloadCallback'])) {
 			foreach ($config['onloadCallback'] as $callback) {
 				if (is_array($callback)) {
 					\System::importStatic($callback[0])->{$callback[1]}($dc);
@@ -890,7 +891,7 @@ class CustomElements
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName] = $fieldConfig;
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['eval']['alwaysSave'] = true;
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['eval']['doNotSaveEmpty'] = true;
-			if (!is_array($GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['load_callback'])) {
+			if (!isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['load_callback'])) {
 				$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['load_callback'] = array();
 			}
 			array_unshift(
@@ -1332,6 +1333,10 @@ class CustomElements
 				return;
 			}
 		}
+
+		System::loadLanguageFile('default');
+		System::loadLanguageFile('tl_content');
+		System::loadLanguageFile('tl_module');
 
 		$contents = array();
 		$contents[] = '<?php' . "\n";
