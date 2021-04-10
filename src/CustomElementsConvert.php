@@ -37,7 +37,6 @@ class CustomElementsConvert extends \Backend implements \executable
 		$objTemplate = new \BackendTemplate('be_rsce_convert');
 		$objTemplate->isActive = $this->isActive();
 		$objTemplate->action = ampersand(\Environment::get('request'));
-		$objTemplate->indexHeadline = $GLOBALS['TL_LANG']['tl_maintenance']['searchIndex'];
 
 		// Rebuild the index
 		if (\Input::get('act') === 'rsce_convert') {
