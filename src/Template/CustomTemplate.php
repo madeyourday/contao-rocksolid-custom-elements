@@ -36,7 +36,7 @@ class CustomTemplate extends \FrontendTemplate
 	 */
 	public static function getTemplate($template, $format = 'html5')
 	{
-		$templates = static::getTemplates($template, $format = 'html5');
+		$templates = static::getTemplates($template, $format);
 
 		return isset($templates[0]) ? $templates[0] : null;
 	}
