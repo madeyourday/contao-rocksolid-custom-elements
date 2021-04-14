@@ -621,7 +621,7 @@ class CustomElements
 		}
 
 		$paletteFields = array();
-		$standardFields = is_array($config['standardFields']) ? $config['standardFields'] : array();
+		$standardFields = is_array($config['standardFields'] ?? null) ? $config['standardFields'] : array();
 		$this->fieldsConfig = $config['fields'];
 
 		foreach ($this->fieldsConfig as $fieldName => $fieldConfig) {
@@ -1100,7 +1100,7 @@ class CustomElements
 				continue;
 			}
 
-			$standardFields = is_array($config['standardFields']) ? $config['standardFields'] : array();
+			$standardFields = is_array($config['standardFields'] ?? null) ? $config['standardFields'] : array();
 
 			foreach ($config['fields'] as $fieldName => $fieldConfig) {
 				if (isset($fieldConfig['inputType']) && $fieldConfig['inputType'] !== 'list') {
@@ -1153,7 +1153,7 @@ class CustomElements
 		$config = include $configPath;
 
 		if ($config) {
-			$config['fields'] = is_array($config['fields']) ? $config['fields'] : array();
+			$config['fields'] = is_array($config['fields'] ?? null) ? $config['fields'] : array();
 		}
 
 		return $config;
