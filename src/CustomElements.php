@@ -1393,6 +1393,7 @@ class CustomElements
 			}
 		}
 
+		$saveToCache = true;
 		$elements = array();
 
 		foreach ($templates as $template => $label) {
@@ -1422,7 +1423,19 @@ class CustomElements
 				}
 			}
 
-			$config = include $configPath;
+			try {
+				$config = include $configPath;
+			}
+			catch (\Throwable $exception) {
+				$request = System::getContainer()->get('request_stack')->getCurrentRequest();
+
+				if ($request && $request->get('_route') === 'contao_install') {
+					$saveToCache = false;
+					continue;
+				}
+
+				throw $exception;
+			}
 
 			$element = array(
 				'config' => $config,
@@ -1519,6 +1532,10 @@ class CustomElements
 				$contents[] = '$GLOBALS[\'TL_WRAPPERS\'][' . var_export($element['config']['wrapper']['type'], true) . '][] = ' . var_export($element['template'], true) . ';';
 			}
 
+		}
+
+		if (!$saveToCache) {
+			return;
 		}
 
 		$file = new \File($filePaths['path'], true);
