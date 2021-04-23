@@ -195,6 +195,19 @@ class CustomElement extends \ContentElement
 			}
 		}
 
+		if ($data instanceof \stdClass) {
+			$return = new class extends \stdClass{
+				public function __get($name) {
+					return null;
+				}
+			};
+			foreach ($data as $key => $value) {
+				$return->$key = $value;
+			}
+
+			$data = $return;
+		}
+
 		return $data;
 	}
 
