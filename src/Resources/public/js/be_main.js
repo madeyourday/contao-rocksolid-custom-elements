@@ -711,6 +711,50 @@ var initList = function(listElement) {
 
 var allDependingWidgets = [];
 
+var removeDependingFormFields = function(widget) {
+	var fieldsToRemove = [];
+	widget.getElements('[name^=rsce_]').each(function(input) {
+		fieldsToRemove.push(input.name.split('[')[0]);
+		input.disabled = true;
+		input.setAttribute('data-disabled-by-rsce', 'true');
+	});
+	if (!fieldsToRemove.length) {
+		return;
+	}
+	var fieldsRegEx = new RegExp(fieldsToRemove.map(function(fieldName) {
+		return '(?:^|,)'+(fieldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))+'(?=,|;|$)';
+	}).join('|'), 'g');
+	widget.getParent('form').getElements('input[name="FORM_FIELDS[]"]').each(function(input) {
+		$(input).set('value', $(input).get('value').replace(fieldsRegEx, ''));
+	});
+};
+
+var restoreDependingFormFields = function(widget) {
+	var inputsToRestore = [];
+	widget.getElements('[data-disabled-by-rsce]').each(function(input) {
+		if ($(input).getParent().getStyle('display') === 'none') {
+			return;
+		}
+		inputsToRestore.push(input);
+		input.disabled = false;
+		input.removeAttribute('data-disabled-by-rsce');
+	});
+	if (!inputsToRestore.length) {
+		return;
+	}
+	inputsToRestore.each(function(input) {
+		var parent = input.getParent('.rsce_list_item') || input.getParent('.tl_formbody_edit') || input.form;
+		if (!parent) {
+			return;
+		}
+		var fieldsInput = parent.getChildren('input[name="FORM_FIELDS[]"]')[0] || parent.getElement('input[name="FORM_FIELDS[]"]');
+		if (!fieldsInput) {
+			return;
+		}
+		fieldsInput.set('value', fieldsInput.get('value')+','+(input.name.split('[')[0]));
+	});
+};
+
 var updateDependingFields = function(formElement) {
 
 	formElement.getElements('[class*=rsce-depends-on-]').each(function(dependentInput) {
@@ -778,9 +822,11 @@ var updateDependingFields = function(formElement) {
 
 			if (valueMatches(dependsOnData.value, value)) {
 				widget.style.display = 'block';
+				restoreDependingFormFields(widget);
 			}
 			else {
 				widget.style.display = 'none';
+				removeDependingFormFields(widget);
 			}
 
 			function valueMatches(dependingValue, actualValue) {
