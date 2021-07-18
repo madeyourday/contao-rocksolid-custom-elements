@@ -713,7 +713,7 @@ var allDependingWidgets = [];
 
 var removeDependingFormFields = function(widget) {
 	var fieldsToRemove = [];
-	widget.getElements('[name^=rsce_]').each(function(input) {
+	widget.getElements('input[name],textarea[name],select[name],button[name]').each(function(input) {
 		fieldsToRemove.push(input.name.split('[')[0]);
 		input.disabled = true;
 		input.setAttribute('data-disabled-by-rsce', 'true');
