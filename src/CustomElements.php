@@ -1512,7 +1512,7 @@ class CustomElements
 
 			if (in_array('form', $element['types'])) {
 
-                $hasInput = isset($element['config']['fields']['name']['inputType']) && $element['config']['fields']['name']['inputType'] === 'standardField';
+				$hasInput = isset($element['config']['fields']['name']['inputType']) && $element['config']['fields']['name']['inputType'] === 'standardField';
 
 				$GLOBALS['TL_FFL'][$element['template']] = 'MadeYourDay\\RockSolidCustomElements\\Form\\CustomWidget'.($hasInput ? '' : 'NoInput');
 				$contents[] = '$GLOBALS[\'TL_FFL\'][\'' . $element['template'] . '\'] = \'MadeYourDay\\\\RockSolidCustomElements\\\\Form\\\\CustomWidget'.($hasInput ? '' : 'NoInput').'\';';
