@@ -1493,6 +1493,13 @@ class CustomElements
 					$contents[] = '$GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $element['template'] . '\'][0] = ' . var_export($element['labelPrefix'], true) . ' . $GLOBALS[\'TL_LANG\'][\'CTE\'][\'' . $element['template'] . '\'][0];';
 				}
 
+				if (!isset($GLOBALS['TL_LANG']['CTE'][$element['contentCategory']])) {
+					$GLOBALS['TL_LANG']['CTE'][$element['contentCategory']] = $element['contentCategory'];
+				}
+				$contents[] = 'if (!isset($GLOBALS[\'TL_LANG\'][\'CTE\'][' . var_export($element['contentCategory'], true) . '])) {';
+				$contents[] = '$GLOBALS[\'TL_LANG\'][\'CTE\'][' . var_export($element['contentCategory'], true) . '] = ' . var_export($element['contentCategory'], true) . ';';
+				$contents[] = '}';
+
 			}
 
 			if (in_array('module', $element['types'])) {
@@ -1507,6 +1514,13 @@ class CustomElements
 					$GLOBALS['TL_LANG']['FMD'][$element['template']][0] = $element['labelPrefix'] . $GLOBALS['TL_LANG']['FMD'][$element['template']][0];
 					$contents[] = '$GLOBALS[\'TL_LANG\'][\'FMD\'][\'' . $element['template'] . '\'][0] = ' . var_export($element['labelPrefix'], true) . ' . $GLOBALS[\'TL_LANG\'][\'FMD\'][\'' . $element['template'] . '\'][0];';
 				}
+
+				if (!isset($GLOBALS['TL_LANG']['FMD'][$element['moduleCategory']])) {
+					$GLOBALS['TL_LANG']['FMD'][$element['moduleCategory']] = $element['moduleCategory'];
+				}
+				$contents[] = 'if (!isset($GLOBALS[\'TL_LANG\'][\'FMD\'][' . var_export($element['moduleCategory'], true) . '])) {';
+				$contents[] = '$GLOBALS[\'TL_LANG\'][\'FMD\'][' . var_export($element['moduleCategory'], true) . '] = ' . var_export($element['moduleCategory'], true) . ';';
+				$contents[] = '}';
 
 			}
 
