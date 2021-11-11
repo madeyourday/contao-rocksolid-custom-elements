@@ -757,6 +757,8 @@ class CustomElements
 				// Don’t overwrite referenced variable
 				unset($fieldConfig['elementLabel']);
 				$fieldConfig['elementLabel'] = $translatedLabel;
+			} else {
+				$fieldConfig['elementLabel'] = "%s";
 			}
 
 			$fieldConfig['minItems'] = isset($fieldConfig['minItems']) ? (int)$fieldConfig['minItems'] : 0;
