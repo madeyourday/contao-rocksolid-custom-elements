@@ -18,6 +18,7 @@ var renameElement = function(element) {
 		'onclick',
 		'for',
 		'value',
+		'class',
 		'data-rsce-name'
 	];
 
