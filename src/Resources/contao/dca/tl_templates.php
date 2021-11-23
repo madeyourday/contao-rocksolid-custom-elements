@@ -17,6 +17,9 @@ use Contao\Config;
 if (!empty($GLOBALS['TL_DCA']['tl_templates']['config']['validFileTypes'])) {
 	$GLOBALS['TL_DCA']['tl_templates']['config']['validFileTypes'] .= ',php';
 }
+if (!empty($GLOBALS['TL_DCA']['tl_templates']['config']['editableFileTypes'])) {
+	$GLOBALS['TL_DCA']['tl_templates']['config']['editableFileTypes'] .= ',php';
+}
 $GLOBALS['TL_DCA']['tl_templates']['config']['onload_callback'][] = function() {
 	Config::set('editableFiles', Config::get('editableFiles') . ',php');
 };
