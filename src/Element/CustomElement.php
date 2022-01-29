@@ -98,7 +98,7 @@ class CustomElement extends \ContentElement
 
 			if (!isset($this->arrData['wildcard'])) {
 				$label = CustomElements::getLabelTranslated($config['label']);
-				$this->arrData['wildcard'] = '### ' . strtoupper(is_array($label) ? $label[0] : $label) . ' ###';
+				$this->arrData['wildcard'] = '### ' . mb_strtoupper(is_array($label) ? $label[0] : $label) . ' ###';
 			}
 
 			if (!isset($this->arrData['title'])) {
