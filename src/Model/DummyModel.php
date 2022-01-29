@@ -21,6 +21,6 @@ class DummyModel extends \Model
 	public function __construct(\Database\Result $objResult = null, $data = array())
 	{
 		$this->arrModified = array();
-		$this->setRow($data);
+		$this->setRow(is_array($data) ? $data : array());
 	}
 }

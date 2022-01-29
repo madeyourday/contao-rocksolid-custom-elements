@@ -39,7 +39,7 @@ class CustomWidget extends \Widget
 			$data['cssID'] = serialize(array('', $data['class']));
 		}
 
-		$this->customElement = new CustomElement(new DummyModel(null, $data));
+		$this->customElement = new CustomElement(new DummyModel(null, (array) $data));
 
 		parent::__construct($data);
 	}
