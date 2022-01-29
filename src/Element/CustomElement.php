@@ -14,7 +14,6 @@ use Contao\ModuleModel;
 use MadeYourDay\RockSolidColumns\Element\ColumnsStart;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
 use MadeYourDay\RockSolidCustomElements\CustomElements;
-use Patchwork\Utf8;
 
 /**
  * Custom content element and frontend module
@@ -99,7 +98,7 @@ class CustomElement extends \ContentElement
 
 			if (!isset($this->arrData['wildcard'])) {
 				$label = CustomElements::getLabelTranslated($config['label']);
-				$this->arrData['wildcard'] = '### ' . Utf8::strtoupper(is_array($label) ? $label[0] : $label) . ' ###';
+				$this->arrData['wildcard'] = '### ' . mb_strtoupper(is_array($label) ? $label[0] : $label) . ' ###';
 			}
 
 			if (!isset($this->arrData['title'])) {
