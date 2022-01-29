@@ -1388,6 +1388,9 @@ class CustomElements
 		catch (DBALException $e) {
 			$themes = array();
 		}
+		catch (\Doctrine\DBAL\Exception $e) {
+			$themes = array();
+		}
 		$themeNamesByTemplateDir = array();
 		foreach ($themes as $theme) {
 			if ($theme['templates']) {
