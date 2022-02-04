@@ -493,6 +493,8 @@ class CustomElements
 				$data = $value;
 			}
 		}
+
+		return '';
 	}
 
 	/**
@@ -528,6 +530,8 @@ class CustomElements
 		\Database::getInstance()
 			->prepare("UPDATE {$dc->table} SET rsce_data = ? WHERE id = ?")
 			->execute($data, $dc->id);
+
+		return '';
 	}
 
 	/**
