@@ -12,6 +12,7 @@ use Contao\StringUtil;
 use Contao\System;
 use Doctrine\DBAL\DBALException;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * RockSolid Custom Elements DCA (tl_content, tl_module and tl_form_field)
@@ -1292,9 +1293,7 @@ class CustomElements
 		$filePaths = static::getCacheFilePaths();
 
 		if (file_exists($filePaths['fullPath'])) {
-			$file = new \File($filePaths['path'], true);
-			$file->write('');
-			$file->close();
+			(new Filesystem())->dumpFile($filePaths['fullPath'], '');
 			static::refreshOpcodeCache($filePaths['fullPath']);
 		}
 	}
@@ -1561,9 +1560,7 @@ class CustomElements
 			return;
 		}
 
-		$file = new \File($filePaths['path'], true);
-		$file->write(implode("\n", $contents));
-		$file->close();
+		(new Filesystem())->dumpFile($filePaths['fullPath'], implode("\n", $contents));
 		static::refreshOpcodeCache($filePaths['fullPath']);
 	}
 
