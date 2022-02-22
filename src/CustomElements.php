@@ -1372,7 +1372,10 @@ class CustomElements
 
 		foreach ($allConfigs as $configPath) {
 			$templateName = basename($configPath, '_config.php');
-			if (file_exists(substr($configPath, 0, -11) . '.html5')) {
+			if (
+				file_exists(substr($configPath, 0, -11) . '.html5')
+				|| file_exists(substr($configPath, 0, -11) . '.html.twig')
+			) {
 				if (!isset($templates[$templateName])) {
 					$templates[$templateName] = $templateName;
 				}
