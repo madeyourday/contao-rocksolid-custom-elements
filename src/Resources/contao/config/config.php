@@ -31,5 +31,5 @@ $GLOBALS['TL_PURGE']['custom']['rocksolid_custom_elements'] = array(
 );
 
 // Insert the custom_elements category
-array_insert($GLOBALS['TL_CTE'], 1, array('custom_elements' => array()));
-array_insert($GLOBALS['FE_MOD'], 0, array('custom_elements' => array()));
+Contao\ArrayUtil::arrayInsert($GLOBALS['TL_CTE'], 1, array('custom_elements' => array()));
+Contao\ArrayUtil::arrayInsert($GLOBALS['FE_MOD'], 0, array('custom_elements' => array()));

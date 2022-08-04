@@ -8,6 +8,7 @@
 
 namespace MadeYourDay\RockSolidCustomElements\Form;
 
+use Contao\Widget;
 use MadeYourDay\RockSolidCustomElements\Element\CustomElement;
 use MadeYourDay\RockSolidCustomElements\Model\DummyModel;
 
@@ -16,7 +17,7 @@ use MadeYourDay\RockSolidCustomElements\Model\DummyModel;
  *
  * @author Martin Auswöger <martin@madeyourday.net>
  */
-class CustomWidget extends \Widget
+class CustomWidget extends Widget
 {
 	protected $blnSubmitInput = true;
 

@@ -8,6 +8,7 @@
 
 namespace MadeYourDay\RockSolidCustomElements;
 
+use MadeYourDay\RockSolidCustomElements\DependencyInjection\RockSolidCustomElementsExtension;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
@@ -17,4 +18,11 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  */
 class RockSolidCustomElementsBundle extends Bundle
 {
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getContainerExtension()
+	{
+		return new RockSolidCustomElementsExtension();
+	}
 }

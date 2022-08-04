@@ -8,19 +8,28 @@
 
 namespace MadeYourDay\RockSolidCustomElements\Element;
 
+use Contao\ContentElement;
+use Contao\File;
+use Contao\FilesModel;
+use Contao\FrontendTemplate;
 use Contao\Image\PictureConfiguration;
 use Contao\Image\PictureConfigurationInterface;
+use Contao\Input;
 use Contao\ModuleModel;
+use Contao\StringUtil;
+use Contao\System;
+use Contao\Validator;
 use MadeYourDay\RockSolidColumns\Element\ColumnsStart;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
 use MadeYourDay\RockSolidCustomElements\CustomElements;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Custom content element and frontend module
  *
  * @author Martin Auswöger <martin@madeyourday.net>
  */
-class CustomElement extends \ContentElement
+class CustomElement extends ContentElement
 {
 	/**
 	 * @var string Template
@@ -46,7 +55,7 @@ class CustomElement extends \ContentElement
 		}
 		catch (\Exception $exception) {
 
-			if (TL_MODE === 'BE') {
+			if (System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest(System::getContainer()->get('request_stack')->getCurrentRequest() ?? Request::create(''))) {
 
 				$template = new CustomTemplate($this->strTemplate);
 				$template->setData($this->Template->getData());
@@ -67,7 +76,7 @@ class CustomElement extends \ContentElement
 	 */
 	public function rsceGetBackendOutput()
 	{
-		if (TL_MODE !== 'BE') {
+		if (!System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest(System::getContainer()->get('request_stack')->getCurrentRequest() ?? Request::create(''))) {
 			return null;
 		}
 
@@ -76,15 +85,15 @@ class CustomElement extends \ContentElement
 		// Handle newsletter output the same way as the frontend
 		if (!empty($config['isNewsletter'])) {
 
-			if (\Input::get('do') === 'newsletter') {
+			if (Input::get('do') === 'newsletter') {
 				return null;
 			}
 
 			foreach(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS) as $entry) {
 				$method = $entry['class'] . '::' . $entry['function'];
 				if (
-					$entry['file'] === TL_ROOT . '/system/modules/newsletter/classes/Newsletter.php'
-					|| $entry['file'] === TL_ROOT . '/vendor/contao/newsletter-bundle/src/Resources/contao/classes/Newsletter.php'
+					$entry['file'] === System::getContainer()->getParameter('kernel.project_dir') . '/system/modules/newsletter/classes/Newsletter.php'
+					|| $entry['file'] === System::getContainer()->getParameter('kernel.project_dir') . '/vendor/contao/newsletter-bundle/src/Resources/contao/classes/Newsletter.php'
 					|| $method === 'Contao\\Newsletter::send'
 					|| $method === 'tl_newsletter::listNewsletters'
 				) {
@@ -139,8 +148,8 @@ class CustomElement extends \ContentElement
 	{
 		// Add an image
 		if ($this->addImage && trim($this->singleSRC)) {
-			$fileModel = \FilesModel::findByUuid($this->singleSRC);
-			if ($fileModel !== null && is_file(TL_ROOT . '/' . $fileModel->path)) {
+			$fileModel = FilesModel::findByUuid($this->singleSRC);
+			if ($fileModel !== null && is_file(System::getContainer()->getParameter('kernel.project_dir') . '/' . $fileModel->path)) {
 				$this->singleSRC = $fileModel->path;
 				$this->addImageToTemplate($this->Template, $this->arrData, null, null, $fileModel);
 			}
@@ -178,10 +187,10 @@ class CustomElement extends \ContentElement
 		foreach ($data as $key => $value) {
 			if (is_string($value) && trim($value)) {
 				if (is_object($data)) {
-					$data->$key = \StringUtil::deserialize($value);
+					$data->$key = StringUtil::deserialize($value);
 				}
 				else {
-					$data[$key] = \StringUtil::deserialize($value);
+					$data[$key] = StringUtil::deserialize($value);
 				}
 			}
 			else if (is_array($value) || is_object($value)) {
@@ -226,21 +235,21 @@ class CustomElement extends \ContentElement
 			return null;
 		}
 
-		if (\Validator::isUuid($id)) {
-			$image = \FilesModel::findByUuid($id);
+		if (Validator::isUuid($id)) {
+			$image = FilesModel::findByUuid($id);
 		}
 		elseif (is_numeric($id)) {
-			$image = \FilesModel::findByPk($id);
+			$image = FilesModel::findByPk($id);
 		}
 		else {
-			$image = \FilesModel::findByPath($id);
+			$image = FilesModel::findByPath($id);
 		}
 		if (!$image) {
 			return null;
 		}
 
 		try {
-			$file = new \File($image->path, true);
+			$file = new File($image->path, true);
 			if (!$file->exists()) {
 				return null;
 			}
@@ -251,7 +260,7 @@ class CustomElement extends \ContentElement
 
 		if (!$size instanceof PictureConfiguration && !$size instanceof PictureConfigurationInterface) {
 			if (is_string($size) && trim($size)) {
-				$size = \StringUtil::deserialize($size);
+				$size = StringUtil::deserialize($size);
 			}
 			if (!is_array($size)) {
 				$size = array();
@@ -271,7 +280,7 @@ class CustomElement extends \ContentElement
 
 		$imageItem = array_merge($imageItem, $item);
 
-		$imageObject = new \FrontendTemplate('rsce_image_object');
+		$imageObject = new FrontendTemplate('rsce_image_object');
 		$this->addImageToTemplate($imageObject, $imageItem, $maxSize, $lightboxId, $image);
 		$imageObject = (object)$imageObject->getData();
 
@@ -280,7 +289,7 @@ class CustomElement extends \ContentElement
 		}
 
 		$imageObject->id = $image->id;
-		$imageObject->uuid = isset($image->uuid) ? \StringUtil::binToUuid($image->uuid) : null;
+		$imageObject->uuid = isset($image->uuid) ? StringUtil::binToUuid($image->uuid) : null;
 
 		return $imageObject;
 	}

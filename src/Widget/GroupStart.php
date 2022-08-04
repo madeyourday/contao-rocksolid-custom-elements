@@ -8,12 +8,15 @@
 
 namespace MadeYourDay\RockSolidCustomElements\Widget;
 
+use Contao\System;
+use Contao\Widget;
+
 /**
  * Group start widget
  *
  * @author Martin Auswöger <martin@madeyourday.net>
  */
-class GroupStart extends \Widget
+class GroupStart extends Widget
 {
 	/**
 	 * @var boolean Submit user input
@@ -35,7 +38,7 @@ class GroupStart extends \Widget
 		$this->loadLanguageFile('rocksolid_custom_elements');
 
 		$classes = [$this->arrConfiguration['tl_class'] ?? '', 'tl_box', 'rsce_group'];
-		$fs = \System::getContainer()->get('session')->getBag('contao_backend')->get('fieldset_states');
+		$fs = System::getContainer()->get('session')->getBag('contao_backend')->get('fieldset_states');
 
 		if (
 			(isset($fs[$this->strTable][$this->strId]) && !$fs[$this->strTable][$this->strId])

@@ -8,12 +8,15 @@
 
 namespace MadeYourDay\RockSolidCustomElements\Widget;
 
+use Contao\Image;
+use Contao\Widget;
+
 /**
  * List item start widget
  *
  * @author Martin Auswöger <martin@madeyourday.net>
  */
-class ListItemStart extends \Widget
+class ListItemStart extends Widget
 {
 	/**
 	 * @var boolean Submit user input
@@ -37,12 +40,12 @@ class ListItemStart extends \Widget
 		$fieldIndex = (int) $fieldIndex[count($fieldIndex) - 1];
 
 		$toolbar = '<div class="rsce_list_toolbar">';
-		$toolbar .= '<a href="" class="rsce_list_toolbar_up" onclick="rsceMoveElement(this, -1);return false;" title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_up'] . '" data-rsce-title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_up'] . '">' . \Image::getHtml('up.svg', $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_up']) . '</a> ';
-		$toolbar .= '<a href="" class="rsce_list_toolbar_down" onclick="rsceMoveElement(this, 1);return false;" title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_down'] . '" data-rsce-title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_down'] . '">' . \Image::getHtml('down.svg', $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_down']) . '</a> ';
-		$toolbar .= \Image::getHtml('drag.svg', sprintf($GLOBALS['TL_LANG']['MSC']['move']), 'class="drag-handle rsce_list_toolbar_drag" title="' . sprintf($GLOBALS['TL_LANG']['MSC']['move']) . '"') . ' ';
-		$toolbar .= '<a href="" class="rsce_list_toolbar_delete" onclick="rsceDeleteElement(this);return false;" title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_delete'] . '" data-rsce-title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_delete'] . '">' . \Image::getHtml('delete.svg', $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_delete']) . '</a> ';
-		$toolbar .= '<a href="" class="rsce_list_toolbar_duplicate" onclick="rsceDuplicateElement(this);return false;" title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_duplicate'] . '" data-rsce-title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_duplicate'] . '">' . \Image::getHtml('copy.svg', $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_duplicate']) . '</a> ';
-		$toolbar .= '<a href="" class="rsce_list_toolbar_new" onclick="rsceNewElementAfter(this);return false;" title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_new'] . '" data-rsce-title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_new'] . '">' . \Image::getHtml('new.svg', $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_new']) . '</a> ';
+		$toolbar .= '<a href="" class="rsce_list_toolbar_up" onclick="rsceMoveElement(this, -1);return false;" title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_up'] . '" data-rsce-title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_up'] . '">' . Image::getHtml('up.svg', $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_up']) . '</a> ';
+		$toolbar .= '<a href="" class="rsce_list_toolbar_down" onclick="rsceMoveElement(this, 1);return false;" title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_down'] . '" data-rsce-title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_down'] . '">' . Image::getHtml('down.svg', $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_down']) . '</a> ';
+		$toolbar .= Image::getHtml('drag.svg', sprintf($GLOBALS['TL_LANG']['MSC']['move']), 'class="drag-handle rsce_list_toolbar_drag" title="' . sprintf($GLOBALS['TL_LANG']['MSC']['move']) . '"') . ' ';
+		$toolbar .= '<a href="" class="rsce_list_toolbar_delete" onclick="rsceDeleteElement(this);return false;" title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_delete'] . '" data-rsce-title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_delete'] . '">' . Image::getHtml('delete.svg', $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_delete']) . '</a> ';
+		$toolbar .= '<a href="" class="rsce_list_toolbar_duplicate" onclick="rsceDuplicateElement(this);return false;" title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_duplicate'] . '" data-rsce-title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_duplicate'] . '">' . Image::getHtml('copy.svg', $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_duplicate']) . '</a> ';
+		$toolbar .= '<a href="" class="rsce_list_toolbar_new" onclick="rsceNewElementAfter(this);return false;" title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_new'] . '" data-rsce-title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_new'] . '">' . Image::getHtml('new.svg', $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_new']) . '</a> ';
 		$toolbar .= '</div>';
 
 		return '<div class="rsce_list_item'

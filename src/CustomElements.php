@@ -8,11 +8,21 @@
 
 namespace MadeYourDay\RockSolidCustomElements;
 
+use Contao\Backend;
+use Contao\BackendUser;
+use Contao\Config;
+use Contao\Controller;
+use Contao\Database;
+use Contao\DataContainer;
+use Contao\FilesModel;
+use Contao\Input;
+use Contao\ModuleModel;
 use Contao\StringUtil;
 use Contao\System;
 use Doctrine\DBAL\DBALException;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * RockSolid Custom Elements DCA (tl_content, tl_module and tl_form_field)
@@ -45,16 +55,16 @@ class CustomElements
 	 *
 	 * Reloads config and creates the DCA fields
 	 *
-	 * @param  \DataContainer $dc Data container
+	 * @param  DataContainer $dc Data container
 	 * @return void
 	 */
 	public function onloadCallback($dc)
 	{
-		if (\Input::get('act') === 'create') {
+		if (Input::get('act') === 'create') {
 			return;
 		}
 
-		if (\Input::get('act') === 'edit') {
+		if (Input::get('act') === 'edit') {
 			$this->reloadConfig();
 		}
 
@@ -63,7 +73,7 @@ class CustomElements
 			$ceAccess->filterContentElements($dc);
 		}
 
-		if (\Input::get('act') === 'editAll') {
+		if (Input::get('act') === 'editAll') {
 			return $this->createDcaMultiEdit($dc);
 		}
 
@@ -77,25 +87,25 @@ class CustomElements
 			$this->data = json_decode($data, true);
 		}
 
-		$createFromPost = \Input::post('FORM_SUBMIT') === $dc->table;
+		$createFromPost = Input::post('FORM_SUBMIT') === $dc->table;
 		$tmpField = null;
 
-		if (\Input::get('field') && substr(\Input::get('field'), 0, 11) === 'rsce_field_') {
+		if (Input::get('field') && substr(Input::get('field'), 0, 11) === 'rsce_field_') {
 			// Ensures that the fileTree oder pageTree field exists
-			$tmpField = \Input::get('field');
+			$tmpField = Input::get('field');
 		}
 		elseif (
-			\Input::get('target')
-			&& ($target = explode('.', \Input::get('target'), 3))
+			Input::get('target')
+			&& ($target = explode('.', Input::get('target'), 3))
 			&& $target[0] === $dc->table
 			&& substr($target[1], 0, 11) === 'rsce_field_'
 		) {
 			// Ensures that the fileTree oder pageTree field exists
 			$tmpField = $target[1];
 		}
-		elseif (\Input::post('name') && substr(\Input::post('name'), 0, 11) === 'rsce_field_') {
+		elseif (Input::post('name') && substr(Input::post('name'), 0, 11) === 'rsce_field_') {
 			// Ensures that the fileTree oder pageTree field exists
-			$tmpField = \Input::post('name');
+			$tmpField = Input::post('name');
 		}
 
 		$this->createDca($dc, $type, $createFromPost, $tmpField);
@@ -107,7 +117,7 @@ class CustomElements
 	 * Creates empty arrays for empty lists if no data is available
 	 * (e.g. for new elements)
 	 *
-	 * @param  \DataContainer $dc Data container
+	 * @param  DataContainer $dc Data container
 	 * @return void
 	 */
 	public function onsubmitCallback($dc)
@@ -126,7 +136,7 @@ class CustomElements
 			$data = $this->saveDataCallback(null, $dc);
 
 			if ($data && substr($data, 0, 1) === '{') {
-				\Database::getInstance()
+				Database::getInstance()
 					->prepare("UPDATE {$dc->table} SET rsce_data = ? WHERE id = ?")
 					->execute($data, $dc->id);
 			}
@@ -139,7 +149,7 @@ class CustomElements
 	 *
 	 * @param  array $data
 	 * @param  array $row
-	 * @param  \DataContainer $dc Data container
+	 * @param  DataContainer $dc Data container
 	 *
 	 * @return array
 	 */
@@ -234,7 +244,7 @@ class CustomElements
 	 * Finds the current value for the field
 	 *
 	 * @param  string         $value Current value
-	 * @param  \DataContainer $dc    Data container
+	 * @param  DataContainer $dc    Data container
 	 * @return string                Current value for the field
 	 */
 	public function loadCallback($value, $dc)
@@ -265,7 +275,7 @@ class CustomElements
 	 * Finds the current value for the field directly from the database
 	 *
 	 * @param  string         $value Current value
-	 * @param  \DataContainer $dc    Data container
+	 * @param  DataContainer $dc    Data container
 	 * @return string                Current value for the field
 	 */
 	public function loadCallbackMultiEdit($value, $dc)
@@ -276,7 +286,7 @@ class CustomElements
 
 		$field = substr($dc->field, strlen($dc->activeRecord->type . '_field_'));
 
-		$data = \Database::getInstance()
+		$data = Database::getInstance()
 			->prepare("SELECT rsce_data FROM {$dc->table} WHERE id=?")
 			->execute($dc->id)
 			->rsce_data;
@@ -455,7 +465,7 @@ class CustomElements
 	 * Saves the field data to $this->saveData
 	 *
 	 * @param  string         $value Field value
-	 * @param  \DataContainer $dc    Data container
+	 * @param  DataContainer $dc    Data container
 	 * @return void
 	 */
 	public function saveCallback($value, $dc)
@@ -504,7 +514,7 @@ class CustomElements
 	 * Saves the field data directly into the database field rsce_data
 	 *
 	 * @param  string         $value Field value
-	 * @param  \DataContainer $dc    Data container
+	 * @param  DataContainer $dc    Data container
 	 * @return void
 	 */
 	public function saveCallbackMultiEdit($value, $dc)
@@ -518,7 +528,7 @@ class CustomElements
 
 		$field = substr($dc->field, strlen($dc->activeRecord->type . '_field_'));
 
-		$data = \Database::getInstance()
+		$data = Database::getInstance()
 			->prepare("SELECT rsce_data FROM {$dc->table} WHERE id=?")
 			->execute($dc->id)
 			->rsce_data;
@@ -528,7 +538,7 @@ class CustomElements
 
 		$data = json_encode($data);
 
-		\Database::getInstance()
+		Database::getInstance()
 			->prepare("UPDATE {$dc->table} SET rsce_data = ? WHERE id = ?")
 			->execute($data, $dc->id);
 
@@ -541,7 +551,7 @@ class CustomElements
 	 * Returns the JSON encoded $this->saveData
 	 *
 	 * @param  string         $value Current field value
-	 * @param  \DataContainer $dc    Data container
+	 * @param  DataContainer $dc    Data container
 	 * @return string                JSON encoded $this->saveData
 	 */
 	public function saveDataCallback($value, $dc)
@@ -562,7 +572,7 @@ class CustomElements
 	 *
 	 * @param  string         $fieldPrefix  field prefix
 	 * @param  array          $fieldsConfig fields configuration
-	 * @param  \DataContainer $dc           Data container
+	 * @param  DataContainer $dc           Data container
 	 * @return void
 	 */
 	protected function prepareSaveData($fieldPrefix, $fieldsConfig, $dc)
@@ -581,7 +591,7 @@ class CustomElements
 					else {
 						$actualValue = $dc->activeRecord ? $dc->activeRecord->$dependingFieldName : null;
 					}
-					if (!$this->dependingValueMatches($fieldConfig['dependsOn']['value'] ?? true, \StringUtil::deserialize($actualValue))) {
+					if (!$this->dependingValueMatches($fieldConfig['dependsOn']['value'] ?? true, StringUtil::deserialize($actualValue))) {
 						$this->unsetNestedValue($fieldPrefix . $fieldName);
 					}
 				}
@@ -604,7 +614,7 @@ class CustomElements
 	/**
 	 * Create all DCA fields for the specified type
 	 *
-	 * @param  \DataContainer $dc             Data container
+	 * @param  DataContainer $dc             Data container
 	 * @param  string         $type           The template name
 	 * @param  boolean        $createFromPost Whether to create the field structure from post data or not
 	 * @param  string         $tmpField       Field name to create temporarily for page or file tree widget ajax calls
@@ -620,7 +630,7 @@ class CustomElements
 
 		$assetsDir = 'bundles/rocksolidcustomelements';
 
-		if (TL_MODE === 'BE') {
+		if (System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest(System::getContainer()->get('request_stack')->getCurrentRequest() ?? Request::create(''))) {
 			$GLOBALS['TL_JAVASCRIPT'][] = $assetsDir . '/js/be_main.js';
 			$GLOBALS['TL_CSS'][] = $assetsDir . '/css/be_main.css';
 		}
@@ -650,7 +660,7 @@ class CustomElements
 		);
 
 		$GLOBALS['TL_DCA'][$dc->table]['fields']['customTpl']['options_callback'] = function($dc) {
-			$templates = \Controller::getTemplateGroup($dc->activeRecord->type.'_', [], $dc->activeRecord->type);
+			$templates = Controller::getTemplateGroup($dc->activeRecord->type.'_', [], $dc->activeRecord->type);
 			foreach ($templates as $key => $label) {
 				if (substr($key, -7) === '_config' || $key === $dc->activeRecord->type) {
 					unset($templates[$key]);
@@ -664,7 +674,7 @@ class CustomElements
 		if (!empty($config['onloadCallback']) && is_array($config['onloadCallback'])) {
 			foreach ($config['onloadCallback'] as $callback) {
 				if (is_array($callback)) {
-					\System::importStatic($callback[0])->{$callback[1]}($dc);
+					System::importStatic($callback[0])->{$callback[1]}($dc);
 				}
 				else if (is_callable($callback)) {
 					$callback($dc);
@@ -682,7 +692,7 @@ class CustomElements
 	 * @param  string         $fieldName      Field name
 	 * @param  array          $fieldConfig    Field configuration array
 	 * @param  array          $paletteFields  Reference to the list of all fields
-	 * @param  \DataContainer $dc             Data container
+	 * @param  DataContainer $dc             Data container
 	 * @param  boolean        $createFromPost Whether to create the field structure from post data or not
 	 * @param  boolean        $multiEdit      Whether to create the field for the multi edit view
 	 * @return void
@@ -714,7 +724,7 @@ class CustomElements
 		}
 
 		if (
-			!\BackendUser::getInstance()->hasAccess($dc->table . '::rsce_data', 'alexf')
+			!BackendUser::getInstance()->hasAccess($dc->table . '::rsce_data', 'alexf')
 			&& $fieldConfig['inputType'] !== 'standardField'
 		) {
 			return;
@@ -991,14 +1001,14 @@ class CustomElements
 	/**
 	 * Page picker wizard for url fields
 	 *
-	 * @param  \DataContainer $dc Data container
+	 * @param  DataContainer $dc Data container
 	 * @return string             Page picker button html code
 	 */
 	public function pagePicker($dc)
 	{
 		@trigger_error('Using pagePicker() has been deprecated and will be removed in a future version. Set the "dcaPicker" eval attribute instead.', E_USER_DEPRECATED);
 
-		return \Backend::getDcaPickerWizard(true, $dc->table, $dc->field, $dc->inputName);
+		return Backend::getDcaPickerWizard(true, $dc->table, $dc->field, $dc->inputName);
 	}
 
 	/**
@@ -1010,7 +1020,7 @@ class CustomElements
 	 */
 	protected function wasListFieldSubmitted($fieldName, $dataKey)
 	{
-		if (!is_array(\Input::post('FORM_FIELDS'))) {
+		if (!is_array(Input::post('FORM_FIELDS'))) {
 			return false;
 		}
 
@@ -1018,9 +1028,9 @@ class CustomElements
 			return false;
 		}
 
-		$formFields = array_unique(\StringUtil::trimsplit(
+		$formFields = array_unique(StringUtil::trimsplit(
 			'[,;]',
-			implode(',', \Input::post('FORM_FIELDS'))
+			implode(',', Input::post('FORM_FIELDS'))
 		));
 
 		$fieldPrefix = $fieldName . '__' . $dataKey . '__';
@@ -1041,7 +1051,7 @@ class CustomElements
 	 * @param  string         $fieldName      Field name
 	 * @param  array          $fieldConfig    Field configuration array
 	 * @param  array          $paletteFields  Reference to the list of all fields
-	 * @param  \DataContainer $dc             Data container
+	 * @param  DataContainer $dc             Data container
 	 * @param  boolean        $createFromPost Whether to create the field structure from post data or not
 	 * @return void
 	 */
@@ -1072,18 +1082,18 @@ class CustomElements
 	/**
 	 * Create all DCA standard fields for multi edit mode
 	 *
-	 * @param  \DataContainer $dc Data container
+	 * @param  DataContainer $dc Data container
 	 * @return void
 	 */
 	protected function createDcaMultiEdit($dc)
 	{
-		$session = \System::getContainer()->get('session')->all();
+		$session = System::getContainer()->get('session')->all();
 		if (empty($session['CURRENT']['IDS']) || !is_array($session['CURRENT']['IDS'])) {
 			return;
 		}
 		$ids = $session['CURRENT']['IDS'];
 
-		$types = \Database::getInstance()
+		$types = Database::getInstance()
 			->prepare('
 				SELECT type
 				FROM ' . $dc->table . '
@@ -1146,8 +1156,8 @@ class CustomElements
 
 		if ($configPath === null || !file_exists($configPath)) {
 			$allConfigs = array_merge(
-				glob(TL_ROOT . '/templates/' . $type . '_config.php') ?: array(),
-				glob(TL_ROOT . '/templates/*/' . $type . '_config.php') ?: array()
+				glob(System::getContainer()->getParameter('kernel.project_dir') . '/templates/' . $type . '_config.php') ?: array(),
+				glob(System::getContainer()->getParameter('kernel.project_dir') . '/templates/*/' . $type . '_config.php') ?: array()
 			);
 			if (count($allConfigs)) {
 				$configPath = $allConfigs[0];
@@ -1240,7 +1250,7 @@ class CustomElements
 	/**
 	 * Get the value of a field (from POST data, active record or the database)
 	 *
-	 * @param  \DataContainer $dc        Data container
+	 * @param  DataContainer $dc        Data container
 	 * @param  string         $fieldName Field name
 	 * @param  boolean        $fromDb    True to ignore POST data
 	 * @return string                    The value
@@ -1249,8 +1259,8 @@ class CustomElements
 	{
 		$value = null;
 
-		if (\Input::post('FORM_SUBMIT') === $dc->table && !$fromDb) {
-			$value = \Input::post($fieldName);
+		if (Input::post('FORM_SUBMIT') === $dc->table && !$fromDb) {
+			$value = Input::post($fieldName);
 			if ($value !== null) {
 				return $value;
 			}
@@ -1264,13 +1274,13 @@ class CustomElements
 			$table = $dc->table;
 			$id = $dc->id;
 
-			if (\Input::get('target')) {
-				$table = explode('.', \Input::get('target'), 2)[0];
-				$id = (int) explode('.', \Input::get('target'), 3)[2];
+			if (Input::get('target')) {
+				$table = explode('.', Input::get('target'), 2)[0];
+				$id = (int) explode('.', Input::get('target'), 3)[2];
 			}
 
 			if ($table && $id) {
-				$record = \Database::getInstance()
+				$record = Database::getInstance()
 					->prepare("SELECT * FROM {$table} WHERE id=?")
 					->execute($id);
 				if ($record->next()) {
@@ -1305,7 +1315,7 @@ class CustomElements
 	 */
 	public static function getCacheFilePaths()
 	{
-		$cacheDir = \System::getContainer()->getParameter('kernel.cache_dir') . '/contao';
+		$cacheDir = System::getContainer()->getParameter('kernel.cache_dir') . '/contao';
 
 		$filePath = $cacheDir . '/rocksolid_custom_elements_config.php';
 
@@ -1326,8 +1336,8 @@ class CustomElements
 		$filePaths = static::getCacheFilePaths();
 
 		$cacheHash = md5(implode(',', array_merge(
-			glob(TL_ROOT . '/templates/rsce_*') ?: array(),
-			glob(TL_ROOT . '/templates/*/rsce_*') ?: array()
+			glob(System::getContainer()->getParameter('kernel.project_dir') . '/templates/rsce_*') ?: array(),
+			glob(System::getContainer()->getParameter('kernel.project_dir') . '/templates/*/rsce_*') ?: array()
 		)));
 
 		if (!$bypassCache && file_exists($filePaths['fullPath'])) {
@@ -1347,11 +1357,11 @@ class CustomElements
 		$contents[] = '<?php' . "\n";
 		$contents[] = '$fileCacheHash = ' . var_export($cacheHash, true) . ';' . "\n";
 
-		$templates = \Controller::getTemplateGroup('rsce_');
+		$templates = Controller::getTemplateGroup('rsce_');
 
 		$allConfigs = array_merge(
-			glob(TL_ROOT . '/templates/rsce_*_config.php') ?: array(),
-			glob(TL_ROOT . '/templates/*/rsce_*_config.php') ?: array()
+			glob(System::getContainer()->getParameter('kernel.project_dir') . '/templates/rsce_*_config.php') ?: array(),
+			glob(System::getContainer()->getParameter('kernel.project_dir') . '/templates/*/rsce_*_config.php') ?: array()
 		);
 		$fallbackConfigPaths = array();
 
@@ -1367,7 +1377,7 @@ class CustomElements
 			}
 		);
 		if (count($duplicateConfigs)) {
-			\System::log('Duplicate Custom Elements found: ' . implode(', ', array_keys($duplicateConfigs)), __METHOD__, TL_ERROR);
+			System::log('Duplicate Custom Elements found: ' . implode(', ', array_keys($duplicateConfigs)), __METHOD__, TL_ERROR);
 		}
 
 		foreach ($allConfigs as $configPath) {
@@ -1386,7 +1396,7 @@ class CustomElements
 		}
 
 		try {
-			$themes = \Database::getInstance()
+			$themes = Database::getInstance()
 				->prepare('SELECT name, templates FROM tl_theme')
 				->execute()
 				->fetchAllAssoc();
@@ -1456,7 +1466,7 @@ class CustomElements
 				'contentCategory' => isset($config['contentCategory']) ? $config['contentCategory'] : 'custom_elements',
 				'moduleCategory' => isset($config['moduleCategory']) ? $config['moduleCategory'] : 'custom_elements',
 				'template' => $template,
-				'path' => substr(dirname($configPath), strlen(TL_ROOT . '/')),
+				'path' => substr(dirname($configPath), strlen(System::getContainer()->getParameter('kernel.project_dir') . '/')),
 			);
 
 			if ($element['path'] && substr($element['path'], 0, 10) === 'templates/') {
@@ -1754,7 +1764,7 @@ class CustomElements
 	 */
 	public function extractThemeFilesHook($xml, $zipArchive, $themeId, $idMappingData)
 	{
-		$modules = \ModuleModel::findBy(
+		$modules = ModuleModel::findBy(
 			array('tl_module.pid = ? AND tl_module.type LIKE \'rsce_%\''),
 			$themeId
 		);
@@ -1860,15 +1870,15 @@ class CustomElements
 				if (empty($fieldConfig['eval']['multiple'])) {
 
 					if ($import) {
-						$file = \FilesModel::findByPath(\Config::get('uploadPath') . '/' . preg_replace('(^files/)', '', $value));
+						$file = FilesModel::findByPath(System::getContainer()->getParameter('contao.upload_path') . '/' . preg_replace('(^files/)', '', $value));
 						if ($file) {
-							$data[$fieldName] = \StringUtil::binToUuid($file->uuid);
+							$data[$fieldName] = StringUtil::binToUuid($file->uuid);
 						}
 					}
 					else {
-						$file = \FilesModel::findById($value);
+						$file = FilesModel::findById($value);
 						if ($file) {
-							$data[$fieldName] = 'files/' . preg_replace('(^' . preg_quote(\Config::get('uploadPath')) . '/)', '', $file->path);
+							$data[$fieldName] = 'files/' . preg_replace('(^' . preg_quote(System::getContainer()->getParameter('contao.upload_path')) . '/)', '', $file->path);
 						}
 					}
 
@@ -1878,20 +1888,20 @@ class CustomElements
 					$data[$fieldName] = serialize(array_map(
 						function($value) use($import) {
 							if ($import) {
-								$file = \FilesModel::findByPath(\Config::get('uploadPath') . '/' . preg_replace('(^files/)', '', $value));
+								$file = FilesModel::findByPath(System::getContainer()->getParameter('contao.upload_path') . '/' . preg_replace('(^files/)', '', $value));
 								if ($file) {
-									return \StringUtil::binToUuid($file->uuid);
+									return StringUtil::binToUuid($file->uuid);
 								}
 							}
 							else {
-								$file = \FilesModel::findById($value);
+								$file = FilesModel::findById($value);
 								if ($file) {
-									return 'files/' . preg_replace('(^' . preg_quote(\Config::get('uploadPath')) . '/)', '', $file->path);
+									return 'files/' . preg_replace('(^' . preg_quote(System::getContainer()->getParameter('contao.upload_path')) . '/)', '', $file->path);
 								}
 							}
 							return $value;
 						},
-						\StringUtil::deserialize($value, true)
+						StringUtil::deserialize($value, true)
 					));
 
 				}
@@ -1901,7 +1911,7 @@ class CustomElements
 			// tl_image_size IDs
 			else if ($fieldConfig['inputType'] === 'imageSize' && $value && $import) {
 
-				$value = \StringUtil::deserialize($value, true);
+				$value = StringUtil::deserialize($value, true);
 
 				if (
 					!empty($value[2])
@@ -1930,9 +1940,9 @@ class CustomElements
 	{
 		if (trim($value) && $value !== 'a:1:{i:0;s:0:"";}') {
 			if (strlen($value) === 16) {
-				return \StringUtil::binToUuid($value);
+				return StringUtil::binToUuid($value);
 			}
-			return serialize(array_map('StringUtil::binToUuid', \StringUtil::deserialize($value)));
+			return serialize(array_map('StringUtil::binToUuid', StringUtil::deserialize($value)));
 		}
 		return '';
 	}
@@ -1950,14 +1960,14 @@ class CustomElements
 		if (substr($value, 0, 2) === 'a:') {
 			return serialize(array_map(function($value) {
 				if (strlen($value) === 36) {
-					$value = \StringUtil::uuidToBin($value);
+					$value = StringUtil::uuidToBin($value);
 				}
 				return $value;
-			}, \StringUtil::deserialize($value)));
+			}, StringUtil::deserialize($value)));
 		}
 		// Single file
 		if (strlen($value) === 36) {
-			return \StringUtil::uuidToBin($value);
+			return StringUtil::uuidToBin($value);
 		}
 
 		return $value;

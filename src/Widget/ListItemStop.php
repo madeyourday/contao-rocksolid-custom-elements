@@ -8,12 +8,14 @@
 
 namespace MadeYourDay\RockSolidCustomElements\Widget;
 
+use Contao\Widget;
+
 /**
  * List item stop widget
  *
  * @author Martin Auswöger <martin@madeyourday.net>
  */
-class ListItemStop extends \Widget
+class ListItemStop extends Widget
 {
 	/**
 	 * @var boolean Submit user input

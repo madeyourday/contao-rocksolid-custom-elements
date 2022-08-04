@@ -8,7 +8,22 @@
 
 namespace MadeYourDay\RockSolidCustomElements;
 
+use Contao\ArticleModel;
+use Contao\Backend;
+use Contao\BackendTemplate;
+use Contao\ContentModel;
+use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\Environment;
+use Contao\FormFieldModel;
+use Contao\Input;
+use Contao\MaintenanceModuleInterface;
+use Contao\ModuleModel;
+use Contao\StringUtil;
+use Contao\System;
+use Contao\Versions;
 use MadeYourDay\RockSolidCustomElements\Element\CustomElement;
+use Psr\Log\LogLevel;
+use Symfony\Component\Security\Csrf\CsrfToken;
 
 /**
  * RockSolid Custom Elements Convert
@@ -17,14 +32,14 @@ use MadeYourDay\RockSolidCustomElements\Element\CustomElement;
  *
  * @author Martin Auswöger <martin@madeyourday.net>
  */
-class CustomElementsConvert extends \Backend implements \executable
+class CustomElementsConvert extends Backend implements MaintenanceModuleInterface
 {
 	/**
 	 * @return boolean True if the module is active
 	 */
 	public function isActive()
 	{
-		return \Input::get('act') == 'rsce_convert';
+		return Input::get('act') == 'rsce_convert';
 	}
 
 	/**
@@ -34,17 +49,17 @@ class CustomElementsConvert extends \Backend implements \executable
 	 */
 	public function run()
 	{
-		$objTemplate = new \BackendTemplate('be_rsce_convert');
+		$objTemplate = new BackendTemplate('be_rsce_convert');
 		$objTemplate->isActive = $this->isActive();
-		$objTemplate->action = ampersand(\Environment::get('request'));
+		$objTemplate->action = StringUtil::ampersand(Environment::get('request'));
 
 		// Rebuild the index
-		if (\Input::get('act') === 'rsce_convert') {
+		if (Input::get('act') === 'rsce_convert') {
 
 			// Check the request token
-			if (!isset($_GET['rt']) || !\RequestToken::validate(\Input::get('rt')))
+			if (Input::get('rt') === null || !System::getContainer()->get('contao.csrf.token_manager')->isTokenValid(new CsrfToken(System::getContainer()->getParameter('contao.csrf_token_name'), Input::get('rt'))))
 			{
-				\System::getContainer()->get('session')->getBag('contao_backend')->set('INVALID_TOKEN_URL', \Environment::get('request'));
+				System::getContainer()->get('session')->getBag('contao_backend')->set('INVALID_TOKEN_URL', Environment::get('request'));
 				$this->redirect('contao/confirm.php');
 			}
 
@@ -53,7 +68,7 @@ class CustomElementsConvert extends \Backend implements \executable
 			$failedElements = array();
 			$elementsCount = 0;
 
-			$contentElements = \ContentModel::findBy(array(\ContentModel::getTable() . '.type LIKE ?'), 'rsce_%');
+			$contentElements = ContentModel::findBy(array(ContentModel::getTable() . '.type LIKE ?'), 'rsce_%');
 
 			while ($contentElements && $contentElements->next()) {
 
@@ -64,14 +79,14 @@ class CustomElementsConvert extends \Backend implements \executable
 				}
 				else {
 
-					$GLOBALS['TL_DCA'][\ContentModel::getTable()]['config']['ptable'] = $contentElements->ptable ?: \ArticleModel::getTable();
+					$GLOBALS['TL_DCA'][ContentModel::getTable()]['config']['ptable'] = $contentElements->ptable ?: ArticleModel::getTable();
 
-					$versions = new \Versions(\ContentModel::getTable(), $contentElements->id);
+					$versions = new Versions(ContentModel::getTable(), $contentElements->id);
 
 					$versions->initialize();
 
 					$this->Database
-						->prepare('UPDATE ' . \ContentModel::getTable() . ' SET tstamp = ?, type = \'html\', html = ? WHERE id = ?')
+						->prepare('UPDATE ' . ContentModel::getTable() . ' SET tstamp = ?, type = \'html\', html = ? WHERE id = ?')
 						->execute(time(), $html, $contentElements->id);
 					$elementsCount++;
 
@@ -81,7 +96,7 @@ class CustomElementsConvert extends \Backend implements \executable
 
 			}
 
-			$moduleElements = \ModuleModel::findBy(array(\ModuleModel::getTable() . '.type LIKE ?'), 'rsce_%');
+			$moduleElements = ModuleModel::findBy(array(ModuleModel::getTable() . '.type LIKE ?'), 'rsce_%');
 
 			while ($moduleElements && $moduleElements->next()) {
 
@@ -92,13 +107,13 @@ class CustomElementsConvert extends \Backend implements \executable
 				}
 				else {
 
-					$versions = new \Versions(\ModuleModel::getTable(), $moduleElements->id);
+					$versions = new Versions(ModuleModel::getTable(), $moduleElements->id);
 
 					$versions->initialize();
 
 					$this->Database
-						->prepare('UPDATE ' . \ModuleModel::getTable() . ' SET tstamp = ?, type = \'html\', html = ? WHERE id = ?')
-						->executeUncached(time(), $html, $moduleElements->id);
+						->prepare('UPDATE ' . ModuleModel::getTable() . ' SET tstamp = ?, type = \'html\', html = ? WHERE id = ?')
+						->execute(time(), $html, $moduleElements->id);
 					$elementsCount++;
 
 					$versions->create();
@@ -107,7 +122,7 @@ class CustomElementsConvert extends \Backend implements \executable
 
 			}
 
-			$formElements = \FormFieldModel::findBy(array(\FormFieldModel::getTable() . '.type LIKE ?'), 'rsce_%');
+			$formElements = FormFieldModel::findBy(array(FormFieldModel::getTable() . '.type LIKE ?'), 'rsce_%');
 
 			while ($formElements && $formElements->next()) {
 
@@ -118,13 +133,13 @@ class CustomElementsConvert extends \Backend implements \executable
 				}
 				else {
 
-					$versions = new \Versions(\FormFieldModel::getTable(), $formElements->id);
+					$versions = new Versions(FormFieldModel::getTable(), $formElements->id);
 
 					$versions->initialize();
 
 					$this->Database
-						->prepare('UPDATE ' . \FormFieldModel::getTable() . ' SET tstamp = ?, type = \'html\', html = ? WHERE id = ?')
-						->executeUncached(time(), $html, $formElements->id);
+						->prepare('UPDATE ' . FormFieldModel::getTable() . ' SET tstamp = ?, type = \'html\', html = ? WHERE id = ?')
+						->execute(time(), $html, $formElements->id);
 					$elementsCount++;
 
 					$versions->create();
@@ -134,10 +149,18 @@ class CustomElementsConvert extends \Backend implements \executable
 			}
 
 			foreach ($failedElements as $element) {
-				$this->log('Failed to convert ' . $element[0] . ' element ID ' . $element[1] . ' (' . $element[2] . ') to a standard HTML element', __METHOD__, TL_ERROR);
+				System::getContainer()->get('monolog.logger.contao')->log(
+					LogLevel::ERROR,
+					'Failed to convert ' . $element[0] . ' element ID ' . $element[1] . ' (' . $element[2] . ') to a standard HTML element',
+					array('contao' => new ContaoContext(__METHOD__, 'ERROR')),
+				);
 			}
 
-			$this->log('Converted ' . $elementsCount . ' RockSolid Custom Elements to standard HTML elements', __METHOD__, TL_GENERAL);
+			System::getContainer()->get('monolog.logger.contao')->log(
+				LogLevel::INFO,
+				'Converted ' . $elementsCount . ' RockSolid Custom Elements to standard HTML elements',
+				array('contao' => new ContaoContext(__METHOD__, 'GENERAL')),
+			);
 
 			$objTemplate->elementsCount = $elementsCount;
 			$objTemplate->failedElements = $failedElements;

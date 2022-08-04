@@ -8,12 +8,15 @@
 
 namespace MadeYourDay\RockSolidCustomElements\Widget;
 
+use Contao\System;
+use Contao\Widget;
+
 /**
  * List start widget
  *
  * @author Martin Auswöger <martin@madeyourday.net>
  */
-class ListStart extends \Widget
+class ListStart extends Widget
 {
 	/**
 	 * @var boolean Submit user input
@@ -39,7 +42,7 @@ class ListStart extends \Widget
 		$toolbar .= '</div>';
 
 		$classes = [$this->arrConfiguration['tl_class'] ?? '', 'tl_box', 'rsce_list'];
-		$fs = \System::getContainer()->get('session')->getBag('contao_backend')->get('fieldset_states');
+		$fs = System::getContainer()->get('session')->getBag('contao_backend')->get('fieldset_states');
 
 		if (
 			(isset($fs[$this->strTable][$this->strId]) && !$fs[$this->strTable][$this->strId])

@@ -1,0 +1,7 @@
+services:
+  _defaults:
+    autoconfigure: true
+
+  MadeYourDay\RockSolidCustomElements\Migration\BasicEntitiesMigration:
+    arguments:
+      - '@database_connection'

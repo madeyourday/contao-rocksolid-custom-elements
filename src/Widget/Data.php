@@ -8,12 +8,14 @@
 
 namespace MadeYourDay\RockSolidCustomElements\Widget;
 
+use Contao\Widget;
+
 /**
  * Data widget
  *
  * @author Martin Auswöger <martin@madeyourday.net>
  */
-class Data extends \Widget
+class Data extends Widget
 {
 	/**
 	 * @var boolean Submit user input
@@ -32,6 +34,7 @@ class Data extends \Widget
 	 */
 	public function generate()
 	{
-		return $this->rsceScript ? '<script>'.$this->rsceScript.'</script>' : '';
+		return '<input type="hidden" name="'.$this->strName.'" value="">'
+			. ($this->rsceScript ? '<script>'.$this->rsceScript.'</script>' : '');
 	}
 }

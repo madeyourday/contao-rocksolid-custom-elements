@@ -8,12 +8,16 @@
 
 namespace MadeYourDay\RockSolidCustomElements\Template;
 
+use Contao\FrontendTemplate;
+use Contao\System;
+use Contao\ThemeModel;
+
 /**
  * Custom backend template
  *
  * @author Martin Auswöger <martin@madeyourday.net>
  */
-class CustomTemplate extends \FrontendTemplate
+class CustomTemplate extends FrontendTemplate
 {
 	/**
 	 * {@inheritdoc}
@@ -53,7 +57,7 @@ class CustomTemplate extends \FrontendTemplate
 		$templates = array();
 
 		try {
-			$theme = \ThemeModel::findAll(array('order'=>'name'));
+			$theme = ThemeModel::findAll(array('order'=>'name'));
 		}
 		catch (\Exception $e) {
 			$theme = null;
@@ -61,18 +65,18 @@ class CustomTemplate extends \FrontendTemplate
 
 		while ($theme && $theme->next()) {
 			if ($theme->templates != '') {
-				if (file_exists(TL_ROOT . '/' . $theme->templates . '/' . $template . '.' . $format)) {
-					$templates[] = TL_ROOT . '/' . $theme->templates . '/' . $template . '.' . $format;
+				if (file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/' . $theme->templates . '/' . $template . '.' . $format)) {
+					$templates[] = System::getContainer()->getParameter('kernel.project_dir') . '/' . $theme->templates . '/' . $template . '.' . $format;
 				}
 			}
 		}
 
-		if (file_exists(TL_ROOT . '/templates/' . $template . '.' . $format)) {
-			$templates[] = TL_ROOT . '/templates/' . $template . '.' . $format;
+		if (file_exists(System::getContainer()->getParameter('kernel.project_dir') . '/templates/' . $template . '.' . $format)) {
+			$templates[] = System::getContainer()->getParameter('kernel.project_dir') . '/templates/' . $template . '.' . $format;
 		}
 
 		// Add templates of inactive themes to the bottom of the templates array
-		$allFiles = glob(TL_ROOT . '/templates/*/' . $template . '.' . $format) ?: array();
+		$allFiles = glob(System::getContainer()->getParameter('kernel.project_dir') . '/templates/*/' . $template . '.' . $format) ?: array();
 		foreach ($allFiles as $file) {
 			if (!in_array($file, $templates)) {
 				$templates[] = $file;
