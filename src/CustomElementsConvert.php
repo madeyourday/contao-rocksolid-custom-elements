@@ -60,7 +60,7 @@ class CustomElementsConvert extends Backend implements MaintenanceModuleInterfac
 			if (Input::get('rt') === null || !System::getContainer()->get('contao.csrf.token_manager')->isTokenValid(new CsrfToken(System::getContainer()->getParameter('contao.csrf_token_name'), Input::get('rt'))))
 			{
 				System::getContainer()->get('session')->getBag('contao_backend')->set('INVALID_TOKEN_URL', Environment::get('request'));
-				$this->redirect('contao/confirm.php');
+				$this->redirect('contao/confirm');
 			}
 
 			$this->import('Database');

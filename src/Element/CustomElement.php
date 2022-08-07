@@ -120,7 +120,7 @@ class CustomElement extends ContentElement
 				&& $this->objModel instanceof ModuleModel
 			) {
 				$this->arrData['link'] = $this->name;
-				$this->arrData['href'] = 'contao/main.php?do=themes&amp;table=tl_module&amp;act=edit&amp;id=' . $this->id;
+				$this->arrData['href'] = 'contao?do=themes&amp;table=tl_module&amp;act=edit&amp;id=' . $this->id;
 			}
 
 			$this->strTemplate = $config['beTemplate'];
