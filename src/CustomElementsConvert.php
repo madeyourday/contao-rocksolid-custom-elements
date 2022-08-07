@@ -13,6 +13,7 @@ use Contao\Backend;
 use Contao\BackendTemplate;
 use Contao\ContentModel;
 use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\Database;
 use Contao\Environment;
 use Contao\FormFieldModel;
 use Contao\Input;
@@ -63,7 +64,7 @@ class CustomElementsConvert extends Backend implements MaintenanceModuleInterfac
 				$this->redirect('contao/confirm');
 			}
 
-			$this->import('Database');
+			$this->import(Database::class, 'Database');
 
 			$failedElements = array();
 			$elementsCount = 0;
