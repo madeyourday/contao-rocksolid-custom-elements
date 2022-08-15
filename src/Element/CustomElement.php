@@ -9,11 +9,8 @@
 namespace MadeYourDay\RockSolidCustomElements\Element;
 
 use Contao\ContentElement;
-use Contao\File;
-use Contao\FilesModel;
-use Contao\FrontendTemplate;
+use Contao\ContentModel;
 use Contao\Image\PictureConfiguration;
-use Contao\Image\PictureConfigurationInterface;
 use Contao\Input;
 use Contao\ModuleModel;
 use Contao\StringUtil;
@@ -148,10 +145,18 @@ class CustomElement extends ContentElement
 	{
 		// Add an image
 		if ($this->addImage && trim($this->singleSRC)) {
-			$fileModel = FilesModel::findByUuid($this->singleSRC);
-			if ($fileModel !== null && is_file(System::getContainer()->getParameter('kernel.project_dir') . '/' . $fileModel->path)) {
-				$this->singleSRC = $fileModel->path;
-				$this->addImageToTemplate($this->Template, $this->arrData, null, null, $fileModel);
+			$figure = System::getContainer()
+				->get('contao.image.studio')
+				->createFigureBuilder()
+				->from($this->singleSRC)
+				->setSize(StringUtil::deserialize($this->arrData['size'] ?? null) ?: null)
+				->enableLightbox((bool) ($this->arrData['fullsize'] ?? false))
+				->setLightboxSize(StringUtil::deserialize($this->arrData['lightboxSize'] ?? null) ?: null)
+				->setMetadata((new ContentModel())->setRow($this->arrData)->getOverwriteMetadata())
+				->buildIfResourceExists();
+
+			if ($figure) {
+				$figure->applyLegacyTemplateData($this->Template, null, $this->arrData['floating'] ?? null);
 			}
 		}
 
@@ -229,69 +234,28 @@ class CustomElement extends ContentElement
 	 * @param  array                             $item       Gets merged and passed to addImageToTemplate as $arrItem
 	 * @return object                                        Image object (similar as addImageToTemplate)
 	 */
-	public function getImageObject($id, $size = null, $maxSize = null, $lightboxId = null, $item = array())
+	public function getImageObject($id, $size = null, $deprecated = null, $lightboxId = null, $item = array())
 	{
 		if (!$id) {
 			return null;
 		}
 
-		if (Validator::isUuid($id)) {
-			$image = FilesModel::findByUuid($id);
-		}
-		elseif (is_numeric($id)) {
-			$image = FilesModel::findByPk($id);
-		}
-		else {
-			$image = FilesModel::findByPath($id);
-		}
-		if (!$image) {
+		$figure = System::getContainer()
+			->get('contao.image.studio')
+			->createFigureBuilder()
+			->from($id)
+			->setSize($size)
+			->enableLightbox((bool) ($item['fullsize'] ?? false))
+			->setLightboxGroupIdentifier($lightboxId)
+			->setLightboxSize(StringUtil::deserialize($item['lightboxSize'] ?? null) ?: null)
+			->setMetadata((new ContentModel())->setRow($item)->getOverwriteMetadata())
+			->buildIfResourceExists();
+
+		if (null === $figure) {
 			return null;
 		}
 
-		try {
-			$file = new File($image->path, true);
-			if (!$file->exists()) {
-				return null;
-			}
-		}
-		catch (\Exception $e) {
-			return null;
-		}
-
-		if (!$size instanceof PictureConfiguration && !$size instanceof PictureConfigurationInterface) {
-			if (is_string($size) && trim($size)) {
-				$size = StringUtil::deserialize($size);
-			}
-			if (!is_array($size)) {
-				$size = array();
-			}
-			$size[0] = isset($size[0]) ? $size[0] : 0;
-			$size[1] = isset($size[1]) ? $size[1] : 0;
-			$size[2] = isset($size[2]) ? $size[2] : 'crop';
-		}
-
-		$imageItem = array(
-			'id' => $image->id,
-			'uuid' => isset($image->uuid) ? $image->uuid : null,
-			'name' => $file->basename,
-			'singleSRC' => $image->path,
-			'size' => $size,
-		);
-
-		$imageItem = array_merge($imageItem, $item);
-
-		$imageObject = new FrontendTemplate('rsce_image_object');
-		$this->addImageToTemplate($imageObject, $imageItem, $maxSize, $lightboxId, $image);
-		$imageObject = (object)$imageObject->getData();
-
-		if (empty($imageObject->src)) {
-			$imageObject->src = $imageObject->singleSRC;
-		}
-
-		$imageObject->id = $image->id;
-		$imageObject->uuid = isset($image->uuid) ? StringUtil::binToUuid($image->uuid) : null;
-
-		return $imageObject;
+		return (object) array_merge($figure->getLegacyTemplateData(), ['figure' => $figure]);
 	}
 
 	/**
