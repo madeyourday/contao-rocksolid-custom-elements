@@ -23,7 +23,7 @@ class RockSolidCustomElementsExtension extends Extension
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getAlias()
+	public function getAlias(): string
 	{
 		return 'rocksolid_custom_elements';
 	}

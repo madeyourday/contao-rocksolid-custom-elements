@@ -1087,7 +1087,7 @@ class CustomElements
 	 */
 	protected function createDcaMultiEdit($dc)
 	{
-		$session = System::getContainer()->get('session')->all();
+		$session = System::getContainer()->get('request_stack')->getSession()->all();
 		if (empty($session['CURRENT']['IDS']) || !is_array($session['CURRENT']['IDS'])) {
 			return;
 		}

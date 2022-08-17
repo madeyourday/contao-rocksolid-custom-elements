@@ -42,7 +42,7 @@ class ListStart extends Widget
 		$toolbar .= '</div>';
 
 		$classes = [$this->arrConfiguration['tl_class'] ?? '', 'tl_box', 'rsce_list'];
-		$fs = System::getContainer()->get('session')->getBag('contao_backend')->get('fieldset_states');
+		$fs = System::getContainer()->get('request_stack')->getSession()->getBag('contao_backend')->get('fieldset_states');
 
 		if (
 			(isset($fs[$this->strTable][$this->strId]) && !$fs[$this->strTable][$this->strId])
