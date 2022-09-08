@@ -1942,7 +1942,7 @@ class CustomElements
 			if (strlen($value) === 16) {
 				return StringUtil::binToUuid($value);
 			}
-			return serialize(array_map('\Contao\StringUtil::binToUuid', StringUtil::deserialize($value)));
+			return serialize(array_map('Contao\StringUtil::binToUuid', StringUtil::deserialize($value)));
 		}
 		return '';
 	}
