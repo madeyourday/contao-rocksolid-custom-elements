@@ -784,6 +784,7 @@ class CustomElements
 			}
 
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '_rsce_list_start'] = array(
+				'exclude' => false,
 				'label' => $fieldConfig['label'],
 				'inputType' => 'rsce_list_start',
 				'eval' => array_merge(isset($fieldConfig['eval']) ? $fieldConfig['eval'] : array(), array(
@@ -822,6 +823,7 @@ class CustomElements
 				}
 
 				$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_start'] = array(
+					'exclude' => false,
 					'inputType' => 'rsce_list_item_start',
 					'label' => array(sprintf($fieldConfig['elementLabel'], $dataKey + 1)),
 					'eval' => array(
@@ -835,6 +837,7 @@ class CustomElements
 				}
 
 				$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_stop'] = array(
+					'exclude' => false,
 					'inputType' => 'rsce_list_item_stop',
 				);
 				$paletteFields[] = $fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_stop';
@@ -842,6 +845,7 @@ class CustomElements
 			}
 
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '_rsce_list_stop'] = array(
+				'exclude' => false,
 				'inputType' => 'rsce_list_stop',
 			);
 			$paletteFields[] = $fieldPrefix . $fieldName . '_rsce_list_stop';
@@ -881,6 +885,7 @@ class CustomElements
 		}
 		else if ($fieldConfig['inputType'] === 'group') {
 
+			$fieldConfig['exclude'] = false;
 			$fieldConfig['inputType'] = 'rsce_group_start';
 
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName] = $fieldConfig;
@@ -906,6 +911,7 @@ class CustomElements
 			}
 
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName] = $fieldConfig;
+			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['exclude'] = false;
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['eval']['alwaysSave'] = true;
 			$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['eval']['doNotSaveEmpty'] = true;
 			if (!isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName]['load_callback'])) {
@@ -1060,6 +1066,7 @@ class CustomElements
 		$dataKey = 'rsce_dummy';
 
 		$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_start'] = array(
+			'exclude' => false,
 			'inputType' => 'rsce_list_item_start',
 			'label' => array($fieldConfig['elementLabel']),
 			'eval' => array(
@@ -1074,6 +1081,7 @@ class CustomElements
 		}
 
 		$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_stop'] = array(
+			'exclude' => false,
 			'inputType' => 'rsce_list_item_stop',
 		);
 		$paletteFields[] = $fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_stop';
