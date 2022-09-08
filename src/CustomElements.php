@@ -1071,6 +1071,7 @@ class CustomElements
 			'label' => array($fieldConfig['elementLabel']),
 			'eval' => array(
 				'tl_class' => 'rsce_list_item_dummy',
+				'disabled' => true,
 				'label_template' => $fieldConfig['elementLabel'],
 			),
 		);
@@ -1083,6 +1084,9 @@ class CustomElements
 		$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_stop'] = array(
 			'exclude' => false,
 			'inputType' => 'rsce_list_item_stop',
+			'eval' => array(
+				'disabled' => true,
+			),
 		);
 		$paletteFields[] = $fieldPrefix . $fieldName . '__' . $dataKey . '_rsce_list_item_stop';
 	}

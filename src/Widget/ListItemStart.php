@@ -48,7 +48,9 @@ class ListItemStart extends Widget
 		$toolbar .= '<a href="" class="rsce_list_toolbar_new" onclick="rsceNewElementAfter(this);return false;" title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_new'] . '" data-rsce-title="' . $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_new'] . '">' . Image::getHtml('new.svg', $GLOBALS['TL_LANG']['rocksolid_custom_elements']['list_item_new']) . '</a> ';
 		$toolbar .= '</div>';
 
-		return '<div class="rsce_list_item'
+		return '<'
+			. (($this->arrAttributes['disabled'] ?? false) ? 'fieldset disabled' : 'div')
+			. ' class="rsce_list_item'
 			. (empty($this->arrConfiguration['tl_class']) ? '' : ' ' . $this->arrConfiguration['tl_class'])
 			. '" data-rsce-name="' . $fieldName . '">'
 			. ($this->strLabel ? '<h2 class="rsce_list_item_title" data-rsce-label="' . $this->arrConfiguration['label_template'] . '">' . $this->strLabel . '</h2>' : '')

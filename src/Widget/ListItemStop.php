@@ -34,6 +34,6 @@ class ListItemStop extends Widget
 	 */
 	public function generate()
 	{
-		return '</fieldset></div>';
+		return '</fieldset></'.(($this->arrAttributes['disabled'] ?? false) ? 'fieldset' : 'div').'>';
 	}
 }
