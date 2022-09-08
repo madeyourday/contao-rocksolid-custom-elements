@@ -52,15 +52,28 @@ var removeTinyMCEs = function(element) {
 
 	element = $(element);
 
-	var editors = window.tinymce ? window.tinymce.editors || [] : [];
+	var editors = window.tinymce ? window.tinymce.get() || [] : [];
 	var textarea, textareas;
 	for (var i = editors.length - 1; i >= 0; i--) {
 		textarea = editors[i].getElement();
 		if (element.contains(textarea)) {
 			textareas = element.retrieve('rsce_tinyMCE_textareas', []);
+			var settings = editors[i].settings;
+			if (!settings) {
+				textarea.parentNode.querySelectorAll(':scope > script').forEach(function (script) {
+					var match = /tinymce\.init\((\{.*\})\)/s.exec(script.innerHTML);
+					if (match) {
+						try {
+							settings = eval('('+match[1]+')');
+							delete settings.selector;
+						} catch (e) {
+						}
+					}
+				});
+			}
 			textareas.push({
 				textarea: textarea,
-				settings: Object.append({}, editors[i].settings)
+				settings: Object.append({}, settings)
 			});
 			element.store('rsce_tinyMCE_textareas', textareas);
 			editors[i].remove();
