@@ -1462,7 +1462,8 @@ class CustomElements
 			catch (\Throwable $exception) {
 				$request = System::getContainer()->get('request_stack')->getCurrentRequest();
 
-				if ($request && $request->get('_route') === 'contao_install') {
+				// Swallow exceptions in install tool and on CLI
+				if (!$request || $request->get('_route') === 'contao_install') {
 					$saveToCache = false;
 					continue;
 				}
