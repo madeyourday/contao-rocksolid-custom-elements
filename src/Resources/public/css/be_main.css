@@ -78,3 +78,7 @@ p.rsce_group_description {
 	right: 0;
 	margin: 4px;
 }
+fieldset.tl_box.rsce_list_stop {
+	margin: -1px 0 0 0;
+	padding: 0;
+}

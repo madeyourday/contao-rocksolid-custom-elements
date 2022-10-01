@@ -36,6 +36,7 @@ class ListStop extends Widget
 	{
 		return '<script>'
 			. 'rsceInitList(\'pal_' . substr($this->strId, 0, -5) . '_start\');'
-			. '</script>';
+			. '</script>'
+			. '</fieldset><fieldset class="tl_box rsce_list_stop">';
 	}
 }
