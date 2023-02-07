@@ -20,10 +20,6 @@ fieldset.rsce_group_no_legend:last-of-type {
 fieldset.rsce_list {
 	position: relative;
 }
-.rsce_list fieldset.tl_tbox > legend,
-.rsce_list fieldset.tl_box > legend {
-	background-color: rgba(0, 0, 0, 0.035);
-}
 .rsce_list_inner {
 	margin-bottom: -12px;
 }
@@ -44,12 +40,15 @@ p.rsce_group_description {
 	width: calc(100% - 30px);
 	margin: 0 15px 20px;
 	padding: 0 0 20px 0;
-	border: 1px solid #ccc;
+	border: 1px solid var(--content-border, #ccc);
 	background-color: #fafafa;
-	background-color: rgba(0, 0, 0, 0.02);
+    background-color: rgba(0, 0, 0, 0.02);
+}
+html[data-color-scheme=dark] .rsce_list_item {
+    background-color: rgba(255, 255, 255, 0.02);
 }
 .rsce_list_item .tl_text_trbl {
-	background-color: #fff;
+	background-color: var(--content-bg, #fff);
 }
 .rsce_list_item_dummy {
 	display: none;
@@ -57,13 +56,13 @@ p.rsce_group_description {
 .rsce_list_item .rsce_list_item {
 	width: 96%;
 	margin: 0 2% 5px;
-	border-color: #e9e9e9;
+	border-color: var(--border, #e9e9e9);
 }
 .rsce_list_item_title {
 	margin: 0;
 	padding: 5px 15px;
-	border-bottom: 1px solid #e9e9e9;
-	background: #fff;
+	border-bottom: 1px solid var(--border, #e9e9e9);
+	background: var(--content-bg, #fff);
 	font-size: inherit;
 	font-weight: inherit;
 }
