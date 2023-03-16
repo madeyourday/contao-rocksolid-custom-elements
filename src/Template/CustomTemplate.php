@@ -11,6 +11,7 @@ namespace MadeYourDay\RockSolidCustomElements\Template;
 use Contao\FrontendTemplate;
 use Contao\System;
 use Contao\ThemeModel;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Custom backend template
@@ -88,5 +89,29 @@ class CustomTemplate extends FrontendTemplate
 		}
 
 		return array(parent::getTemplate($template, $format));
+	}
+
+	protected function renderTwigSurrogateIfExists(): ?string
+	{
+		$backupTemplate = $this->strTemplate;
+		$templatesDir = Path::join(System::getContainer()->getParameter('kernel.project_dir'), 'templates');
+
+		try {
+			$themeTemplate = static::getTemplate($this->strTemplate, 'html.twig');
+
+			if ($themeTemplate && Path::isBasePath($templatesDir, $themeTemplate)) {
+				$this->strTemplate = substr(Path::makeRelative($themeTemplate, $templatesDir), 0, -10);
+			}
+		}
+		catch (\Throwable $e) {
+			// Ignore
+		}
+
+		try {
+			return parent::renderTwigSurrogateIfExists();
+		}
+		finally {
+			$this->strTemplate = $backupTemplate;
+		}
 	}
 }

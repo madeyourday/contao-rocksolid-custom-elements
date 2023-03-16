@@ -1170,6 +1170,16 @@ class CustomElements
 			$configPath = null;
 		}
 
+		if ($configPath === null) {
+			try {
+				$twigLoader = System::getContainer()->get('contao.twig.filesystem_loader');
+				$configPath = substr($twigLoader->getSourceContext($twigLoader->getFirst($type))->getPath(), 0, -10) . '_config.php';
+			}
+			catch (\Exception $e) {
+				$configPath = null;
+			}
+		}
+
 		if ($configPath === null || !file_exists($configPath)) {
 			$allConfigs = array_merge(
 				glob(System::getContainer()->getParameter('kernel.project_dir') . '/templates/' . $type . '_config.php') ?: array(),
@@ -1430,6 +1440,7 @@ class CustomElements
 			}
 		}
 
+		$twigLoader = System::getContainer()->get('contao.twig.filesystem_loader');
 		$saveToCache = true;
 		$elements = array();
 
@@ -1449,6 +1460,15 @@ class CustomElements
 			}
 			catch (\Exception $e) {
 				$configPath = null;
+			}
+
+			if ($configPath === null) {
+				try {
+					$configPath = substr($twigLoader->getSourceContext($twigLoader->getFirst($template))->getPath(), 0, -10) . '_config.php';
+				}
+				catch (\Exception $e) {
+					$configPath = null;
+				}
 			}
 
 			if ($configPath === null || !file_exists($configPath)) {
