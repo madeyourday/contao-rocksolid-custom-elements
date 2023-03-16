@@ -866,6 +866,10 @@ var updateDependingFields = function(formElement) {
 					return !!actualValue;
 				}
 
+				if (dependingValue === false) {
+					return !actualValue;
+				}
+
 				return dependingValue === actualValue;
 			}
 		}

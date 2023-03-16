@@ -998,7 +998,11 @@ class CustomElements
 		}
 
 		if ($dependingValue === true) {
-			return !!$actualValue || $actualValue === '0';
+			return $actualValue || $actualValue === '0';
+		}
+
+		if ($dependingValue === false) {
+			return !$actualValue && $actualValue !== '0';
 		}
 
 		return $dependingValue === $actualValue;
