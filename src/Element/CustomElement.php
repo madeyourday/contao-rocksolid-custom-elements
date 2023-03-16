@@ -91,6 +91,7 @@ class CustomElement extends ContentElement
 				if (
 					$entry['file'] === System::getContainer()->getParameter('kernel.project_dir') . '/system/modules/newsletter/classes/Newsletter.php'
 					|| $entry['file'] === System::getContainer()->getParameter('kernel.project_dir') . '/vendor/contao/newsletter-bundle/src/Resources/contao/classes/Newsletter.php'
+					|| $entry['file'] === System::getContainer()->getParameter('kernel.project_dir') . '/vendor/contao/newsletter-bundle/contao/classes/Newsletter.php'
 					|| $method === 'Contao\\Newsletter::send'
 					|| $method === 'tl_newsletter::listNewsletters'
 				) {
