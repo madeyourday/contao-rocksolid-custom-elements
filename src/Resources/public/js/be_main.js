@@ -793,13 +793,30 @@ var updateDependingFields = function(formElement) {
 		var inputs = document.body.getElements('[name="'+dependsOnData.field+'"][type!=hidden],[name^="'+dependsOnData.field+'["][type!=hidden]');
 
 		if (!inputs.length) {
-			return;
+			inputs = document.body.getElements('[name="'+dependsOnData.field+'"][type=hidden],[name^="'+dependsOnData.field+'["][type=hidden]');
+
+			if (!inputs.length) {
+				return;
+			}
 		}
 
 		allDependingWidgets.push(widget);
 
 		if (inputs[0].getPrevious('[type=checkbox][id^=check_all_]')) {
 			inputs[0].getPrevious('[type=checkbox][id^=check_all_]').addEvent('click', updateWidget);
+		}
+		
+		// Handle widgets replaced via AJAX (e.g. fileTree) 
+		if (inputs[0].form) {
+			inputs[0].form.addEvent('change', function (event) {
+				if ((event.target.name || '').substr(0, dependsOnData.field.length) === dependsOnData.field) {
+					inputs = document.body.getElements('[name="'+dependsOnData.field+'"][type!=hidden],[name^="'+dependsOnData.field+'["][type!=hidden]');
+					if (!inputs.length) {
+						inputs = document.body.getElements('[name="'+dependsOnData.field+'"][type=hidden],[name^="'+dependsOnData.field+'["][type=hidden]');
+					}
+					updateWidget();
+				}
+			});
 		}
 
 		inputs.addEvent('input', updateWidget);
@@ -821,8 +838,8 @@ var updateDependingFields = function(formElement) {
 				value = '';
 			}
 
-			if (input.type === 'radio' && input.name && input.form && input.form.elements[input.name]) {
-				value = input.form.elements[input.name].value;
+			if (input.name && input.form && new FormData(input.form).getAll(input.name).length) {
+				value = new FormData(input.form).getAll(input.name).pop();
 			}
 
 			if (input.type === 'checkbox' && input.name.substr(-2) === '[]') {
