@@ -1217,7 +1217,7 @@ class CustomElements
 				$palette .= ',headline';
 			}
 			if (in_array('columns', $standardFields)) {
-				$palette .= ';{rs_columns_legend},rs_columns_large,rs_columns_medium,rs_columns_small';
+				$palette .= ';{rs_columns_legend},' . explode(';', explode('{rs_columns_legend},', $GLOBALS['TL_DCA']['tl_content']['palettes']['rs_columns_start'] ?? '')[1] ?? '')[0];
 			}
 			if (in_array('text', $standardFields)) {
 				$palette .= ';{text_legend},text';
