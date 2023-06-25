@@ -809,6 +809,9 @@ var updateDependingFields = function(formElement) {
 		// Handle widgets replaced via AJAX (e.g. fileTree) 
 		if (inputs[0].form) {
 			inputs[0].form.addEvent('change', function (event) {
+				if (inputs[0] && inputs[0].name !== dependsOnData.field) {
+					dependsOnData.field = inputs[0].name.replace(/\[]$/, '');
+				}
 				if ((event.target.name || '').substr(0, dependsOnData.field.length) === dependsOnData.field) {
 					inputs = document.body.getElements('[name="'+dependsOnData.field+'"][type!=hidden],[name^="'+dependsOnData.field+'["][type!=hidden]');
 					if (!inputs.length) {
