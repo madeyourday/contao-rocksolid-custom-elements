@@ -854,7 +854,7 @@ var updateDependingFields = function(formElement) {
 				});
 			}
 
-			if (valueMatches(dependsOnData.value, value)) {
+			if (valueMatches(dependsOnData.value, value) && !input.disabled) {
 				widget.style.display = 'block';
 				restoreDependingFormFields(widget);
 			}
@@ -862,6 +862,11 @@ var updateDependingFields = function(formElement) {
 				widget.style.display = 'none';
 				removeDependingFormFields(widget);
 			}
+
+			// Handle nested depending widgets, e.g. groups
+			widget.getElements('input,textarea,select').each(function(input) {
+				input.fireEvent('change');
+			});
 
 			function valueMatches(dependingValue, actualValue) {
 				if (Array.isArray(dependingValue)) {
