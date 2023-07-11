@@ -12,6 +12,7 @@ use Contao\Backend;
 use Contao\BackendUser;
 use Contao\Config;
 use Contao\Controller;
+use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\Database;
 use Contao\DataContainer;
 use Contao\FilesModel;
@@ -21,6 +22,7 @@ use Contao\StringUtil;
 use Contao\System;
 use Doctrine\DBAL\DBALException;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
+use Psr\Log\LogLevel;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -1403,7 +1405,7 @@ class CustomElements
 			}
 		);
 		if (count($duplicateConfigs)) {
-			System::log('Duplicate Custom Elements found: ' . implode(', ', array_keys($duplicateConfigs)), __METHOD__, TL_ERROR);
+			System::getContainer()->get('monolog.logger.contao')->log(LogLevel::ERROR, 'Duplicate Custom Elements found: ' . implode(', ', array_keys($duplicateConfigs)), array('contao' => new ContaoContext(__METHOD__, 'ERROR')));
 		}
 
 		foreach ($allConfigs as $configPath) {
