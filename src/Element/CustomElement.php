@@ -180,6 +180,8 @@ class CustomElement extends ContentElement
 		$this->Template->getColumnClassName = function() use($self) {
 			return call_user_func_array(array($self, 'getColumnClassName'), func_get_args());
 		};
+
+		$this->addFragmentControllerDefaults();
 	}
 
 	/**
@@ -282,5 +284,35 @@ class CustomElement extends ContentElement
 		}
 
 		return implode(' ', $classes);
+	}
+
+	private function addFragmentControllerDefaults()
+	{
+		$this->Template->template ??= $this->Template->getName();
+		$this->Template->as_editor_view ??= System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest(System::getContainer()->get('request_stack')->getCurrentRequest() ?? Request::create(''));
+		$this->Template->data ??= $this->objModel ? $this->objModel->row() : $this->arrData;
+		$this->Template->nested_fragments ??= [];
+		$this->Template->section ??= $this->strColumn;
+		$this->Template->properties ??= [];
+		$this->Template->element_html_id ??= $this->Template->cssID[0] ?? null;
+		$this->Template->element_css_classes ??= $this->Template->cssID[1] ?? '';
+
+		// Legacy templates access the text using `$this->headline`, twig templates use `headline.text`
+		$this->Template->headline = new class($this->Template->headline, $this->Template->hl) implements \Stringable
+		{
+			public ?string $text;
+			public ?string $tag_name;
+
+			public function __construct(?string $text, ?string $tag_name)
+			{
+				$this->text = $text;
+				$this->tag_name = $tag_name;
+			}
+
+			public function __toString(): string
+			{
+				return $this->text ?? '';
+			}
+		};
 	}
 }
