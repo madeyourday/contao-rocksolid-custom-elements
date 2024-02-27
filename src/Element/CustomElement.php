@@ -313,6 +313,15 @@ class CustomElement extends ContentElement
 			{
 				return $this->text ?? '';
 			}
+
+			public function __invoke(): string
+			{
+				return $this->text ?? '';
+			}
 		};
+
+		// The parent::generate() method overwrites the template headline with $this->headline
+		// so we need to set it to the same callable object here
+		$this->headline = $this->Template->getData()['headline'];
 	}
 }
