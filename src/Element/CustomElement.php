@@ -297,28 +297,30 @@ class CustomElement extends ContentElement
 		$this->Template->element_html_id ??= $this->Template->cssID[0] ?? null;
 		$this->Template->element_css_classes ??= $this->Template->cssID[1] ?? '';
 
-		// Legacy templates access the text using `$this->headline`, twig templates use `headline.text`
-		$this->Template->headline = new class($this->Template->headline, $this->Template->hl) implements \Stringable
-		{
-			public ?string $text;
-			public ?string $tag_name;
-
-			public function __construct(?string $text, ?string $tag_name)
+		if(!is_array($this->Template->headline)){
+			// Legacy templates access the text using `$this->headline`, twig templates use `headline.text`
+			$this->Template->headline = new class($this->Template->headline, $this->Template->hl) implements \Stringable
 			{
-				$this->text = $text;
-				$this->tag_name = $tag_name;
-			}
-
-			public function __toString(): string
-			{
-				return $this->text ?? '';
-			}
-
-			public function __invoke(): string
-			{
-				return $this->text ?? '';
-			}
-		};
+				public ?string $text;
+				public ?string $tag_name;
+	
+				public function __construct(?string $text, ?string $tag_name)
+				{
+					$this->text = $text;
+					$this->tag_name = $tag_name;
+				}
+	
+				public function __toString(): string
+				{
+					return $this->text ?? '';
+				}
+	
+				public function __invoke(): string
+				{
+					return $this->text ?? '';
+				}
+			};
+		}
 
 		// The parent::generate() method overwrites the template headline with $this->headline
 		// so we need to set it to the same callable object here
