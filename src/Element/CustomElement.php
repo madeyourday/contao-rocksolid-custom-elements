@@ -297,6 +297,13 @@ class CustomElement extends ContentElement
 		$this->Template->element_html_id ??= $this->Template->cssID[0] ?? null;
 		$this->Template->element_css_classes ??= $this->Template->cssID[1] ?? '';
 
+		if (
+			(!\is_string($this->Template->headline) && $this->Template->headline !== null)
+			|| (!\is_string($this->Template->hl) && $this->Template->hl !== null)
+		) {
+			return;
+		}
+
 		// Legacy templates access the text using `$this->headline`, twig templates use `headline.text`
 		$this->Template->headline = new class($this->Template->headline, $this->Template->hl) implements \Stringable
 		{
