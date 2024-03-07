@@ -297,6 +297,10 @@ class CustomElement extends ContentElement
 		$this->Template->element_html_id ??= $this->Template->cssID[0] ?? null;
 		$this->Template->element_css_classes ??= $this->Template->cssID[1] ?? '';
 
+		if (!empty($this->objModel->classes) && \is_array($this->objModel->classes)) {
+			$this->Template->element_css_classes .= ' ' . implode(' ', $this->objModel->classes);
+		}
+
 		if (
 			(!\is_string($this->Template->headline) && $this->Template->headline !== null)
 			|| (!\is_string($this->Template->hl) && $this->Template->hl !== null)
