@@ -8,6 +8,7 @@
 
 namespace MadeYourDay\RockSolidCustomElements\Widget;
 
+use Contao\CoreBundle\ContaoCoreBundle;
 use Contao\System;
 use Contao\Widget;
 
@@ -47,16 +48,36 @@ class GroupStart extends Widget
 			$classes[] = 'collapsed';
 		}
 
-		return '</fieldset>'
-			. '<div class="clear"></div>'
-			. '<fieldset'
-			. ' id="pal_' . $this->strId . '"'
-			. ' class="' . implode(' ', $classes) . '"'
-			. '>'
-			. '<legend'
-			. ' onclick="AjaxRequest.toggleFieldset(this, &quot;' . $this->strId . '&quot;, &quot;' . $this->strTable . '&quot;)"'
-			. '>' . $this->strLabel
-			. '</legend>'
-			. ($this->description ? '<p class="rsce_group_description">' . $this->description . '</p>' : '');
+		if (version_compare(ContaoCoreBundle::getVersion(), '5.3', '>=')) {
+			return '</fieldset>'
+				. '<div class="clear"></div>'
+				. '<fieldset'
+				. ' id="pal_' . $this->strId . '"'
+				. ' class="' . implode(' ', $classes) . '"'
+				. ' data-controller="contao--toggle-fieldset" data-contao--toggle-fieldset-id-value="pal_' . $this->strId . '"'
+				. ' data-contao--toggle-fieldset-table-value="' . $this->strTable . '"'
+				. ' data-contao--toggle-fieldset-collapsed-class="collapsed"'
+				. ' data-contao--jump-targets-target="section"'
+				. ' data-contao--jump-targets-label-value="' . $this->strLabel . '"'
+				. ' data-action="contao--jump-targets:scrollto->contao--toggle-fieldset#open"'
+				. '>'
+				. '<legend'
+				. ' data-action="click->contao--toggle-fieldset#toggle"'
+				. '>' . $this->strLabel
+				. '</legend>'
+				. ($this->description ? '<p class="rsce_group_description">' . $this->description . '</p>' : '');
+		} else {
+			return '</fieldset>'
+				. '<div class="clear"></div>'
+				. '<fieldset'
+				. ' id="pal_' . $this->strId . '"'
+				. ' class="' . implode(' ', $classes) . '"'
+				. '>'
+				. '<legend'
+				. ' onclick="AjaxRequest.toggleFieldset(this, &quot;' . $this->strId . '&quot;, &quot;' . $this->strTable . '&quot;)"'
+				. '>' . $this->strLabel
+				. '</legend>'
+				. ($this->description ? '<p class="rsce_group_description">' . $this->description . '</p>' : '');
+		}
 	}
 }
