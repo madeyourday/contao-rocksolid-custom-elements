@@ -57,7 +57,7 @@ class ListStart extends Widget
 			'maxItems' => $this->maxItems,
 		);
 
-		if (version_compare(ContaoCoreBundle::getVersion(), '5.3', '>')) {
+		if (version_compare(ContaoCoreBundle::getVersion(), '5.3', '>=')) {
 			return '</fieldset>'
 				. '<div class="clear"></div>'
 				. '<fieldset'
