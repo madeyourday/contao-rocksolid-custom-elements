@@ -48,7 +48,7 @@ class GroupStart extends Widget
 			$classes[] = 'collapsed';
 		}
 
-		if (version_compare(ContaoCoreBundle::getVersion(), '5.3', '>')) {
+		if (version_compare(ContaoCoreBundle::getVersion(), '5.3', '>=')) {
 			return '</fieldset>'
 				. '<div class="clear"></div>'
 				. '<fieldset'
