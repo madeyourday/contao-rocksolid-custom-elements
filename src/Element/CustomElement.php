@@ -295,7 +295,7 @@ class CustomElement extends ContentElement
 		$this->Template->section ??= $this->strColumn;
 		$this->Template->properties ??= [];
 		$this->Template->element_html_id ??= $this->Template->cssID[0] ?? null;
-		$this->Template->element_css_classes ??= $this->Template->cssID[1] ?? '';
+		$this->Template->element_css_classes ??= trim(($this->Template->cssID[1] ?? '') . ' ' . implode(' ', $this->objModel ? (array) $this->objModel->classes : []));
 
 		if (
 			(!\is_string($this->Template->headline) && $this->Template->headline !== null)
