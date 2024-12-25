@@ -21,7 +21,7 @@ class DummyModel extends Model
 	/**
 	 * {@inheritdoc}
 	 */
-	public function __construct(Result $objResult = null, $data = array())
+	public function __construct(?Result $objResult = null, $data = array())
 	{
 		$this->arrModified = array();
 		$this->setRow(is_array($data) ? $data : array());
