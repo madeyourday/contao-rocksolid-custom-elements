@@ -73,10 +73,13 @@ var removeTinyMCEs = function(element) {
 			}
 			textareas.push({
 				textarea: textarea,
+				isStimulus: !!textarea.tinymceConfig,
 				settings: Object.append({}, settings)
 			});
 			element.store('rsce_tinyMCE_textareas', textareas);
 			editors[i].remove();
+			textarea.removeAttribute('data-controller');
+			textarea.removeAttribute('data-action');
 		}
 	}
 
@@ -88,6 +91,13 @@ var restoreTinyMCEs = function(element) {
 
 	if (window.tinymce && window.tinymce.Editor) {
 		element.retrieve('rsce_tinyMCE_textareas', []).each(function(data) {
+			if (data.isStimulus) {
+				setTimeout(() => {
+					data.textarea.setAttribute('data-action', 'turbo:before-visit@window->contao--tinymce#leave');
+					data.textarea.setAttribute('data-controller', 'contao--tinymce');
+				});
+				return;
+			}
 			new window.tinymce.Editor(
 				data.textarea.get('id'),
 				data.settings,
@@ -419,6 +429,9 @@ var copyTinyMceConfigs = function(origItem, origKey, newItem, newKey) {
 	var textareas = [];
 
 	origItem.retrieve('rsce_tinyMCE_textareas', []).each(function(data) {
+		if (data.isStimulus) {
+			return;
+		}
 		var newData = {
 			settings: Object.append({}, data.settings)
 		};
@@ -484,6 +497,10 @@ var duplicateElement = function(linkElement) {
 
 	// The order is important to prevent id conflicts:
 	// remove tinyMCEs => duplicate the element => rename => restoring tinyMCEs
+
+	element.getAllNext('.rsce_list_item').each(function(el) {
+		removeTinyMCEs(el);
+	});
 
 	removeTinyMCEs(element);
 	removePicker(listInner);
