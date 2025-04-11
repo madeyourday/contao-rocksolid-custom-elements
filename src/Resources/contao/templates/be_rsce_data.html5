@@ -1,2 +1,5 @@
-<?php
-echo $this->generate();
+<?php /* closing the parent div element to make nested elements possible */ ?>
+</div><?php if (version_compare(Contao\CoreBundle\ContaoCoreBundle::getVersion(), '5.4', '>=')): ?></div><?php endif ?>
+<?= $this->generate() ?>
+<?php /* starting a div element to keep the correct element structure */ ?>
+<?php if (version_compare(Contao\CoreBundle\ContaoCoreBundle::getVersion(), '5.4', '>=')): ?><div class="widget-group"><?php endif ?><div style="display: none">

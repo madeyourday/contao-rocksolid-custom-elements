@@ -651,7 +651,7 @@ class CustomElements
 			}
 		}
 
-		$GLOBALS['TL_DCA'][$dc->table]['fields']['rsce_data']['eval']['rsceScript'] = 'window.rsceInit([...document.querySelectorAll("script")].pop().parentNode.parentNode.parentNode);';
+		$GLOBALS['TL_DCA'][$dc->table]['fields']['rsce_data']['eval']['rsceScript'] = 'window.rsceInit([...document.querySelectorAll("script")].pop().closest(".tl_formbody_edit"));';
 
 		$paletteFields[] = 'rsce_data';
 

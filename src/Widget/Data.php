@@ -34,7 +34,7 @@ class Data extends Widget
 	 */
 	public function generate()
 	{
-		return '</div></fieldset><fieldset class="tl_box" style="border: 0; margin: 0; padding: 0"><div class="widget">'
+		return '</fieldset><fieldset class="tl_box" style="border: 0; margin: 0; padding: 0">'
 			. '<input type="hidden" name="'.$this->strName.'" value="">'
 			. ($this->rsceScript ? '<script>'.$this->rsceScript.'</script>' : '');
 	}
