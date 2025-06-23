@@ -73,11 +73,11 @@ class ListStart extends Widget
 				. $this->getAttributes()
 				. '>'
 				. '<legend>'
-                . '<button'
-                . ' type="button"'
+				. '<button'
+				. ' type="button"'
 				. ' data-action="click->contao--toggle-fieldset#toggle"'
 				. '>' . $this->strLabel
-                . '</button>'
+				. '</button>'
 				. '</legend>'
 				. $toolbar
 				. ($this->description ? '<p class="rsce_list_description">' . $this->description . '</p>' : '');
