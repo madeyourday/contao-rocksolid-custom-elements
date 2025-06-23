@@ -61,9 +61,12 @@ class GroupStart extends Widget
 				. ' data-contao--jump-targets-label-value="' . $this->strLabel . '"'
 				. ' data-action="contao--jump-targets:scrollto->contao--toggle-fieldset#open"'
 				. '>'
-				. '<legend'
+				. '<legend>'
+				. '<button'
+                . ' type="button"'
 				. ' data-action="click->contao--toggle-fieldset#toggle"'
 				. '>' . $this->strLabel
+                . '</button>'
 				. '</legend>'
 				. ($this->description ? '<p class="rsce_group_description">' . $this->description . '</p>' : '');
 		} else {
