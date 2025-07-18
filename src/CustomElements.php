@@ -859,16 +859,23 @@ class CustomElements
 				throw new \Exception('Input type "standardField" is not allowed inside lists.');
 			}
 
-			if (isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName])) {
+			if(!empty($fieldConfig['extend'])){
+				$extendName = $fieldConfig['extend'];
+				unset($fieldConfig['extend']);
+			} else {
+				$extendName = null;
+			}
+
+			if (isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$extendName ?? $fieldName])) {
 
 				if (
-					isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName]['eval'])
-					&& is_array($GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName]['eval'])
+					isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$extendName ?? $fieldName]['eval'])
+					&& is_array($GLOBALS['TL_DCA'][$dc->table]['fields'][$extendName ?? $fieldName]['eval'])
 					&& isset($fieldConfig['eval'])
 					&& is_array($fieldConfig['eval'])
 				) {
 					$fieldConfig['eval'] = array_merge(
-						$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName]['eval'],
+						$GLOBALS['TL_DCA'][$dc->table]['fields'][$extendName ?? $fieldName]['eval'],
 						$fieldConfig['eval']
 					);
 				}
@@ -876,7 +883,7 @@ class CustomElements
 				unset($fieldConfig['inputType']);
 
 				$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName] = array_merge(
-					$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName],
+					$GLOBALS['TL_DCA'][$dc->table]['fields'][$extendName ?? $fieldName],
 					$fieldConfig
 				);
 
