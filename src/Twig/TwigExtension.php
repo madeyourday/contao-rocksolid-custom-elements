@@ -13,53 +13,53 @@ use Twig\TwigFunction;
 
 final class TwigExtension extends AbstractExtension
 {
-    public function __construct(
-        private readonly Imagine $imagineSvg,
-        private readonly Studio $imageStudio,
-    ) {
-    }
+	public function __construct(
+		private readonly Imagine $imagineSvg,
+		private readonly Studio $imageStudio,
+	) {
+	}
 
-    public function getFilters(): array
-    {
-        return [
-            new TwigFilter(
-                'preg_replace',
-                static function (string|array $subject, string|array $pattern, string|array $replacement, int $limit = -1): string|array {
-                    return preg_replace($pattern, $replacement, $subject, $limit)
-                        ?? throw new \RuntimeException(\sprintf('Error in regular expression "%s".', $pattern))
-                    ;
-                },
-            ),
-        ];
-    }
+	public function getFilters(): array
+	{
+		return [
+			new TwigFilter(
+				'preg_replace',
+				static function (string|array $subject, string|array $pattern, string|array $replacement, int $limit = -1): string|array {
+					return preg_replace($pattern, $replacement, $subject, $limit)
+						?? throw new \RuntimeException(\sprintf('Error in regular expression "%s".', $pattern))
+					;
+				},
+			),
+		];
+	}
 
-    public function getFunctions(): array
-    {
-        return [
-            new TwigFunction(
-                'inline_svg',
-                function (Figure|FilesModel|ImageInterface|int|string|null $svg): string {
-                    if (!$svg instanceof Figure) {
-                        $svg = $this->imageStudio
-                            ->createFigureBuilder()
-                            ->from($svg)
-                            ->buildIfResourceExists();
-                    }
+	public function getFunctions(): array
+	{
+		return [
+			new TwigFunction(
+				'inline_svg',
+				function (Figure|FilesModel|ImageInterface|int|string|null $svg): string {
+					if (!$svg instanceof Figure) {
+						$svg = $this->imageStudio
+							->createFigureBuilder()
+							->from($svg)
+							->buildIfResourceExists();
+					}
 
-                    if (!$svg) {
-                        return '';
-                    }
+					if (!$svg) {
+						return '';
+					}
 
-                    try {
-                        $dom = $this->imagineSvg->open($svg->getImage()->getFilePath(true))->getDomDocument();
-                        return $dom->saveXML($dom->documentElement);
-                    } catch (\Throwable $e) {
-                    }
+					try {
+						$dom = $this->imagineSvg->open($svg->getImage()->getFilePath(true))->getDomDocument();
+						return $dom->saveXML($dom->documentElement);
+					} catch (\Throwable $e) {
+					}
 
-                    return '';
-                },
-                ['is_safe' => ['html']],
-            ),
-        ];
-    }
+					return '';
+				},
+				['is_safe' => ['html']],
+			),
+		];
+	}
 }
