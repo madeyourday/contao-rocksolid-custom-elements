@@ -5,3 +5,5 @@ services:
   MadeYourDay\RockSolidCustomElements\Migration\BasicEntitiesMigration:
     arguments:
       - '@database_connection'
+
+  MadeYourDay\RockSolidCustomElements\Twig\TwigExtension: ~
