@@ -6,4 +6,7 @@ services:
     arguments:
       - '@database_connection'
 
-  MadeYourDay\RockSolidCustomElements\Twig\TwigExtension: ~
+  MadeYourDay\RockSolidCustomElements\Twig\TwigExtension:
+    arguments:
+      - '@contao.image.imagine_svg'
+      - '@contao.image.studio'
