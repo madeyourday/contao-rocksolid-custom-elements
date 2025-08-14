@@ -29,9 +29,22 @@ use Symfony\Component\HttpFoundation\Request;
 class CustomElement extends ContentElement
 {
 	/**
+	 * @var list<string|\Closure>
+	 */
+	private static $compileCallbacks = [];
+
+	/**
 	 * @var string Template
 	 */
 	protected $strTemplate = 'rsce_default';
+
+	/**
+	 * @internal
+	 */
+	public static function registerCompileCallback(string $type, string $callbackPath): void
+	{
+		static::$compileCallbacks[$type] = System::getContainer()->getParameter('kernel.project_dir') . '/' . $callbackPath;
+	}
 
 	/**
 	 * Find the correct template and parse it
@@ -182,6 +195,14 @@ class CustomElement extends ContentElement
 		};
 
 		$this->addFragmentControllerDefaults();
+
+		if (\is_string(static::$compileCallbacks[$this->type] ?? null)) {
+			static::$compileCallbacks[$this->type] = include static::$compileCallbacks[$this->type];
+		}
+
+		if ($closure = static::$compileCallbacks[$this->type] ?? null) {
+			$closure($this->Template, $this);
+		}
 	}
 
 	/**

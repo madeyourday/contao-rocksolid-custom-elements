@@ -21,6 +21,7 @@ use Contao\ModuleModel;
 use Contao\StringUtil;
 use Contao\System;
 use Doctrine\DBAL\DBALException;
+use MadeYourDay\RockSolidCustomElements\Element\CustomElement;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
 use Psr\Log\LogLevel;
 use Symfony\Component\Filesystem\Filesystem;
@@ -1497,8 +1498,14 @@ class CustomElements
 				throw $exception;
 			}
 
+			$compileCallbackPath = null;
+			if (file_exists(substr($configPath, 0, -11).'_compile.php')) {
+				$compileCallbackPath = StringUtil::stripRootDir(substr($configPath, 0, -11).'_compile.php');
+			}
+
 			$element = array(
 				'config' => $config,
+				'compileCallbackPath' => $compileCallbackPath,
 				'label' => isset($config['label']) ? $config['label'] : array(implode(' ', array_map('ucfirst', explode('_', substr($template, 5)))), ''),
 				'labelPrefix' => '',
 				'types' => isset($config['types']) ? $config['types'] : array('content', 'module', 'form'),
@@ -1606,6 +1613,10 @@ class CustomElements
 				$contents[] = '$GLOBALS[\'TL_WRAPPERS\'][' . var_export($element['config']['wrapper']['type'], true) . '][] = ' . var_export($element['template'], true) . ';';
 			}
 
+			if (!empty($element['compileCallbackPath'])) {
+				CustomElement::registerCompileCallback($element['template'], $element['compileCallbackPath']);
+				$contents[] = '\\' . CustomElement::class . '::registerCompileCallback(' . var_export($element['template'], true) . ', ' . var_export($element['compileCallbackPath'], true) . ');';
+			}
 		}
 
 		if (!$saveToCache) {
