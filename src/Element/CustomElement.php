@@ -233,9 +233,13 @@ class CustomElement extends ContentElement
 		}
 
 		if ($data instanceof \stdClass) {
-			$return = new class extends \stdClass{
+			$return = new class extends \stdClass implements \IteratorAggregate {
 				public function __get($name) {
 					return null;
+				}
+				public function getIterator(): \Traversable
+				{
+					return new \ArrayIterator(get_object_vars($this));
 				}
 			};
 			foreach ($data as $key => $value) {
@@ -326,7 +330,7 @@ class CustomElement extends ContentElement
 		}
 
 		// Legacy templates access the text using `$this->headline`, twig templates use `headline.text`
-		$this->Template->headline = new class($this->Template->headline, $this->Template->hl) implements \Stringable
+		$this->Template->headline = new class($this->Template->headline, $this->Template->hl) implements \Stringable, \IteratorAggregate
 		{
 			public ?string $text;
 			public ?string $tag_name;
@@ -345,6 +349,11 @@ class CustomElement extends ContentElement
 			public function __invoke(): string
 			{
 				return $this->text ?? '';
+			}
+
+			public function getIterator(): \Traversable
+			{
+				return new \ArrayIterator(get_object_vars($this));
 			}
 		};
 
