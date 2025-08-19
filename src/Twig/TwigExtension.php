@@ -50,6 +50,10 @@ final class TwigExtension extends AbstractExtension
 						return '';
 					}
 
+					if (!\in_array(strtolower(pathinfo($svg->getImage()->getFilePath(true), PATHINFO_EXTENSION)), ['svg', 'svgz'], true)) {
+						return '';
+					}
+
 					try {
 						$dom = $this->imagineSvg->open($svg->getImage()->getFilePath(true))->getDomDocument();
 						return $dom->saveXML($dom->documentElement);
