@@ -2,6 +2,13 @@ services:
   _defaults:
     autoconfigure: true
 
+  MadeYourDay\RockSolidCustomElements\InsertTag\IconInsertTag:
+    arguments:
+      - '@twig'
+      - '@monolog.logger.contao.error'
+      - '%kernel.project_dir%'
+      - '%contao.web_dir%'
+
   MadeYourDay\RockSolidCustomElements\Migration\BasicEntitiesMigration:
     arguments:
       - '@database_connection'
