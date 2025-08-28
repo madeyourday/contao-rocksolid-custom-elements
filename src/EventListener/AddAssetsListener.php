@@ -16,18 +16,18 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 class AddAssetsListener
 {
-    private ScopeMatcher $scopeMatcher;
+	private ScopeMatcher $scopeMatcher;
 
-    public function __construct(ScopeMatcher $scopeMatcher)
-    {
-        $this->scopeMatcher = $scopeMatcher;
-    }
+	public function __construct(ScopeMatcher $scopeMatcher)
+	{
+		$this->scopeMatcher = $scopeMatcher;
+	}
 
-    public function __invoke(RequestEvent $event): void
-    {
-        if ($this->scopeMatcher->isBackendMainRequest($event)) {
-            $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/rocksolidcustomelements/js/be_main.js';
-            $GLOBALS['TL_CSS'][] = 'bundles/rocksolidcustomelements/css/be_main.css';
-        }
-    }
+	public function __invoke(RequestEvent $event): void
+	{
+		if ($this->scopeMatcher->isBackendMainRequest($event)) {
+			$GLOBALS['TL_JAVASCRIPT'][] = 'bundles/rocksolidcustomelements/js/be_main.js';
+			$GLOBALS['TL_CSS'][] = 'bundles/rocksolidcustomelements/css/be_main.css';
+		}
+	}
 }
