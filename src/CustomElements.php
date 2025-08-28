@@ -54,6 +54,11 @@ class CustomElements
 	protected $fieldsConfig = array();
 
 	/**
+	 * @var array Storage for original DCA fields
+	 */
+	protected $dcaFieldStorage = array();
+
+	/**
 	 * tl_content, tl_module and tl_form_field DCA onload callback
 	 *
 	 * Reloads config and creates the DCA fields
@@ -853,24 +858,42 @@ class CustomElements
 				throw new \Exception('Input type "standardField" is not allowed inside lists.');
 			}
 
-			if (isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName])) {
+			if(!empty($fieldConfig['extend'])){
+				$extendName = $fieldConfig['extend'];
+				unset($fieldConfig['extend']);
+			} else {
+				$extendName = null;
+			}
+
+			if (isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$extendName ?? $fieldName])) {
+				// Save a copy, so we alwayes have an unchanged state.
+				if (
+					!array_key_exists($dc->table, $this->dcaFieldStorage)
+					|| !array_key_exists(($extendName ?? $fieldName), $this->dcaFieldStorage[$dc->table])
+				) {
+					$this->dcaFieldStorage[$dc->table][$extendName ?? $fieldName]
+						= $GLOBALS['TL_DCA'][$dc->table]['fields'][$extendName ?? $fieldName];
+				}
+
+				$baseField = $this->dcaFieldStorage[$dc->table][$extendName ?? $fieldName];
 
 				if (
-					isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName]['eval'])
-					&& is_array($GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName]['eval'])
+					isset($baseField['eval'])
+					&& is_array($baseField['eval'])
 					&& isset($fieldConfig['eval'])
 					&& is_array($fieldConfig['eval'])
 				) {
 					$fieldConfig['eval'] = array_merge(
-						$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName]['eval'],
+						$baseField['eval'],
 						$fieldConfig['eval']
 					);
 				}
 
 				unset($fieldConfig['inputType']);
 
+				// Don't use the $extendName here, 'cause this is the new/updated field.
 				$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName] = array_merge(
-					$GLOBALS['TL_DCA'][$dc->table]['fields'][$fieldName],
+					$baseField,
 					$fieldConfig
 				);
 
