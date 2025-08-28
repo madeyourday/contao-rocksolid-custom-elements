@@ -5,3 +5,9 @@ services:
   MadeYourDay\RockSolidCustomElements\Migration\BasicEntitiesMigration:
     arguments:
       - '@database_connection'
+
+  MadeYourDay\RockSolidCustomElements\EventListener\AddAssetsListener:
+    arguments:
+      - '@contao.routing.scope_matcher'
+    tags:
+      - kernel.event_listener

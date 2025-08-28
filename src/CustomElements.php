@@ -630,13 +630,6 @@ class CustomElements
 			return;
 		}
 
-		$assetsDir = 'bundles/rocksolidcustomelements';
-
-		if (System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest(System::getContainer()->get('request_stack')->getCurrentRequest() ?? Request::create(''))) {
-			$GLOBALS['TL_JAVASCRIPT'][] = $assetsDir . '/js/be_main.js';
-			$GLOBALS['TL_CSS'][] = $assetsDir . '/css/be_main.css';
-		}
-
 		$paletteFields = array();
 		$standardFields = is_array($config['standardFields'] ?? null) ? $config['standardFields'] : array();
 		$this->fieldsConfig = $config['fields'];
@@ -651,7 +644,7 @@ class CustomElements
 			}
 		}
 
-		$GLOBALS['TL_DCA'][$dc->table]['fields']['rsce_data']['eval']['rsceScript'] = 'window.rsceInit([...document.querySelectorAll("script")].pop().closest(".tl_formbody_edit"));';
+		$GLOBALS['TL_DCA'][$dc->table]['fields']['rsce_data']['eval']['rsceScript'] = 'window.rsceInit(document.currentScript.closest(".tl_formbody_edit"));';
 
 		$paletteFields[] = 'rsce_data';
 
