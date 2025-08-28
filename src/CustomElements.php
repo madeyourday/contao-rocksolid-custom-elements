@@ -630,13 +630,6 @@ class CustomElements
 			return;
 		}
 
-		$assetsDir = 'bundles/rocksolidcustomelements';
-
-		if (System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest(System::getContainer()->get('request_stack')->getCurrentRequest() ?? Request::create(''))) {
-			$GLOBALS['TL_JAVASCRIPT'][] = $assetsDir . '/js/be_main.js';
-			$GLOBALS['TL_CSS'][] = $assetsDir . '/css/be_main.css';
-		}
-
 		$paletteFields = array();
 		$standardFields = is_array($config['standardFields'] ?? null) ? $config['standardFields'] : array();
 		$this->fieldsConfig = $config['fields'];
