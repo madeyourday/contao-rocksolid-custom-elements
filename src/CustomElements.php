@@ -12,6 +12,7 @@ use Contao\Backend;
 use Contao\BackendUser;
 use Contao\Config;
 use Contao\Controller;
+use Contao\CoreBundle\ContaoCoreBundle;
 use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\Database;
 use Contao\DataContainer;
@@ -1217,9 +1218,20 @@ class CustomElements
 			$palette .= ',type';
 		}
 		else {
-			$palette .= '{type_legend},type';
+			$palette .= '{type_legend}';
+			if (version_compare(ContaoCoreBundle::getVersion(), '5.6', '>=')) {
+				if ($table === 'tl_content') {
+					$palette .= ',title';
+				}
+			}
+			else {
+				$palette .= ',type';
+			}
 			if ($table === 'tl_content' && in_array('headline', $standardFields)) {
 				$palette .= ',headline';
+			}
+			if (version_compare(ContaoCoreBundle::getVersion(), '5.6', '>=')) {
+				$palette .= ',type';
 			}
 			if (in_array('columns', $standardFields)) {
 				$palette .= ';{rs_columns_legend},' . explode(';', explode('{rs_columns_legend},', $GLOBALS['TL_DCA']['tl_content']['palettes']['rs_columns_start'] ?? '')[1] ?? '')[0];
