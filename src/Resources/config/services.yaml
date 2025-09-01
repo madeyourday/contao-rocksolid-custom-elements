@@ -17,3 +17,4 @@ services:
     arguments:
       - '@contao.image.imagine_svg'
       - '@contao.image.studio'
+      - '%kernel.project_dir%'

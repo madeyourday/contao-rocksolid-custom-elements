@@ -7,6 +7,7 @@ use Contao\CoreBundle\Image\Studio\Studio;
 use Contao\FilesModel;
 use Contao\Image\ImageInterface;
 use Contao\ImagineSvg\Imagine;
+use Symfony\Component\Filesystem\Path;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -15,6 +16,7 @@ final class TwigExtension extends AbstractExtension
 	public function __construct(
 		private readonly Imagine $imagineSvg,
 		private readonly Studio $imageStudio,
+		private readonly string $projectDir,
 	) {
 	}
 
@@ -40,7 +42,8 @@ final class TwigExtension extends AbstractExtension
 					}
 
 					try {
-						$dom = $this->imagineSvg->open($svg->getImage()->getFilePath(true))->getDomDocument();
+						$path = Path::join($this->projectDir, $svg->getImage()->getImageSrc(true));
+						$dom = $this->imagineSvg->open($path)->getDomDocument();
 						return $dom->saveXML($dom->documentElement);
 					} catch (\Throwable $e) {
 					}
