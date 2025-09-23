@@ -728,6 +728,11 @@ var initList = function(listElement) {
 		dummyFields.push(input.get('name').split('[')[0]);
 	});
 
+	// Remove autofocus targets to avoid autofocus getting triggered during element creation
+	listElement.getElements('[data-contao--scroll-offset-target=autoFocus]').each(function(el) {
+		el.removeAttribute('data-contao--scroll-offset-target');
+	});
+
 	var parentForm = listElement.getParent('form');
 	removeListFormFields(parentForm);
 	window.addEvent('ajax_change', function () {
