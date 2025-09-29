@@ -422,6 +422,17 @@ var newElementAtPosition = function(listElement, position) {
 	}
 	catch(e) {}
 
+	var rect = newItem.getBoundingClientRect();
+	if (
+		rect.top > document.documentElement.clientHeight
+		|| rect.bottom < 0
+	) {
+		setTimeout(() => {
+			newItem.scrollIntoView({
+				behavior: 'smooth',
+			});
+		})
+	}
 };
 
 var copyTinyMceConfigs = function(origItem, origKey, newItem, newKey) {
@@ -554,6 +565,17 @@ var duplicateElement = function(linkElement) {
 	updateListButtons(element.getParent('.rsce_list'));
 	updateDependingFields(newItem);
 
+	var rect = newItem.getBoundingClientRect();
+	if (
+		rect.top > document.documentElement.clientHeight
+		|| rect.bottom < 0
+	) {
+		setTimeout(() => {
+			newItem.scrollIntoView({
+				behavior: 'smooth',
+			});
+		})
+	}
 };
 
 var deleteElement = function(linkElement) {
