@@ -13,6 +13,7 @@ use Contao\CoreBundle\DependencyInjection\Attribute\AsInsertTag;
 use Contao\CoreBundle\InsertTag\InsertTagResult;
 use Contao\CoreBundle\InsertTag\OutputType;
 use Contao\CoreBundle\InsertTag\ResolvedInsertTag;
+use Contao\CoreBundle\InsertTag\ResolvedParameters;
 use Contao\CoreBundle\InsertTag\Resolver\InsertTagResolverNestedResolvedInterface;
 use Contao\Validator;
 use Psr\Log\LoggerInterface;
@@ -78,14 +79,17 @@ class IconInsertTag implements InsertTagResolverNestedResolvedInterface
             }
         }
 
+        // TODO: remove once fixed in Contao, @see https://github.com/contao/contao/issues/8744
+        $parametersFixed = new ResolvedParameters(array_map(fn ($param) => str_replace('&#61;', '=', $param), $insertTag->getParameters()->all()));
+
         foreach ($templates as $template) {
             if ($this->twig->getLoader()->exists($template)) {
                 return new InsertTagResult(
                     $this->twig->render($template, [
-                        'class' => $insertTag->getParameters()->get('class'),
-                        'shape' => $insertTag->getParameters()->get('shape'),
-                        'color' => $insertTag->getParameters()->get('color'),
-                        'background' => $insertTag->getParameters()->get('background'),
+                        'class' => $parametersFixed->get('class'),
+                        'shape' => $parametersFixed->get('shape'),
+                        'color' => $parametersFixed->get('color'),
+                        'background' => $parametersFixed->get('background'),
                         'icon' => $iconPath ?? $icon,
                     ]),
                     OutputType::html,
