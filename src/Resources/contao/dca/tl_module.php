@@ -24,3 +24,14 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['rsce_data'] = array(
 		array('MadeYourDay\\RockSolidCustomElements\\CustomElements', 'saveDataCallback'),
 	),
 );
+
+$GLOBALS['TL_DCA']['tl_module']['fields']['rsce_slider'] = array(
+	'label' => &$GLOBALS['TL_LANG']['tl_module']['rsce_slider'],
+	'exclude' => true,
+	'inputType' => 'checkbox',
+	'eval' => array(
+		'submitOnChange' => true,
+		'tl_class' => 'w50 m12',
+	),
+	'sql' => array('type' => 'boolean', 'default' => false),
+);

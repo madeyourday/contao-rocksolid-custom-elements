@@ -23,6 +23,7 @@ use Contao\System;
 use Doctrine\DBAL\DBALException;
 use MadeYourDay\RockSolidCustomElements\Element\CustomElement;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
+use MadeYourDay\RockSolidSlider\Module\Slider;
 use Psr\Log\LogLevel;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
@@ -657,7 +658,7 @@ class CustomElements
 		$paletteFields[] = 'rsce_data';
 
 		$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] = static::generatePalette(
-			$dc->table,
+			$dc,
 			$paletteFields,
 			$standardFields
 		);
@@ -1145,7 +1146,7 @@ class CustomElements
 			}
 
 			$GLOBALS['TL_DCA'][$dc->table]['palettes'][$type] = static::generatePalette(
-				$dc->table,
+				$dc,
 				$paletteFields,
 				$standardFields
 			);
@@ -1208,13 +1209,14 @@ class CustomElements
 	/**
 	 * Generates the palette definition
 	 *
-	 * @param  string $table          "tl_content", "tl_module" or "tl_form_field"
+	 * @param  DataContainer $dc      Data container
 	 * @param  array  $paletteFields  Palette fields
 	 * @param  array  $standardFields Standard fields
 	 * @return string                 Palette definition
 	 */
-	protected static function generatePalette($table, array $paletteFields = array(), array $standardFields = array())
+	protected static function generatePalette($dc, array $paletteFields = array(), array $standardFields = array())
 	{
+		$table = $dc->table;
 		$palette = '';
 
 		if ($table === 'tl_module') {
@@ -1234,6 +1236,19 @@ class CustomElements
 			}
 			if (in_array('text', $standardFields)) {
 				$palette .= ';{text_legend},text';
+			}
+			if (in_array('slider', $standardFields) && \in_array($table, ['tl_content', 'tl_module'], true) && class_exists(Slider::class)) {
+				if (!static::getDcaFieldValue($dc, 'rsce_slider')) {
+					$sliderPalette = ';{rocksolid_slider_legend},rsce_slider';
+				}
+				elseif (static::getDcaFieldValue($dc, 'rsts_import_settings')) {
+					$sliderPalette = ';{rocksolid_slider_legend},rsce_slider,' . explode(';', explode('{rocksolid_slider_legend},', $GLOBALS['TL_DCA'][$table]['palettes']['rocksolid_sliderrsts_import_settingsrsts_default'] ?? '')[1] ?? '')[0];
+				}
+				else {
+					$sliderPalette = ';{rocksolid_slider_legend},rsce_slider,' . explode(';{template_legend', explode('{rocksolid_slider_legend},', $GLOBALS['TL_DCA'][$table]['palettes']['rocksolid_sliderrsts_default'] ?? '')[1] ?? '')[0];
+				}
+				$sliderPalette = preg_replace('/,(rsts_id|rsts_thumbs_imgSize)(?=[,;])/', '', $sliderPalette);
+				$palette .= $sliderPalette;
 			}
 		}
 

@@ -19,6 +19,7 @@ use Contao\Validator;
 use MadeYourDay\RockSolidColumns\Element\ColumnsStart;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
 use MadeYourDay\RockSolidCustomElements\CustomElements;
+use MadeYourDay\RockSolidSlider\Module\Slider;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -183,6 +184,15 @@ class CustomElement extends ContentElement
 
 		foreach ($data as $key => $value) {
 			$this->Template->$key = $value;
+		}
+
+		if ($this->rsce_slider && class_exists(Slider::class)) {
+			$slider = new Slider($this->objModel, $this->strColumn);
+			$this->Template->slider = $slider->generateSliderConfig();
+
+			// Merge imported CSS classes
+			$this->arrData['cssID'][1] = ($this->arrData['cssID'][1] ?? '') . ' ' . ($this->Template->slider['cssID'][1] ?? '');
+			$this->Template->cssID = $this->arrData['cssID'];
 		}
 
 		$self = $this;
