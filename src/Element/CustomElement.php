@@ -192,9 +192,9 @@ class CustomElement extends ContentElement
 	 */
 	protected function deserializeDataRecursive($data)
 	{
-        if (empty($data)) {
-            $data = array();
-        }
+		if (empty($data)) {
+			$data = array();
+		}
 
 		foreach ($data as $key => $value) {
 			if (is_string($value) && trim($value)) {
