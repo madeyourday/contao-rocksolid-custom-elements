@@ -88,6 +88,11 @@ class CustomTemplate extends FrontendTemplate
 			return $templates;
 		}
 
+		if (!method_exists(parent::class, 'getTemplate')) {
+            return array();
+		}
+
+
 		return array(parent::getTemplate($template, $format));
 	}
 
