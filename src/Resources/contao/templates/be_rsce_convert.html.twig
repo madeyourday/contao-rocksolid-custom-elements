@@ -1,0 +1,33 @@
+{% trans_default_domain 'contao_rocksolid_custom_elements' %}
+
+<div id="tl_maintenance_rsce_convert" class="maintenance_{{ isActive ? 'active' : 'inactive' }}">
+
+    <h2 class="sub_headline">{{ 'rocksolid_custom_elements.convert_headline'|trans }}</h2>
+
+    {% if isActive %}
+        {% if failedElements|default %}
+            <div class="tl_message">
+                {% for element in failedElements %}
+                    <p class="tl_error"><b>FAILED:</b> {{ element[0]|default ~ '-element, ID: ' ~ element[1]|default ~ ', Template: ' ~ element[2]|default }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="tl_message">
+            <p class="tl_confirm">{{ 'rocksolid_custom_elements.convert_success'|trans([elementsCount]) }}</p>
+        </div>
+    {% else %}
+        <form action="{{ action }}" class="tl_form" method="get" onsubmit="return window.confirm({{ 'rocksolid_custom_elements.convert_confirm'|trans|e('js') }})">
+            <div class="tl_formbody_edit">
+                <input type="hidden" name="act" value="rsce_convert">
+                <input type="hidden" name="do" value="maintenance">
+                <input type="hidden" name="rt" value="{{ contao.request_token }}">
+                <div class="tl_tbox">
+                    <p>{{ 'rocksolid_custom_elements.convert_description'|trans }}</p>
+                </div>
+            </div>
+            <div class="tl_submit_container">
+                <input type="submit" id="rsce_convert" class="tl_submit" value="{{ 'rocksolid_custom_elements.convert_submit'|trans }}">
+            </div>
+        </form>
+    {% endif %}
+</div>
