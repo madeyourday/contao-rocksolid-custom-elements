@@ -1,0 +1,5 @@
+{# closing the parent div element to make nested elements possible #}
+</div>{% if widgetGroup %}</div>{% endif %}
+{{ generate|raw }}
+{# starting a div element to keep the correct element structure #}
+{% if widgetGroup %}<div class="widget-group">{% endif %}<div style="display: none">
