@@ -16,7 +16,7 @@
             <p class="tl_confirm">{{ 'rocksolid_custom_elements.convert_success'|trans([elementsCount]) }}</p>
         </div>
     {% else %}
-        <form action="{{ action }}" class="tl_form" method="get" onsubmit="return window.confirm({{ 'rocksolid_custom_elements.convert_confirm'|trans|e('js') }})">
+        <form action="{{ action }}" class="tl_form" method="get" onsubmit="return window.confirm('{{ 'rocksolid_custom_elements.convert_confirm'|trans|e('js') }}')">
             <div class="tl_formbody_edit">
                 <input type="hidden" name="act" value="rsce_convert">
                 <input type="hidden" name="do" value="maintenance">
