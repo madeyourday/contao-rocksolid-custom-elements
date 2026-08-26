@@ -12,6 +12,7 @@ use Contao\Backend;
 use Contao\BackendUser;
 use Contao\Config;
 use Contao\Controller;
+use Contao\CoreBundle\ContaoCoreBundle;
 use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\Database;
 use Contao\DataContainer;
@@ -632,13 +633,6 @@ class CustomElements
 			return;
 		}
 
-		$assetsDir = 'bundles/rocksolidcustomelements';
-
-		if (System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest(System::getContainer()->get('request_stack')->getCurrentRequest() ?? Request::create(''))) {
-			$GLOBALS['TL_JAVASCRIPT'][] = $assetsDir . '/js/be_main.js';
-			$GLOBALS['TL_CSS'][] = $assetsDir . '/css/be_main.css';
-		}
-
 		$paletteFields = array();
 		$standardFields = is_array($config['standardFields'] ?? null) ? $config['standardFields'] : array();
 		$this->fieldsConfig = $config['fields'];
@@ -653,7 +647,7 @@ class CustomElements
 			}
 		}
 
-		$GLOBALS['TL_DCA'][$dc->table]['fields']['rsce_data']['eval']['rsceScript'] = 'window.rsceInit([...document.querySelectorAll("script")].pop().closest(".tl_formbody_edit"));';
+		$GLOBALS['TL_DCA'][$dc->table]['fields']['rsce_data']['eval']['rsceScript'] = 'window.rsceInit(document.currentScript.closest(".tl_formbody_edit"));';
 
 		$paletteFields[] = 'rsce_data';
 
@@ -1227,9 +1221,20 @@ class CustomElements
 			$palette .= ',type';
 		}
 		else {
-			$palette .= '{type_legend},type';
+			$palette .= '{type_legend}';
+			if (version_compare(ContaoCoreBundle::getVersion(), '5.6', '>=')) {
+				if ($table === 'tl_content') {
+					$palette .= ',title';
+				}
+			}
+			else {
+				$palette .= ',type';
+			}
 			if ($table === 'tl_content' && in_array('headline', $standardFields)) {
 				$palette .= ',headline';
+			}
+			if (version_compare(ContaoCoreBundle::getVersion(), '5.6', '>=')) {
+				$palette .= ',type';
 			}
 			if (in_array('columns', $standardFields)) {
 				$palette .= ';{rs_columns_legend},' . explode(';', explode('{rs_columns_legend},', $GLOBALS['TL_DCA']['tl_content']['palettes']['rs_columns_start'] ?? '')[1] ?? '')[0];

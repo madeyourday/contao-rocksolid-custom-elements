@@ -21,6 +21,11 @@ class DummyModel extends Model
 	/**
 	 * {@inheritdoc}
 	 */
+	protected static $strTable = 'tl_form_field';
+
+	/**
+	 * {@inheritdoc}
+	 */
 	public function __construct(?Result $objResult = null, $data = array())
 	{
 		$this->arrModified = array();

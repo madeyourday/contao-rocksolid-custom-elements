@@ -25,9 +25,21 @@ class GroupStart extends Widget
 	protected $blnSubmitInput = false;
 
 	/**
+	 * @var boolean Widget group wrapper
+	 */
+	protected $widgetGroup = false;
+
+	/**
 	 * @var string Template
 	 */
 	protected $strTemplate = 'be_rsce_group';
+
+	public function __construct($arrAttributes = null)
+	{
+		parent::__construct($arrAttributes);
+
+		$this->widgetGroup = version_compare(ContaoCoreBundle::getVersion(), '5.4', '>=');
+	}
 
 	/**
 	 * Generate the widget and return it as string
@@ -61,9 +73,12 @@ class GroupStart extends Widget
 				. ' data-contao--jump-targets-label-value="' . $this->strLabel . '"'
 				. ' data-action="contao--jump-targets:scrollto->contao--toggle-fieldset#open"'
 				. '>'
-				. '<legend'
+				. '<legend>'
+				. '<button'
+				. ' type="button"'
 				. ' data-action="click->contao--toggle-fieldset#toggle"'
 				. '>' . $this->strLabel
+				. '</button>'
 				. '</legend>'
 				. ($this->description ? '<p class="rsce_group_description">' . $this->description . '</p>' : '');
 		} else {

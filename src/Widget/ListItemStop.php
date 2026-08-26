@@ -8,6 +8,7 @@
 
 namespace MadeYourDay\RockSolidCustomElements\Widget;
 
+use Contao\CoreBundle\ContaoCoreBundle;
 use Contao\Widget;
 
 /**
@@ -23,9 +24,21 @@ class ListItemStop extends Widget
 	protected $blnSubmitInput = false;
 
 	/**
+	 * @var boolean Widget group wrapper
+	 */
+	protected $widgetGroup = false;
+
+	/**
 	 * @var string Template
 	 */
 	protected $strTemplate = 'be_rsce_list';
+
+	public function __construct($arrAttributes = null)
+	{
+		parent::__construct($arrAttributes);
+
+		$this->widgetGroup = version_compare(ContaoCoreBundle::getVersion(), '5.4', '>=');
+	}
 
 	/**
 	 * Generate the widget and return it as string
