@@ -13,6 +13,15 @@ services:
     arguments:
       - '@database_connection'
 
+  MadeYourDay\RockSolidCustomElements\Migration\OutputEncodingMigration:
+    arguments:
+      - '@database_connection'
+
+  MadeYourDay\RockSolidCustomElements\Migration\PrepareForOutputEncodingMigration:
+    arguments:
+      - '@database_connection'
+      - '@contao.framework'
+
   MadeYourDay\RockSolidCustomElements\Twig\TwigExtension:
     arguments:
       - '@contao.image.imagine_svg'
