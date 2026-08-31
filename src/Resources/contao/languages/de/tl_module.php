@@ -13,3 +13,5 @@
  */
 
 $GLOBALS['TL_LANG']['tl_module']['rsce_data'][0] = 'Custom Elements Daten';
+$GLOBALS['TL_LANG']['tl_module']['rsce_slider'][0] = 'Slider aktivieren';
+$GLOBALS['TL_LANG']['tl_module']['rsce_slider'][1] = 'Aktiviert das Slider-Modul und alle zugehörigen Einstellungen.';

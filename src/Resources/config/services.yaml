@@ -2,9 +2,31 @@ services:
   _defaults:
     autoconfigure: true
 
+  MadeYourDay\RockSolidCustomElements\InsertTag\IconInsertTag:
+    arguments:
+      - '@twig'
+      - '@monolog.logger.contao.error'
+      - '%kernel.project_dir%'
+      - '%contao.web_dir%'
+
   MadeYourDay\RockSolidCustomElements\Migration\BasicEntitiesMigration:
     arguments:
       - '@database_connection'
+
+  MadeYourDay\RockSolidCustomElements\Migration\OutputEncodingMigration:
+    arguments:
+      - '@database_connection'
+
+  MadeYourDay\RockSolidCustomElements\Migration\PrepareForOutputEncodingMigration:
+    arguments:
+      - '@database_connection'
+      - '@contao.framework'
+
+  MadeYourDay\RockSolidCustomElements\Twig\TwigExtension:
+    arguments:
+      - '@contao.image.imagine_svg'
+      - '@contao.image.studio'
+      - '%kernel.project_dir%'
 
   MadeYourDay\RockSolidCustomElements\EventListener\AddAssetsListener:
     arguments:

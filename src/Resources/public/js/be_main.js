@@ -422,6 +422,17 @@ var newElementAtPosition = function(listElement, position) {
 	}
 	catch(e) {}
 
+	var rect = newItem.getBoundingClientRect();
+	if (
+		rect.top > document.documentElement.clientHeight
+		|| rect.bottom < 0
+	) {
+		setTimeout(() => {
+			newItem.scrollIntoView({
+				behavior: 'smooth',
+			});
+		})
+	}
 };
 
 var copyTinyMceConfigs = function(origItem, origKey, newItem, newKey) {
@@ -554,6 +565,17 @@ var duplicateElement = function(linkElement) {
 	updateListButtons(element.getParent('.rsce_list'));
 	updateDependingFields(newItem);
 
+	var rect = newItem.getBoundingClientRect();
+	if (
+		rect.top > document.documentElement.clientHeight
+		|| rect.bottom < 0
+	) {
+		setTimeout(() => {
+			newItem.scrollIntoView({
+				behavior: 'smooth',
+			});
+		})
+	}
 };
 
 var deleteElement = function(linkElement) {
@@ -726,6 +748,11 @@ var initList = function(listElement) {
 			input.setProperty('data-rsce-required', 'data-rsce-required');
 		}
 		dummyFields.push(input.get('name').split('[')[0]);
+	});
+
+	// Remove autofocus targets to avoid autofocus getting triggered during element creation
+	listElement.getElements('[data-contao--scroll-offset-target=autoFocus]').each(function(el) {
+		el.removeAttribute('data-contao--scroll-offset-target');
 	});
 
 	var parentForm = listElement.getParent('form');

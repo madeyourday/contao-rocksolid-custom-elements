@@ -25,13 +25,15 @@
 		"contao/manager-plugin": "^2.0"
 	},
 	"suggest": {
-		"madeyourday/contao-rocksolid-columns": "For grid column support. See documentation for more information."
+		"madeyourday/contao-rocksolid-columns": "For grid column support. See documentation for more information.",
+		"madeyourday/contao-rocksolid-slider": "For slider support. See documentation for more information."
 	},
 	"conflict": {
 		"contao/core": "*",
 		"contao/core-bundle": "4.4.1",
 		"contao/manager-plugin": "<2.0 || >=3.0",
-		"madeyourday/contao-rocksolid-frontend-helper": "<=2.1.2"
+		"madeyourday/contao-rocksolid-frontend-helper": "<=2.1.2",
+		"madeyourday/contao-rocksolid-slider": "<=2.2.9 || >=3.0"
 	},
 	"autoload":{
 		"psr-4": {

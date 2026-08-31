@@ -68,7 +68,7 @@ class GroupStart extends Widget
 				. '<fieldset'
 				. ' id="pal_' . $this->strId . '"'
 				. ' class="' . implode(' ', $classes) . '"'
-				. ' data-controller="contao--toggle-fieldset" data-contao--toggle-fieldset-id-value="pal_' . $this->strId . '"'
+				. ' data-controller="contao--toggle-fieldset" data-contao--toggle-fieldset-id-value="' . $this->strId . '"'
 				. ' data-contao--toggle-fieldset-table-value="' . $this->strTable . '"'
 				. ' data-contao--toggle-fieldset-collapsed-class="collapsed"'
 				. ' data-contao--jump-targets-target="section"'

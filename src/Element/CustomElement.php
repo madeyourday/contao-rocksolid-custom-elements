@@ -19,6 +19,7 @@ use Contao\Validator;
 use MadeYourDay\RockSolidColumns\Element\ColumnsStart;
 use MadeYourDay\RockSolidCustomElements\Template\CustomTemplate;
 use MadeYourDay\RockSolidCustomElements\CustomElements;
+use MadeYourDay\RockSolidSlider\Module\Slider;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -29,9 +30,22 @@ use Symfony\Component\HttpFoundation\Request;
 class CustomElement extends ContentElement
 {
 	/**
+	 * @var list<string|\Closure>
+	 */
+	private static $compileCallbacks = [];
+
+	/**
 	 * @var string Template
 	 */
 	protected $strTemplate = 'rsce_default';
+
+	/**
+	 * @internal
+	 */
+	public static function registerCompileCallback(string $type, string $callbackPath): void
+	{
+		static::$compileCallbacks[$type] = System::getContainer()->getParameter('kernel.project_dir') . '/' . $callbackPath;
+	}
 
 	/**
 	 * Find the correct template and parse it
@@ -172,6 +186,15 @@ class CustomElement extends ContentElement
 			$this->Template->$key = $value;
 		}
 
+		if ($this->rsce_slider && class_exists(Slider::class)) {
+			$slider = new Slider($this->objModel, $this->strColumn);
+			$this->Template->slider = $slider->generateSliderConfig();
+
+			// Merge imported CSS classes
+			$this->arrData['cssID'][1] = ($this->arrData['cssID'][1] ?? '') . ' ' . ($this->Template->slider['cssID'][1] ?? '');
+			$this->Template->cssID = $this->arrData['cssID'];
+		}
+
 		$self = $this;
 
 		$this->Template->getImageObject = function() use($self) {
@@ -182,6 +205,14 @@ class CustomElement extends ContentElement
 		};
 
 		$this->addFragmentControllerDefaults();
+
+		if (\is_string(static::$compileCallbacks[$this->type] ?? null)) {
+			static::$compileCallbacks[$this->type] = include static::$compileCallbacks[$this->type];
+		}
+
+		if ($closure = static::$compileCallbacks[$this->type] ?? null) {
+			$closure($this->Template, $this);
+		}
 	}
 
 	/**
@@ -212,9 +243,13 @@ class CustomElement extends ContentElement
 		}
 
 		if ($data instanceof \stdClass) {
-			$return = new class extends \stdClass{
+			$return = new class extends \stdClass implements \IteratorAggregate {
 				public function __get($name) {
 					return null;
+				}
+				public function getIterator(): \Traversable
+				{
+					return new \ArrayIterator(get_object_vars($this));
 				}
 			};
 			foreach ($data as $key => $value) {
@@ -305,7 +340,7 @@ class CustomElement extends ContentElement
 		}
 
 		// Legacy templates access the text using `$this->headline`, twig templates use `headline.text`
-		$this->Template->headline = new class($this->Template->headline, $this->Template->hl) implements \Stringable
+		$this->Template->headline = new class($this->Template->headline, $this->Template->hl) implements \Stringable, \IteratorAggregate
 		{
 			public ?string $text;
 			public ?string $tag_name;
@@ -324,6 +359,11 @@ class CustomElement extends ContentElement
 			public function __invoke(): string
 			{
 				return $this->text ?? '';
+			}
+
+			public function getIterator(): \Traversable
+			{
+				return new \ArrayIterator(get_object_vars($this));
 			}
 		};
 
