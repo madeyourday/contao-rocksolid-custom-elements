@@ -57,11 +57,9 @@ class ListStart extends Widget
 		$classes = [$this->arrConfiguration['tl_class'] ?? '', 'tl_box', 'rsce_list'];
 		$fs = System::getContainer()->get('request_stack')->getSession()->getBag('contao_backend')->get('fieldset_states');
 
-		$fieldsetId = 'pal_' . $this->strId;
-
 		if (
-			(isset($fs[$this->strTable][$fieldsetId]) && !$fs[$this->strTable][$fieldsetId])
-			|| (!isset($fs[$this->strTable][$fieldsetId]) && !empty($this->arrConfiguration['collapsed']))
+			(isset($fs[$this->strTable][$this->strId]) && !$fs[$this->strTable][$this->strId])
+			|| (!isset($fs[$this->strTable][$this->strId]) && !empty($this->arrConfiguration['collapsed']))
 		) {
 			$classes[] = 'collapsed';
 		}
@@ -77,7 +75,7 @@ class ListStart extends Widget
 				. '<fieldset'
 				. ' id="pal_' . $this->strId . '"'
 				. ' class="' . implode(' ', $classes) . '"'
-				. ' data-controller="contao--toggle-fieldset" data-contao--toggle-fieldset-id-value="pal_' . $this->strId . '"'
+				. ' data-controller="contao--toggle-fieldset" data-contao--toggle-fieldset-id-value="' . $this->strId . '"'
 				. ' data-contao--toggle-fieldset-table-value="' . $this->strTable . '"'
 				. ' data-contao--toggle-fieldset-collapsed-class="collapsed"'
 				. ' data-contao--jump-targets-target="section"'
