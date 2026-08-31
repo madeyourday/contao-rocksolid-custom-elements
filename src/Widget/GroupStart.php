@@ -53,9 +53,11 @@ class GroupStart extends Widget
 		$classes = [$this->arrConfiguration['tl_class'] ?? '', 'tl_box', 'rsce_group'];
 		$fs = System::getContainer()->get('request_stack')->getSession()->getBag('contao_backend')->get('fieldset_states');
 
+		$fieldsetId = 'pal_' . $this->strId;
+
 		if (
-			(isset($fs[$this->strTable][$this->strId]) && !$fs[$this->strTable][$this->strId])
-			|| (!isset($fs[$this->strTable][$this->strId]) && !empty($this->arrConfiguration['collapsed']))
+			(isset($fs[$this->strTable][$fieldsetId]) && !$fs[$this->strTable][$fieldsetId])
+			|| (!isset($fs[$this->strTable][$fieldsetId]) && !empty($this->arrConfiguration['collapsed']))
 		) {
 			$classes[] = 'collapsed';
 		}
