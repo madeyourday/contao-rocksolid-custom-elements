@@ -8,7 +8,9 @@
 
 namespace MadeYourDay\RockSolidCustomElements\Template;
 
+use Contao\CoreBundle\ContaoCoreBundle;
 use Contao\FrontendTemplate;
+use Contao\StringUtil;
 use Contao\System;
 use Contao\ThemeModel;
 use Symfony\Component\Filesystem\Path;
@@ -20,6 +22,18 @@ use Symfony\Component\Filesystem\Path;
  */
 class CustomTemplate extends FrontendTemplate
 {
+	public function parse()
+	{
+		if (
+			version_compare(ContaoCoreBundle::getVersion(), '6.0', '>=')
+			&& $template = self::getTemplates($this->strTemplate, 'html.twig')[0] ?? null
+		) {
+			$this->strTemplate = preg_replace('(^templates/(.*)\.html\.twig$)i', '$1', StringUtil::stripRootDir($template));
+		}
+
+		return parent::parse();
+	}
+
 	/**
 	 * {@inheritdoc}
 	 */
