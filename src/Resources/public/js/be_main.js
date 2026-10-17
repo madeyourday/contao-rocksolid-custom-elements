@@ -516,15 +516,29 @@ var duplicateElement = function(linkElement) {
 	removeTinyMCEs(element);
 	removePicker(listInner);
 	restoreSelectorScripts(element);
-	persistSelects(element);
 	preserveRadioButtons(listInner);
+	var previous = element.previousElementSibling;
 
+	element.remove();
+	queueMicrotask(function() {
+		duplicateDetachedElement(element, listInner, previous);
+	});
+
+};
+
+var duplicateDetachedElement = function(element, listInner, previous) {
+	persistSelects(element);
 	var newItem = element.cloneNode(true);
 
 	copyTinyMceConfigs(element, element.get('data-rsce-name'), newItem, element.get('data-rsce-name'));
 	removeACEs(newItem);
 
-	newItem.inject(element, 'after');
+	if (previous) {
+		previous.after(element, newItem);
+	}
+	else {
+		listInner.prepend(element, newItem);
+	}
 
 	renameElement(newItem);
 	restoreChosens(newItem);
@@ -599,7 +613,7 @@ var deleteElement = function(linkElement) {
 	if (listInner.retrieve('listSort')) {
 		listInner.retrieve('listSort').removeItems(element);
 	}
-	element.destroy();
+	element.remove();
 	nextElements.each(function(nextElement) {
 		removeTinyMCEs(nextElement);
 	});
